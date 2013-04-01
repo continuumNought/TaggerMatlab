@@ -1,0 +1,59 @@
+%% Publish the documentation in this directory
+%
+
+
+% %% Set up for the scripts:
+% baseDirectory = pwd;
+% publish_options.outputDir = baseDirectory;
+% publish_options.maxHeight = 300;
+% scriptNames = { ...
+%                'eegvis_functions_by_cat', ...
+%                'eegvis_product_page', ...
+%                'eegvis_getting_started', ...
+%                'eegvis_release_notes', ...
+%                'eegvis_system_requirements', ...
+%                'eegvis_user_guide'};
+% 
+% for k = 1:length(scriptNames)
+%    publish([scriptNames{k} '.m'], publish_options);
+% end
+% close all
+% clear all
+
+% %% Publish the function scripts
+% baseDirectory = pwd;
+% publish_options.outputDir = baseDirectory;
+% publish_options.maxHeight = 300;
+% topLevelScripts = { ...
+%               'eegbrowse_help', ...
+%               'eegplugin_eegvis_help', ...
+%               'eegvis_help', ...
+%               'pop_eegbrowse_help', ...
+%               'pop_eegvis_help' ...
+%               };
+%           
+% for k = 1:length(topLevelScripts)
+%    publish([topLevelScripts{k} '.m'], publish_options);
+% end
+% close all
+% clear all
+
+%% Publish the function scripts
+baseDirectory = pwd;
+publish_options.outputDir = baseDirectory;
+publish_options.maxHeight = 300;
+coreScripts = { ...
+              'cTagger_getEEGDirEventTags_help', ...
+              'cTagger_getEEGEventTags_help', ...             
+              'cTagger_tagEEG_help', ...
+              'cTagger_tagEEGDir_help', ...
+              'cTagger_tagThis_help' ...
+              };
+          
+for k = 1:length(coreScripts)
+   publish([coreScripts{k} '.m'], publish_options);
+end
+close all
+clear all
+
+%

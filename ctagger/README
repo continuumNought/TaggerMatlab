@@ -1,0 +1,41 @@
+The ctagger package provides interfaces for user to tag events using a
+user-expandable hierarcharical tagging ontology. The HED Specification
+hierarchy, developed by Nima Bigdely-Shamlo of UCSD is provided with the
+distribution for users wishing to tag events in EEG experiments. (See the
+user's manual for 
+
+MATLAB:
+       To test in MATLAB run the testScript.m file after adding ctagger
+       and its subdirectories to the path.  
+
+Unit tests:   
+       Add the ctagger directory and its subdirectories to the MATLAB path.  
+       In the tests directory, type runtests.
+
+
+Trying it out:
+       The testScript.m contains tests
+
+GUI operation:
+
+To tag:    
+     You can drag and drop tags from right side to left side
+
+     Alternatively you can highlight an event in the left side --- and click events on right side to add
+
+     To edit anything --- click the push pin next to it and a menu appears on the bottom
+
+     You can type the start of the tag and the pull down will give partial matches
+
+Other:
+      Change font size by hovering over top menu and clicking +/-
+
+Right now deletion is allowed on everything......this can be turned off and 
+on but configuration of this has been turned off.
+
+
+If you want to call the GUI separately from MATLAB --- say from the command line
+
+java -jar  ctagger.jar "F:\temp\HED Specification 1.2.xml"
+
+You have to give the full pathname to HED and need the quotes because of the blanks.
