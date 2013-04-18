@@ -8,17 +8,30 @@ function eTags = tagEvents(eTags, varargin)
           @(x) any(validatestring(x, ...
           {'Merge', 'Replace', 'TagsOnly', 'Update', 'NoUpdate'})));
     parser.addParamValue('UseGUI', true, @islogical);
+    parser.addParamValue('Synchronize', true, @islogical);
     parser.parse(eTags, varargin{:});
     p = parser.Results;
     eTags = p.ETags;
     eTags.mergeEventTags(p.BaseTags, p.UpdateType)
     if p.UseGUI
         hed = char(eTags.getHedXML());              
-        tEvents = char(eTags.getJsonEvents());          
-        taggedList = char(edu.utsa.tagger.controller.Controller.showDialog( ...
-            hed, tEvents, true));
-        drawnow
-        eTags.reset(char(strtrim(taggedList(1, :))), ...
-                    eventTags.json2Events(char(strtrim(taggedList(2, :)))));
+        tEvents = char(eTags.getJsonEvents());
+        if p.Synchronize
+            taggedList = edu.utsa.tagger.controller.Controller.showDialog( ...
+                           hed, tEvents, true);
+            tags = char(taggedList(1, :));
+            events = char(taggedList(2, :));
+        else
+            ctrl = javaObjectEDT('edu.utsa.tagger.controller.Controller', ...
+                           hed, tEvents, true);
+            notified = ctrl.getNotified();
+            while (~notified)
+                pause(5);
+                notified = ctrl.getNotified();
+            end
+            tags = char(ctrl.getHedString());
+            events = char(ctrl.getEventString(true));  
+        end
+        eTags.reset(strtrim(tags), eventTags.json2Events(strtrim(events)));
     end
 end % tagEvents     

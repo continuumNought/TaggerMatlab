@@ -14,6 +14,7 @@ function eTags = tagEEGStudy(studyFile, varargin)
           @(x) any(validatestring(x, ...
           {'Merge', 'Replace', 'TagsOnly', 'Update', 'NoUpdate'})));
     parser.addParamValue('UseGUI', true, @islogical);
+    parser.addParamValue('Synchronize', true, @islogical);
     parser.parse(studyFile, varargin{:});
     p = parser.Results;
  
@@ -25,7 +26,8 @@ function eTags = tagEEGStudy(studyFile, varargin)
     eTags = getEEGGroupEventTags(fPaths);
     baseTags = eventTags.loadTagFile(p.BaseTagsFile);
     eTags = tagEvents(eTags, 'BaseTags', baseTags, ...
-                     'UpdateType', p.UpdateType, 'UseGUI', p.UseGUI);
+                     'UpdateType', p.UpdateType, 'UseGUI', p.UseGUI, ...
+                     'Synchronize', p.Synchronize);
   
     if strcmpi(p.UpdateType, 'NoUpdate')
         return;
@@ -53,41 +55,41 @@ function eTags = tagEEGStudy(studyFile, varargin)
     
     
     function [s, fNames] = loadStudyInfo(studyFile)
-            % Set baseTags if tagsFile contains an eventTags object
-            try
-                t = load('-mat', studyFile);
-                tFields = fieldnames(t); 
-                s = t.(tFields{1});
-                sPath = fileparts(studyFile);
-                fNames = getStudyFiles(s, sPath);
-            catch ME %#ok<NASGU>
-                warning('tagEEGStudy:loadStudyFile', 'Invalid study file');          
-                s = '';
-                fNames = '';
-            end
+        % Set baseTags if tagsFile contains an eventTags object
+        try
+            t = load('-mat', studyFile);
+            tFields = fieldnames(t);
+            s = t.(tFields{1});
+            sPath = fileparts(studyFile);
+            fNames = getStudyFiles(s, sPath);
+        catch ME %#ok<NASGU>
+            warning('tagEEGStudy:loadStudyFile', 'Invalid study file');
+            s = '';
+            fNames = '';
+        end
     end % loadStudyInfo
 
     function fNames = getStudyFiles(study, sPath)
-            % Set baseTags if tagsFile contains an eventTags object
-               datasets = {study.datasetinfo.filename};
-               paths = {study.datasetinfo.filepath};
-               validPaths = true(size(paths));
-               fNames = cell(size(paths));
-               for ik = 1:length(paths)
-                   fName = fullfile(paths{ik}, datasets{ik}); % Absolute path
-                   if ~exist(fName, 'file')  % Relative to stored study path
-                       fName = fullfile(study.filepath, paths{ik}, datasets{ik});
-                   end
-                   if ~exist(fName, 'file') % Relative to actual study path
-                      fName = fullfile(sPath, paths{ik}, datasets{ik});
-                   end
-                   if ~exist(fName, 'file') % Give up
-                       warning('tagEEGStudy:getStudyFiles', ...
-                           ['Study file ' fname ' doesn''t exist']);
-                       validPaths(ik) = false;
-                   end
-                   fNames{ik} = fName;
-               end
-               fNames(~validPaths) = [];  % Get rid of invalid paths
+        % Set baseTags if tagsFile contains an eventTags object
+        datasets = {study.datasetinfo.filename};
+        paths = {study.datasetinfo.filepath};
+        validPaths = true(size(paths));
+        fNames = cell(size(paths));
+        for ik = 1:length(paths)
+            fName = fullfile(paths{ik}, datasets{ik}); % Absolute path
+            if ~exist(fName, 'file')  % Relative to stored study path
+                fName = fullfile(study.filepath, paths{ik}, datasets{ik});
+            end
+            if ~exist(fName, 'file') % Relative to actual study path
+                fName = fullfile(sPath, paths{ik}, datasets{ik});
+            end
+            if ~exist(fName, 'file') % Give up
+                warning('tagEEGStudy:getStudyFiles', ...
+                    ['Study file ' fname ' doesn''t exist']);
+                validPaths(ik) = false;
+            end
+            fNames{ik} = fName;
+        end
+        fNames(~validPaths) = [];  % Get rid of invalid paths
     end % getStudyFiles
 end % tagEEGStudy

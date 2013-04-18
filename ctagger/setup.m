@@ -1,5 +1,6 @@
 %%
-EEGLABPATH = 'F:\Research\NeuroErgonomics\eeglab11_0_0_0b';
+%EEGLABPATH = 'F:\Research\NeuroErgonomics\eeglab11_0_0_0b';
+EEGLABPATH = 'G:\CommunityTags\TaggerMatlab\eeglab11_0_4_3b';
 wPath = which('eeglab.m');
 if isempty(wPath) && isdir(EEGLABPATH)
     fprintf('Adding default EEGLAB path %s\n', EEGLABPATH);   

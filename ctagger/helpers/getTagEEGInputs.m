@@ -25,6 +25,9 @@ function [baseTagsFile, updateType, onlyType, ...
     movegui(inputFig); % Make sure it is visible
     drawnow
     uiwait(inputFig);
+    if ishandle(inputFig)
+        close(inputFig);
+    end
 
 
     function buttons = createButtonPanel(parent)
@@ -189,14 +192,12 @@ function [baseTagsFile, updateType, onlyType, ...
         updateCtrl = '';
         updateType = 'TagsOnly';
         useGUI = true;
-        fprintf('In Cancel\n');
         close(inputFig);
     end % browseTagsCallback
 
     function okayCallback(src, eventdata)  %#ok<INUSD>
         % Callback for closing GUI window
         isCancelled = false;
-        fprintf('In Okay\n');
         close(inputFig);
     end % okayCallback
 

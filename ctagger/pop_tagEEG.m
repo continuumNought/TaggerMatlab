@@ -60,19 +60,19 @@ end;
 % Create the tagger for this EEG set
 [baseTagsFile, updateType, onlyType, saveTagsFile, useGUI, isCancelled] ...
           = getTagEEGInputs();
-fprintf(stderr, 'Now tagging EEG....\n');
+fprintf(2, 'Now tagging EEG....\n');
 if isCancelled
     return;
 end
-fprintf('Now tagging EEG....\n');
-EEG
+
 EEG = tagEEG(EEG, 'BaseTagsFile', baseTagsFile, 'OnlyType', onlyType, ...
              'TagFileName', saveTagsFile,'UpdateType', updateType, ...
-             'UseGUI', useGUI);
-% formatString = ['%s = pop_tagEEG(%s, ''BaseTagsFile'', ''' baseTagsFile ''', '...
-%        '''OnlyType'', ' num2str(onlyType) ', ''TagFileName'', ''' saveTagsFile ''', ' ...
-%        '''UpdateType'', ' updateType ', ''UseGui'', ' num2str(useGUI) ')'];
-% com = sprintf(formatString, inputname(1), inputname(1));
+             'UseGUI', useGUI, 'Synchronize', false);
+formatString = ['%s = pop_tagEEG(%s, ''BaseTagsFile'', ''' baseTagsFile ''', '...
+       '''OnlyType'', ' num2str(onlyType) ', ''TagFileName'', ''' saveTagsFile ''', ' ...
+       '''UpdateType'', ' updateType ', ''UseGui'', ' ...
+       num2str(useGUI) ', ''Synchronize'', ' num2str(false) ')'];
+com = sprintf(formatString, inputname(1), inputname(1));
 
 
   

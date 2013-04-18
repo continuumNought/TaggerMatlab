@@ -13,6 +13,7 @@ function [eTags, fPaths] = tagEEGDir(inDir, varargin)
           @(x) any(validatestring(x, ...
           {'Merge', 'Replace', 'TagsOnly', 'Update', 'NoUpdate'})));
     parser.addParamValue('UseGUI', true, @islogical);
+    parser.addParamValue('Synchronize', true, @islogical);
     parser.parse(inDir, varargin{:});
     p = parser.Results;
     % Consolidate all of the tags from the input directory and base
@@ -20,7 +21,8 @@ function [eTags, fPaths] = tagEEGDir(inDir, varargin)
     eTags = getEEGGroupEventTags(fPaths);
     baseTags = eventTags.loadTagFile(p.BaseTagsFile);
     eTags = tagEvents(eTags, 'BaseTags', baseTags, ...
-        'UpdateType', p.UpdateType, 'UseGUI', p.UseGUI);
+        'UpdateType', p.UpdateType, 'UseGUI', p.UseGUI, ...
+        'Synchronize', p.Synchronize);
 
     % Save the tags file for next step
     if ~isempty(p.TagFileName) || ...
@@ -41,7 +43,8 @@ function [eTags, fPaths] = tagEEGDir(inDir, varargin)
     for k = 1:length(fPaths) % Assemble the list
         teeg = pop_loadset(fPaths{k});
         teeg = tagEEG(teeg, 'BaseTagsFile', bName, ...
-              'UpdateType', p.UpdateType, 'UseGUI', false);
+              'UpdateType', p.UpdateType, 'UseGUI', false, ...
+              'Synchronize', p.Synchronize);
         pop_saveset(teeg, 'filename', fPaths{k});
     end
 end % tagEEGDir

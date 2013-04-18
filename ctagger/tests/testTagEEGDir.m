@@ -52,6 +52,13 @@ attnEvents2 = eTags2.getEvents();
 assertEqual(length(attnEvents2), 17);
 assertEqual(length(fPaths2), 6);
 
+fprintf('It should work for the attention shift data with GUI and no synchronization\n');
+thisDir = [values.TestDirectory filesep values.Attn];
+[eTags2, fPaths2] = tagEEGDir(thisDir, 'UseGui', true, 'Synchronize', false);
+attnEvents2 = eTags2.getEvents();
+assertEqual(length(attnEvents2), 17);
+assertEqual(length(fPaths2), 6);
+
 function testTagEEGDirBCI2000(values)  %#ok<DEFNU>
 % Unit test for cTagger tagEEGDIR static method 
 fprintf('\nUnit tests for cTagger tagEEG static method for BCI2000\n');
@@ -66,6 +73,13 @@ assertEqual(length(fPaths3), 42);
 fprintf('It should work for the BCI 2000 data witht GUI\n');
 thisDir = [values.TestDirectory filesep values.BCI2000];
 [eTags4, fPaths4] = tagEEGDir(thisDir);
+bci2000Events4 = eTags4.getEvents();
+assertEqual(length(bci2000Events4), 17);
+assertEqual(length(fPaths4), 42);
+
+fprintf('It should work for the BCI 2000 data witht GUI and no synchronization\n');
+thisDir = [values.TestDirectory filesep values.BCI2000];
+[eTags4, fPaths4] = tagEEGDir(thisDir, 'Synchronize', false);
 bci2000Events4 = eTags4.getEvents();
 assertEqual(length(bci2000Events4), 17);
 assertEqual(length(fPaths4), 42);

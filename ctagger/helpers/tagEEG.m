@@ -11,16 +11,12 @@ function [EEG, eTags] = tagEEG(EEG, varargin)
           @(x) any(validatestring(x, ...
           {'Merge', 'Replace', 'TagsOnly', 'Update', 'NoUpdate'})));
     parser.addParamValue('UseGUI', true, @islogical);
+    parser.addParamValue('Synchronize', true, @islogical);
     parser.parse(EEG, varargin{:});
     p = parser.Results;
     eTags = getEEGEventTags(p.EEG);
     baseTags = eventTags.loadTagFile(p.BaseTagsFile);
     eTags = tagEvents(eTags, 'BaseTags', baseTags, ...
-                  'UpdateType', p.UpdateType, 'UseGUI', p.UseGUI);
-    EEG.etc.eventTags = eTags.getJson();
-    if ~isempty(p.TagFileName) && ...
-        ~eventTags.saveTagFile(p.TagFileName, 'eTags')
-        warning('tagEEG:invalidFile', ...
-            ['Couldn''t save eventTags to ' p.TagFileName]);
-    end
+            'UpdateType', p.UpdateType, 'UseGUI', p.UseGUI, ...
+            'Synchronize', p.Synchronize);
 end % tagEEG

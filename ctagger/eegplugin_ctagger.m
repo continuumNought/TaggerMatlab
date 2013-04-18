@@ -88,7 +88,13 @@ function vers = eegplugin_ctagger(fig, trystrs, catchstrs)
     % Add tagging of directory of EEG
     finalcmd = '[~, ~, LASTCOM] = pop_tagEEGDir();';
     finalcmd =  [trystrs.no_check finalcmd catchstrs.add_to_hist];
-    uimenu(tagMenu, 'Label', 'Tag EEG Directory', 'Callback', finalcmd, ...
+    uimenu(tagMenu, 'Label', 'Tag EEG Directory', 'Callback', finalcmd);
+    
+    % Add tagging of current study 
+    studyMenu = findobj(fig, 'Label', 'Study');
+    finalcmd = '[~, ~, LASTCOM] = pop_tagEEGStudy();';
+    finalcmd =  [trystrs.no_check finalcmd catchstrs.add_to_hist];
+    uimenu(studyMenu, 'Label', 'Tag EEG Study', 'Callback', finalcmd, ...
         'Separator', 'on');
 
     
