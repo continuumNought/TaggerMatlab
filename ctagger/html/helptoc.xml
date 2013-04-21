@@ -30,17 +30,27 @@
         <tocitem target="ctagger_functions_by_cat.html" 
                  image="HelpIcon.FUNCTION">Function Reference
             <!-- List category with link to anchor in above page -->
-            <tocitem target="ctagger_functions_by_cat.html#1">Top-level cTagger functions 
-                <tocitem target="getEEDDirEventTags_help.html" image="HelpIcon.FUNCTION">getEEDDirEventTags</tocitem>
-                 <tocitem target="getEEGEventTags_help.html" image="HelpIcon.FUNCTION">getEEGEventTags</tocitem>
+            <tocitem target="ctagger_functions_by_cat.html#1">Top-level tagging functions 
+                <tocitem target="getdirtags_help.html" image="HelpIcon.FUNCTION">getdirtags</tocitem>
+                 <tocitem target="geteegtags_help.html" image="HelpIcon.FUNCTION">geteegtags</tocitem>
                 <tocitem target="tagEEG_help.html" image="HelpIcon.FUNCTION">tagEEG</tocitem> 
                 <tocitem target="tagEEGDir_help.html" image="HelpIcon.FUNCTION">tagEEGDir</tocitem>
                 <tocitem target="tagEvents_help.html" image="HelpIcon.FUNCTION">tagEvents</tocitem>
             </tocitem>
-            <tocitem target="ctagger_functions_by_cat.html#2">eventTags methods
+            <tocitem target="ctagger_functions_by_cat.html#2">The eventTags object 
                 <tocitem target="eventTagsOverview_help.html" image="HelpIcon.FUNCTION">eventTagsOverview</tocitem>   
-                <tocitem target="addEventMethod_help.html" image="HelpIcon.FUNCTION">addEvent method</tocitem>               
+                <tocitem target="eventTags_addEvent_help.html" image="HelpIcon.FUNCTION">addEvent method</tocitem> 
+                <tocitem target="eventTags_getEvent_help.html" image="HelpIcon.FUNCTION">getEvent method</tocitem>
+                <tocitem target="eventTags_getEvents_help.html" image="HelpIcon.FUNCTION">getEvets method</tocitem> 
+                <tocitem target="eventTags_getEvent_help.html" image="HelpIcon.FUNCTION">getEvent method</tocitem> 
             </tocitem>
+            <tocitem target="ctagger_functions_by_cat.html#3">Other helper functions
+                <tocitem target="getfilelist_help.html" image="HelpIcon.FUNCTION">getfilelist</tocitem>   
+                <tocitem target="mergetaglists_help.html" image="HelpIcon.FUNCTION">mergetaglists</tocitem>
+                <tocitem target="tagdirinputs_help.html" image="HelpIcon.FUNCTION">tagdirinputs</tocitem>
+                <tocitem target="tageeginputs_help.html" image="HelpIcon.FUNCTION">tageeginputs</tocitem>   
+                <tocitem target="tagstudyinputs_help.html" image="HelpIcon.FUNCTION">tagstudyinputs</tocitem>   
+            </tocitem>            
             <!-- <...> -->
         </tocitem>
         <!-- Optional Release Notes file -->

@@ -1,11 +1,13 @@
-function [baseTagsFile, updateType, onlyType, ...
-          saveTagsFile, useGUI, cancelled] = tageeginputs()
+function [baseTagsFile, updateType, match, onlyType, ...
+   preservePrefix, saveTagsFile, useGUI, cancelled] = tageeginputs()
 % GUI for input needed for cTagger.tagEEGDir
 
 % Setup the variables used by the GUI
     baseTagsFile = '';
     cancelled = true;
+    match = 'code';
     onlyType = true;
+    preservePrefix = false;
     saveTagsFile = '';
     updateCtrl = '';
     updateType = 'TagsOnly';
@@ -121,6 +123,22 @@ function [baseTagsFile, updateType, onlyType, ...
             'Only tag unique values of the type field of EEG', ...
             'Callback', @onlyTypeCallback);
         set(u2, 'Value', get(u2, 'Max'));
+        u3 = uicontrol('Parent', bBox, ...
+            'Style', 'CheckBox', 'Tag', 'PreservePrefixfield', ...
+            'String', 'Preserve tag prefixes', 'Enable', 'on', 'Tooltip', ...
+            'Do not consolidate tags that share prefixes', ...
+            'Callback', @preservePrefixCallback);
+        set(u3, 'Value', get(u3, 'Min'));
+        uiextras.Empty('Parent', bBox);
+        uPan = uiextras.HBox('Parent', bBox);
+        uicontrol('Parent', uPan, 'Style', 'Text', ...
+            'String', 'Event match method');
+        uicontrol('Parent', uPan, ...
+            'Style', 'PopUp', 'Tag', 'MatchType', 'Value', 1, ...
+            'String', {'Code', 'Label', 'Both'}, 'Enable', 'on', 'Tooltip', ...
+            'What fields to match when detecting the "same" kind of event', ...
+            'Callback', @matchCallback);
+            set(uPan, 'Sizes', [130, 80]);
        set(bBox, 'ColumnSizes', 250, 'RowSizes', [30, 30, 30, 30, 30]);
     end % createButtonPanel
 
@@ -195,6 +213,11 @@ function [baseTagsFile, updateType, onlyType, ...
         close(inputFig);
     end % browseTagsCallback
 
+    function matchCallback(src, eventdata) %#ok<INUSD>
+        validValues = get(src, 'String');
+        match = validValues(get(src, 'Value'));
+    end % matchCallback
+
     function okayCallback(src, eventdata)  %#ok<INUSD>
         % Callback for closing GUI window
         cancelled = false;
@@ -209,6 +232,10 @@ function [baseTagsFile, updateType, onlyType, ...
         % Callback for user directly editing directory control textbox
         saveTagsFile = get(hObject, 'String');
     end % saveTagsCtrlCallback
+
+    function preservePrefixCallback(src, eventdata) %#ok<INUSD>
+        preservePrefix = get(src, 'Max') == get(src, 'Value');
+    end % useGUICallback
 
     function tagsCtrlCallback(hObject, eventdata, tagsCtrl) %#ok<INUSD>
         % Callback for user directly editing directory control textbox
