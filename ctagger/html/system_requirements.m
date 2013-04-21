@@ -1,5 +1,4 @@
-%% EEGVIS System Requirements
-% EEGVIS requires MATLAB(R) version 2010a or after and the MATLAB
-% Statistics Toolbox(TM).
+%% CTAGGER System Requirements
+% CTAGGER requires MATLAB(R) version 2010a or after.
 %
 

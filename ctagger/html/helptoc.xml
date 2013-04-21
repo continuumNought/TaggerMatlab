@@ -31,13 +31,13 @@
                  image="HelpIcon.FUNCTION">Function Reference
             <!-- List category with link to anchor in above page -->
             <tocitem target="ctagger_functions_by_cat.html#1">Top-level cTagger functions 
-                <tocitem target="cTagger_getEEDDirEventTags_help.html" image="HelpIcon.FUNCTION">getEEDDirEventTags</tocitem>
-                 <tocitem target="cTagger_getEEGEventTags_help.html" image="HelpIcon.FUNCTION">getEEGEventTags</tocitem>
-                <tocitem target="cTagger_tagEEG_help.html" image="HelpIcon.FUNCTION">tagEEG</tocitem> 
-                <tocitem target="cTagger_tagEEGDir_help.html" image="HelpIcon.FUNCTION">tagEEGDir</tocitem>
-                <tocitem target="cTagger_tagThis_help.html" image="HelpIcon.FUNCTION">tagThis</tocitem>
+                <tocitem target="getEEDDirEventTags_help.html" image="HelpIcon.FUNCTION">getEEDDirEventTags</tocitem>
+                 <tocitem target="getEEGEventTags_help.html" image="HelpIcon.FUNCTION">getEEGEventTags</tocitem>
+                <tocitem target="tagEEG_help.html" image="HelpIcon.FUNCTION">tagEEG</tocitem> 
+                <tocitem target="tagEEGDir_help.html" image="HelpIcon.FUNCTION">tagEEGDir</tocitem>
+                <tocitem target="tagEvents_help.html" image="HelpIcon.FUNCTION">tagEvents</tocitem>
             </tocitem>
-            <tocitem target="ctagger_functions_by_cat.html#2">eventTags
+            <tocitem target="ctagger_functions_by_cat.html#2">eventTags methods
                 <tocitem target="eventTagsOverview_help.html" image="HelpIcon.FUNCTION">eventTagsOverview</tocitem>   
                 <tocitem target="addEventMethod_help.html" image="HelpIcon.FUNCTION">addEvent method</tocitem>               
             </tocitem>
