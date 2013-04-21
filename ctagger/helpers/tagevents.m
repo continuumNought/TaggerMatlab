@@ -1,4 +1,4 @@
-function eTags = tagEvents(eTags, varargin)
+function eTags = tagevents(eTags, varargin)
     % Tag this and produce a new tag structure
     parser = inputParser;
     parser.addRequired('ETags', @(x) (~isempty(x) && isa(x, 'eventTags')));
