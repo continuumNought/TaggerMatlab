@@ -32,6 +32,8 @@
 %                    no other MATLAB commands can be issued until this GUI
 %                    is closed. A value of false is used when this function
 %                    is being called as a menu item from another GUI.
+%   'TagFileName'    Name containing the name of the file in which to
+%                    save the consolidated eventTags object for future use.
 %   'UpdateType'     Indicates how tags are merged with initial tags. The
 %                    options are: 'merge', 'replace', 'onlytags' (default),
 %                    'update' or 'none' as decribed below.
@@ -59,7 +61,8 @@
 %                     combine the tags. Also update any empty code, label
 %                     or description fields by using the values in the
 %                     input event.
-%    'none'           Don't do any updating
+%    'none'           Don't use the base tags to update the information 
+%                     in the output EEG structure.
 %
 % See also: tagdir and tagstudy
 %
@@ -103,18 +106,19 @@ function [EEG, eTags] = tageeg(EEG, varargin)
     parser.addParamValue('Synchronize', true, @islogical);
     parser.addParamValue('TagFileName', '', ...
          @(x)(isempty(x) || (ischar(x))));
-    parser.addParamValue('UpdateType', 'TagsOnly', ...
+    parser.addParamValue('UpdateType', 'tagsonly', ...
           @(x) any(validatestring(lower(x), ...
-          {'Merge', 'Replace', 'TagsOnly', 'Update', 'NoUpdate'})));
+          {'merge', 'replace', 'onlytags', 'update', 'none'})));
     parser.addParamValue('UseGUI', true, @islogical);
     parser.parse(EEG, varargin{:});
     p = parser.Results;
     
     % Get the existing tags for the EEG
-    eTags = geteegtags(p.EEG, 'Match', p.Match, ...
+    eTags = findtags(p.EEG, 'Match', p.Match, ...
             'PreservePrefix', p.PreservePrefix);
     baseTags = eventTags.loadTagFile(p.BaseTagsFile);
     eTags = tagEvents(eTags, 'BaseTags', baseTags, ...
             'UpdateType', p.UpdateType, 'UseGUI', p.UseGUI, ...
             'Synchronize', p.Synchronize);
+    EEG.etc.eventTags = eTags.getJson();    
 end % tageeg

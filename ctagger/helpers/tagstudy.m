@@ -7,14 +7,17 @@ function eTags = tagstudy(studyFile, varargin)
     parser.addParamValue('BaseTagsFile', '', ...
         @(x)(isempty(x) || (ischar(x) && exist(x, 'file') && ...
             ~isempty(eventTags.loadTagsFile(x)))));
+    parser.addParamValue('Match', 'code', ...
+        @(x) any(validatestring(lower(x), {'code', 'label', 'both'})));
     parser.addParamValue('OnlyType', true, @islogical);
+    parser.addParamValue('PreservePrefix', false, @islogical);
+    parser.addParamValue('Synchronize', true, @islogical);
     parser.addParamValue('TagFileName', '', ...
          @(x)(isempty(x) || (ischar(x))));
-    parser.addParamValue('UpdateType', 'TagsOnly', ...
-          @(x) any(validatestring(x, ...
-          {'Merge', 'Replace', 'TagsOnly', 'Update', 'NoUpdate'})));
+    parser.addParamValue('UpdateType', 'tagsonly', ...
+          @(x) any(validatestring(lower(x), ...
+          {'merge', 'replace', 'onlytags', 'update', 'none'})));
     parser.addParamValue('UseGUI', true, @islogical);
-    parser.addParamValue('Synchronize', true, @islogical);
     parser.parse(studyFile, varargin{:});
     p = parser.Results;
  
@@ -22,33 +25,41 @@ function eTags = tagstudy(studyFile, varargin)
     if isempty(s) 
         return;
     end
-
-    eTags = getgrouptags(fPaths);
+    
+    % Merge the tags for the study
+    for k = 1:length(fPaths) % Assemble the list
+        eegTemp = pop_loadset(fPaths{k});
+        eTagsNew = findtags(eegTemp, 'Match', p.Match, ...
+                   'PreservePrefix', p.PreservePrefix);
+        eTags.mergeEventTags(eTagsNew, 'Merge');
+    end
     baseTags = eventTags.loadTagFile(p.BaseTagsFile);
     eTags = tagevents(eTags, 'BaseTags', baseTags, ...
-                     'UpdateType', p.UpdateType, 'UseGUI', p.UseGUI, ...
-                     'Synchronize', p.Synchronize);
+        'Match', p.Match, 'PreservePrefix', p.PreservePrefix, ...
+        'UpdateType', p.UpdateType, 'UseGUI', p.UseGUI, ...
+        'Synchronize', p.Synchronize);
   
-    if strcmpi(p.UpdateType, 'NoUpdate')
-        return;
-    end
-    
+    % Save the tags file for next step
     if ~isempty(p.TagFileName) || ...
         ~eventTags.saveTagFile(p.TagFileName, 'eTags')
         bName = tempname;
-        warning('tagEEGStudy:invalidFile', ...
+        warning('tagstudy:invalidFile', ...
             ['Couldn''t save eventTags to ' p.TagFileName]);
         eventTags.saveTagFile(bName, 'eTags')
     else 
         bName = p.TagFileName;
     end
-    if isempty(fPaths) || strcmpi(p.UpdateType, 'NoUpdate')
+ 
+    if isempty(fPaths) || strcmpi(p.UpdateType, 'none')
         return;
     end
+    
     % Rewrite all of the EEG files with updated tag information
     for k = 1:length(fPaths) % Assemble the list
         teeg = pop_loadset(fPaths{k});
         teeg = tageeg(teeg, 'BaseTagsFile', bName, ...
+              'Match', p.Match, 'PreservePrefix', p.PreservePrefix, ...
+              'Synchronize', p.Synchronize,...
               'UpdateType', p.UpdateType, 'UseGUI', false);
         pop_saveset(teeg, 'filename', fPaths{k});
     end
