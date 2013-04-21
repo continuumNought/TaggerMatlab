@@ -4,14 +4,12 @@ function eTags = tagevents(eTags, varargin)
     parser.addRequired('ETags', @(x) (~isempty(x) && isa(x, 'eventTags')));
     parser.addParamValue('BaseTags', '', ...
         @(x)(isempty(x) || isa(x, 'eventTags')));
-    parser.addParamValue('Match', 'Code', ...
-        @(x) any(validatestring(x, {'code', 'label', 'both'})));
-    parser.addParamValue('PreservePrefix', false, @islogical);
-    parser.addParamValue('UpdateType', 'Merge', ...
-          @(x) any(validatestring(x, ...
-          {'Merge', 'Replace', 'TagsOnly', 'Update', 'NoUpdate'})));
-    parser.addParamValue('UseGUI', true, @islogical);
     parser.addParamValue('Synchronize', true, @islogical);
+    parser.addParamValue('UpdateType', 'Merge', ...
+          @(x) any(validatestring(lower(x), ...
+          {'merge', 'replace', 'onlytags', 'update', 'none'})));
+    parser.addParamValue('UseGUI', true, @islogical);
+
     parser.parse(eTags, varargin{:});
     p = parser.Results;
     eTags = p.ETags;

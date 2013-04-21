@@ -74,7 +74,7 @@
 % </table>
 % </html>
 %
-function [eTags, fPaths] = tagEEGDir(inDir, varargin)
+function [eTags, fPaths] = tagdir(inDir, varargin)
     % Tag all of the EEG files in a directory tree
     parser = inputParser;
     parser.addRequired('InDir', @(x) (~isempty(x) && ischar(x)));
@@ -82,22 +82,33 @@ function [eTags, fPaths] = tagEEGDir(inDir, varargin)
         @(x)(isempty(x) || (ischar(x) && exist(x, 'file') && ...
             ~isempty(eventTags.loadTagsFile(x)))));
     parser.addParamValue('DoSubDirs', true, @islogical);
+    parser.addParamValue('Match', 'code', ...
+        @(x) any(validatestring(lower(x), {'code', 'label', 'both'})));
     parser.addParamValue('OnlyType', true, @islogical);
+    parser.addParamValue('PreservePrefix', false, @islogical);
     parser.addParamValue('Synchronize', true, @islogical);
     parser.addParamValue('TagFileName', '', ...
          @(x)(isempty(x) || (ischar(x))));
-    parser.addParamValue('UpdateType', 'TagsOnly', ...
-          @(x) any(validatestring(x, ...
-          {'Merge', 'Replace', 'TagsOnly', 'Update', 'NoUpdate'})));
+    parser.addParamValue('UpdateType', 'tagsonly', ...
+          @(x) any(validatestring(lower(x), ...
+          {'merge', 'replace', 'onlytags', 'update', 'none'})));
     parser.addParamValue('UseGUI', true, @islogical);
    
     parser.parse(inDir, varargin{:});
     p = parser.Results;
     % Consolidate all of the tags from the input directory and base
+    eTags = eventTags('', '', 'Match', p.Match, 'PreservePrefix', ...
+                      p.PreservePrefix);
     fPaths = getFileList(p.InDir, '.set', p.DoSubDirs);
-    eTags = getEEGGroupEventTags(fPaths);
+    for k = 1:length(fPaths) % Assemble the list
+        eegTemp = pop_loadset(fPaths{k});
+        eTagsNew = geteegtags(eegTemp, 'Match', p.Match, ...
+                   'PreservePrefix', p.PreservePrefix);
+        eTags.mergeEventTags(eTagsNew, 'Merge');
+    end
     baseTags = eventTags.loadTagFile(p.BaseTagsFile);
     eTags = tagEvents(eTags, 'BaseTags', baseTags, ...
+        'Match', p.Match, 'PreservePrefix', p.PreservePrefix, ...
         'UpdateType', p.UpdateType, 'UseGUI', p.UseGUI, ...
         'Synchronize', p.Synchronize);
 
@@ -113,13 +124,13 @@ function [eTags, fPaths] = tagEEGDir(inDir, varargin)
     end
  
 
-    if isempty(fPaths) || strcmpi(p.UpdateType, 'NoUpdate')
+    if isempty(fPaths) || strcmpi(p.UpdateType, 'none')
         return;
     end
     % Rewrite all of the EEG files with updated tag information
     for k = 1:length(fPaths) % Assemble the list
         teeg = pop_loadset(fPaths{k});
-        teeg = tagEEG(teeg, 'BaseTagsFile', bName, ...
+        teeg = tageeg(teeg, 'BaseTagsFile', bName, ...
               'UpdateType', p.UpdateType, 'UseGUI', false, ...
               'Synchronize', p.Synchronize);
         pop_saveset(teeg, 'filename', fPaths{k});

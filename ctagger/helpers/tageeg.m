@@ -1,142 +1,120 @@
-
-% tagdir
-% Allows a user to tag an entire tree directory of similar EEG .set files.
+% tageeg
+% Allows a user to tag an EEGLAB EEG structure
 %
 % Usage:
 %   >>  [EEG, eTags] = tageeg(EEG)
 %   >>  [EEG, eTags] = tageeg(EEG, 'key1', 'value1', ...)
 %
 %% Description
-% [eTags, fPaths] = tageeg(EEG) creates  
-% from the directory inDir. First the events and tags from all
-% EEGLAB .set files are extracted and consolidated into a single eventTags
-% object. A previously defined |eBaseTags| eventTags object is merged. The
-% |updateType| controls the way the events are combined. If |useGUI| is
-% true, the user can than modify this consolidated eventTags object using
-% the |cTagger| GUi. Once the user has completed editing and closed the
-% GUI, the event information in all of the .set files is updated. If
-% |doSubDirs| is true, all .set files in the |inDir| directory tree are
-% affected. If |doSubDirs| is false, then only the .set files in the |inDir|
-% tree are used.  
-%
-% The final, consolidated and edited |eventTags| object is returned in |eTags|
-% and |fPaths| is a cell array containing the full path names of all of the
-% .set files that were affected.
-%
+% [eTags, fPaths] = tageeg(EEG) creates an eventTags object called eTags
+% from the specified EEG structure using only the 'type' field of the
+% EEG.event and EEG.urevent structures. After existing event tags are
+% extracted from the EEG structure, the ctagger GUI is launched in
+% synchronous mode, meaning that it behaves like a modal dialog and must
+% be closed before execution continues. 
 %
 %
 % |[eTags, fPaths] = tageeg(EEG, 'key1', 'value1', ...)| specifies 
 % optional name/value parameter pairs:
-%   'BaseTagsFile'   File name containing a starting eventTags object
-%                    (created from previous tagging sessions). Default is
-%                    an empty eventTags object using the default hed xml.
-%   'OnlyType'       If true (default), only tag based on unique event types.
+%   'BaseTagsFile'   A file containing an eventTags object to be used
+%                    for initial tag information. The default is an 
+%                    eventTags object with the default HED XML and no tags.
+%   'Match'          A string with event matching criteria:
+%                    'code' (default), 'label', or 'both'         
+%   'OnlyType'       If true (default), only tag based on unique event types
+%                    and not on the other fields of EEG.event and
+%                    EEG.urevent.
+%   'PreservePrefix' If false (default), tags of the same event type that
+%                    share prefixes are combined and only the most specific
+%                    is retained (e.g., /a/b/c and /a/b become just
+%                    /a/b/c). If true, then all unique tags are retained.
 %   'Synchronize'    If true (default), the ctagger GUI is run synchronously so
 %                    no other MATLAB commands can be issued until this GUI
-%                    is closed.
+%                    is closed. A value of false is used when this function
+%                    is being called as a menu item from another GUI.
 %   'UpdateType'     Indicates how tags are merged with initial tags. The
-%                    options are: 'Merge', 'Replace', 'TagsOnly' (default)
-%                    or 'Update' as decribed below.
+%                    options are: 'merge', 'replace', 'onlytags' (default),
+%                    'update' or 'none' as decribed below.
 %   'UseGUI'         If true (default), the ctagger GUI is displayed after
 %                    initialization.
 %
 % Description of update options:
-%    'Merge'         If an event with that key is not part of this
+%    'merge'         If an event with that key is not part of this
 %                     object, add it as is.
-%    'Replace'       If an event with that key is not part of this
+%    'replace'       If an event with that key is not part of this
 %                     object, do nothing. Otherwise, if an event with that
 %                     key is part of this object then completely replace 
 %                     that event with the new one.
-%    'TagsOnly'      If an event with that key is not part of this
+%    'onlytags'      If an event with that key is not part of this
 %                     object, do nothing. Otherwise, if an event with that
 %                     key is part of this object, then update the tags of 
 %                     the matching event with the new ones from this event,
 %                     using the PreservePrefix value to determine how to
 %                     combine the tags.
-% <table class="PROPERTYTABLE">
-% <tr><td><strong>Value</strong></td><td><strong>Description</strong></td></tr>
-% <tr><td><tt>'Merge'</tt></td> <td></td></tr> 
-% <tr><td><tt>'Replace'</tt></td> <td>I</td></tr>
-% <tr><td><tt>'TagsOnly'</tt></td> <td></td></tr>
-% <tr><td><tt>'Update'</tt></td> <td>If an event with that key is not part of this
+%    'update'         If an event with that key is not part of this
 %                     object, do nothing. Otherwise, if an event with that
 %                     key is part of this object, then update the tags of 
 %                     the matching event with the new ones from this event,
 %                     using the PreservePrefix value to determine how to
 %                     combine the tags. Also update any empty code, label
 %                     or description fields by using the values in the
-%                     input event.</td></tr>
-% </table>
-% <html>
-% <table>
-% <thead><tr><td><strong>Name</strong></td><td><strong>Value<strong></td></tr></thead>
-% <tr><td><tt>'BaseTags'</tt></td>
-%      <td><tt>eventTags</tt> object containing tag initialization</td></tr>
-% <tr><td><tt>'DoSubDirs'</tt></td>
-%      <td>if true (the default) includes all <tt>.set</tt> files
-%      in the <tt>inDir</tt> directory tree. If false, only process
-%      files in the immediate <tt>inDir</tt> directory.</td></tr>
-% <tr><td><tt>'UpdateType'</tt></td>
-%      <td>One of the values <tt>'Merge'</tt>, <tt>'Replace'</tt>, ...
-%          <tt>'TagsOnly'</tt> or <tt>'Update'</tt> specifying how
-%              duplicate events and tags are merged. The default
-%              is <tt>'TagsOnly'</tt> (see below for more details).</td></tr>
-% <tr><td><tt>'UseGUI'</tt></td>
-%      <td>If true (the default), the CTagger GUI will be brought up to allow
-%          users to modify the tagging information.</td></tr>
-% </table>
-% </html>
+%                     input event.
+%    'none'           Don't do any updating
 %
+% See also: tagdir and tagstudy
 %
-% <html>
-% <table class="PROPERTYTABLE">
-% <tr><td><strong>Value</strong></td><td><strong>Description</strong></td></tr>
-% <tr><td><tt>'Merge'</tt></td> <td>If an event with that key is not part of this
-%                     object, add it as is.</td></tr> 
-% <tr><td><tt>'Replace'</tt></td> <td>If an event with that key is not part of this
-%                     object, do nothing. Otherwise, if an event with that
-%                     key is part of this object then completely replace 
-%                     that event with the new one.</td></tr>
-% <tr><td><tt>'TagsOnly'</tt></td> <td>If an event with that key is not part of this
-%                     object, do nothing. Otherwise, if an event with that
-%                     key is part of this object, then update the tags of 
-%                     the matching event with the new ones from this event,
-%                     using the PreservePrefix value to determine how to
-%                     combine the tags.</td></tr>
-% <tr><td><tt>'Update'</tt></td> <td>If an event with that key is not part of this
-%                     object, do nothing. Otherwise, if an event with that
-%                     key is part of this object, then update the tags of 
-%                     the matching event with the new ones from this event,
-%                     using the PreservePrefix value to determine how to
-%                     combine the tags. Also update any empty code, label
-%                     or description fields by using the values in the
-%                     input event.</td></tr>
-% </table>
-% </html>
+
+%1234567890123456789012345678901234567890123456789012345678901234567890
+
+% Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013, krobbins@cs.utsa.edu
+%
+% This program is free software; you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation; either version 2 of the License, or
+% (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License
+% along with this program; if not, write to the Free Software
+% Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+%
+% $Log: tageeg.m,v $
+% $Revision: 1.0 21-Apr-2013 09:25:25 krobbins $
+% $Initial version $
+%
 function [EEG, eTags] = tageeg(EEG, varargin)
-    % Tag this EEG using eTagsBase as the structure
+    % Parse the input arguments
     parser = inputParser;
-    parser.addRequired('EEG', @(x) (isempty(x) || isstruct(x)));
+    parser.addRequired('EEG', @(x) (isempty(x) || ...
+        isstruct(EEG) || isfield(EEG, 'event') || ...
+        isstruct(EEG.event) || isfield(EEG.event, 'type') || ...
+        isfield(EEG, 'urevent') || isstruct(EEG.urevent) && ...
+        isfield(EEG.urevent, 'type')));
     parser.addParamValue('BaseTagsFile', '', ...
         @(x)(isempty(x) || (ischar(x))));
-    parser.addParamValue('Match', 'Code', ...
-        @(x) any(validatestring(x, {'code', 'label', 'both'})));
+    parser.addParamValue('Match', 'code', ...
+        @(x) any(validatestring(lower(x), {'code', 'label', 'both'})));
     parser.addParamValue('OnlyType', true, @islogical);
     parser.addParamValue('PreservePrefix', false, @islogical);
     parser.addParamValue('Synchronize', true, @islogical);
     parser.addParamValue('TagFileName', '', ...
          @(x)(isempty(x) || (ischar(x))));
     parser.addParamValue('UpdateType', 'TagsOnly', ...
-          @(x) any(validatestring(x, ...
+          @(x) any(validatestring(lower(x), ...
           {'Merge', 'Replace', 'TagsOnly', 'Update', 'NoUpdate'})));
     parser.addParamValue('UseGUI', true, @islogical);
-
     parser.parse(EEG, varargin{:});
     p = parser.Results;
+    
+    % Get the existing tags for the EEG
     eTags = geteegtags(p.EEG, 'Match', p.Match, ...
-            'PreservePrefix', p.PreserfePrefix);
+            'PreservePrefix', p.PreservePrefix);
     baseTags = eventTags.loadTagFile(p.BaseTagsFile);
     eTags = tagEvents(eTags, 'BaseTags', baseTags, ...
             'UpdateType', p.UpdateType, 'UseGUI', p.UseGUI, ...
             'Synchronize', p.Synchronize);
-end % tagEEG
+end % tageeg

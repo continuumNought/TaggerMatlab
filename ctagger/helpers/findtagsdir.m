@@ -3,9 +3,14 @@ function [eTags, fPaths] = getdirtags(inDir, varargin)
     p = inputParser;
     p.addRequired('InDir', @(x) (~isempty(x) && ischar(x)));
     p.addParamValue('DoSubDirs', true, @islogical);
+    parser.addParamValue('Match', 'code', ...
+           @(x) any(validatestring(lower(x), {'code', 'label', 'both'})));
+    parser.addParamValue('OnlyType', true, @islogical);
+    parser.addParamValue('PreservePrefix', false, @islogical);
     p.parse(inDir, varargin{:});        
     fPaths = getfilelist(p.Results.InDir, '.set', p.Results.DoSubDirs);
-    eTags = eventTags('', '');
+    eTags = eventTags('', '',  'Match', p.Match, 'PreservePrefix', ...
+                      p.PreservePrefix);
     if isempty(fPaths)
         return;
     end
