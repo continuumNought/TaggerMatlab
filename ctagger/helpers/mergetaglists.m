@@ -1,4 +1,4 @@
-function mergedList = mergeTagLists(tList1, tList2, preservePrefix)
+function mergedList = mergetaglists(tList1, tList2, preservePrefix)
 % Return a merged cell array of tags
 %
 % Input:
@@ -64,4 +64,4 @@ function mergedList = mergeTagLists(tList1, tList2, preservePrefix)
     elseif length(mergedList) == 1
         mergedList = mergedList{1};
     end
-end % mergeTagLists
+end % mergetaglists

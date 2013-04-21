@@ -4,7 +4,7 @@ function [studyFile, baseTagsFile, updateType, onlyType, saveTagsFile, ...
 
 % Setup the variables used by the GUI
     baseTagsFile = '';
-    cancelled = false;
+    cancelled = true;
     onlyType = true;
     saveTagsFile = '';
     studyFile = '';
@@ -227,18 +227,9 @@ function [studyFile, baseTagsFile, updateType, onlyType, saveTagsFile, ...
         close(inputFig);
     end % cancelTagsCallback
 
-    function studyCtrlCallback(hObject, eventdata) %#ok<INUSD>
-        % Callback for user directly editing directory control textbox
-        study = get(hObject, 'String');
-        if exist(study, 'file')
-            studyFile = study;
-        else  % if user entered invalid directory reset back
-            set(hObject, 'String', studyFile);
-        end
-    end % dirCtrlCallback
-
     function okayCallback(src, eventdata)  %#ok<INUSD>
         % Callback for closing GUI window
+        cancelled = false;
         close(inputFig);
     end % okayCallback
 
@@ -250,6 +241,16 @@ function [studyFile, baseTagsFile, updateType, onlyType, saveTagsFile, ...
         % Callback for user directly editing directory control textbox
         saveTagsFile = get(hObject, 'String');
     end % tagsCtrlCallback
+
+    function studyCtrlCallback(hObject, eventdata) %#ok<INUSD>
+        % Callback for user directly editing directory control textbox
+        study = get(hObject, 'String');
+        if exist(study, 'file')
+            studyFile = study;
+        else  % if user entered invalid directory reset back
+            set(hObject, 'String', studyFile);
+        end
+    end % dirCtrlCallback
 
     function tagsCtrlCallback(hObject, eventdata, tagsCtrl) %#ok<INUSD>
         % Callback for user directly editing directory control textbox

@@ -41,7 +41,7 @@
 %% Example 1
 % Tag the EEGLAB EEGEpoch EEG structure, using the GUI
    load 'EEGEpoch.mat';
-   EEGEpoch = cTagger.tagEEG(EEGEpoch);
+   EEGEpoch = tageeg(EEGEpoch);
 
 
 %% Class documentation

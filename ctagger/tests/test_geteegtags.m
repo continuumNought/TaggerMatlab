@@ -1,4 +1,4 @@
-function test_suite = testGetEEGEventTags%#ok<STOUT>
+function test_suite = test_geteegtags%#ok<STOUT>
 initTestSuite;
 
 function values = setup %#ok<DEFNU>
@@ -28,46 +28,39 @@ function teardown(values) %#ok<INUSD,DEFNU>
 % Function executed after each test
 
 function testValidValues(values)  %#ok<DEFNU>
-% Unit test for cTagger getEEGEventTags static method 
-fprintf('\nUnit tests for cTagger tagEEG static method\n');
+% Unit test for geteegtags
+fprintf('\nUnit tests for geteegtags\n');
 fprintf('It should tag an EEG structure that hasn''t been tagged\n');
 assertTrue(~isfield(values.EEGEpoch.etc, 'eventHedTags'));
-eTags = getEEGEventTags(values.EEGEpoch);
+eTags = geteegtags(values.EEGEpoch);
 events = eTags.getEvents();
 assertEqual(length(events), 2);
 assertTrue(~isempty(eTags.getHedXML()));
 fprintf('It should work if EEG doesn''t have .etc field\n');
 EEG1 = values.EEGEpoch;
 EEG1 = rmfield(EEG1, 'etc');
-eTags1 = getEEGEventTags(EEG1);
+eTags1 = geteegtags(EEG1);
 events1 = eTags1.getEvents();
 assertEqual(length(events1), 2);
 assertTrue(~isempty(eTags1.getHedXML()));
 fprintf('It should work if EEG has an empty .etc field\n');
 EEG2 = values.EEGEpoch;
 EEG2.etc = '';
-eTags2 = getEEGEventTags(EEG2);
+eTags2 = geteegtags(EEG2);
 events2 = eTags2.getEvents();
 assertEqual(length(events2), 2);
 assertTrue(~isempty(eTags2.getHedXML()));
 fprintf('It should work if EEG has a non-structure .etc field\n');
 EEG3 = values.EEGEpoch;
 EEG3.etc = 'This is a test';
-eTags3 = getEEGEventTags(EEG3);
+eTags3 = geteegtags(EEG3);
 events3 = eTags3.getEvents();
 assertEqual(length(events3), 2);
 assertTrue(~isempty(eTags3.getHedXML()));
 fprintf('It should work if the EEG has already been tagged\n');
 json1 = eTags1.getJson();
 EEG3.etc.eventHedTags = json1;
-eTags4 = getEEGEventTags(EEG3);
+eTags4 = geteegtags(EEG3);
 events4 = eTags4.getEvents();
 assertEqual(length(events4), 2);
 assertTrue(~isempty(eTags4.getHedXML()));
-fprintf('It should get the combined tags from the test directory\n');
-testDir = [values.TestDirectories filesep 'TestDataRoot'];
-[eTags, fPaths] = getEEGDirEventTags(testDir, 'DoSubDirs', true);
-assertEqual(length(fPaths), 67);
-events = eTags.getEvents();
-assertEqual(length(events), 58);
-

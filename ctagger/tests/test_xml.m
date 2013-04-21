@@ -1,10 +1,12 @@
-function test_suite = testXMLValidation %#ok<STOUT>
+function test_suite = test_xml %#ok<STOUT>
 initTestSuite;
 
 function values = setup %#ok<DEFNU>
-values.HEDXML = fileread('HED Specification 1.22.xml');
-values.SchemaFile = 'G:\CommunityTemp\cTaggerMatlab\xml\HEDSChema.xsd';
-values.Schema = fileread('HEDSChema.xsd');
+latestHed = 'HEDSpecification1.3.xml';
+values.HEDXML = fileread(latestHed);
+hPath = fileparts(which(latestHed));
+values.SchemaFile = [hPath filesep 'HEDSchema.xsd'];
+values.Schema = fileread(values.SchemaFile);
 function teardown(values) %#ok<INUSD,DEFNU>
 % Function executed after each test
 

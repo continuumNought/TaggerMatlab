@@ -1,10 +1,10 @@
 function [baseTagsFile, updateType, onlyType, ...
-          saveTagsFile, useGUI, isCancelled] = getTagEEGInputs()
+          saveTagsFile, useGUI, cancelled] = tageeginputs()
 % GUI for input needed for cTagger.tagEEGDir
 
 % Setup the variables used by the GUI
     baseTagsFile = '';
-    isCancelled = true;
+    cancelled = true;
     onlyType = true;
     saveTagsFile = '';
     updateCtrl = '';
@@ -197,7 +197,7 @@ function [baseTagsFile, updateType, onlyType, ...
 
     function okayCallback(src, eventdata)  %#ok<INUSD>
         % Callback for closing GUI window
-        isCancelled = false;
+        cancelled = false;
         close(inputFig);
     end % okayCallback
 
@@ -208,13 +208,7 @@ function [baseTagsFile, updateType, onlyType, ...
     function saveTagsCtrlCallback(hObject, eventdata, saveTagsCtrl) %#ok<INUSD>
         % Callback for user directly editing directory control textbox
         saveTagsFile = get(hObject, 'String');
-%         if isempty(eventTags.loadTagFile(tagsFile))           
-%            warndlg([ tagsFile ' does not contain an eventTags object'], 'modal');
-%            set(hObject, 'String', baseTagsFile);
-%         else
-%            Tag = tagsFile;
-%        end
-    end % tagsCtrlCallback
+    end % saveTagsCtrlCallback
 
     function tagsCtrlCallback(hObject, eventdata, tagsCtrl) %#ok<INUSD>
         % Callback for user directly editing directory control textbox
@@ -240,4 +234,4 @@ function [baseTagsFile, updateType, onlyType, ...
         useGUI = get(src, 'Max') == get(src, 'Value');
     end % useGUICallback
            
-end % getTagDirInputs
+end % tageeginputs

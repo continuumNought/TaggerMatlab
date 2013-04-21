@@ -1,9 +1,10 @@
-function [inDir, baseTagsFile, doSubDirs, updateType, onlyType, saveTagsFile, useGUI] = ...
-                                                     getTagDirInputs()
-% GUI for input needed for cTagger.tagEEGDir
+function [inDir, baseTagsFile, doSubDirs, updateType, onlyType, ...
+    saveTagsFile, useGUI, cancelled] =  tagdirinputs()
+% GUI for input needed to create inputs for tagdir function
 
 % Setup the variables used by the GUI
     baseTagsFile = '';
+    cancelled = true;
     doSubDirs = true;
     inDir = '';
     onlyType = true;
@@ -11,6 +12,7 @@ function [inDir, baseTagsFile, doSubDirs, updateType, onlyType, saveTagsFile, us
     updateCtrl = '';
     updateType = 'TagsOnly';
     useGUI = true;
+    cancelled = false;
     theTitle = 'Inputs for tagging EEG directory';
     inputFig = figure( ...
         'MenuBar', 'none', ...
@@ -245,7 +247,8 @@ function [inDir, baseTagsFile, doSubDirs, updateType, onlyType, saveTagsFile, us
     end % useGUICallback
 
     function okayCallback(src, eventdata)  %#ok<INUSD>
-        % Callback for closing GUI window
+        % Callback for closing GUI window by pressing OK button
+        cancelled = false;
         close(inputFig);
     end % okayCallback
 
@@ -256,13 +259,7 @@ function [inDir, baseTagsFile, doSubDirs, updateType, onlyType, saveTagsFile, us
     function saveTagsCtrlCallback(hObject, eventdata, saveTagsCtrl) %#ok<INUSD>
         % Callback for user directly editing directory control textbox
         saveTagsFile = get(hObject, 'String');
-%         if isempty(eventTags.loadTagFile(tagsFile))           
-%            warndlg([ tagsFile ' does not contain an eventTags object'], 'modal');
-%            set(hObject, 'String', baseTagsFile);
-%         else
-%            Tag = tagsFile;
-%        end
-    end % tagsCtrlCallback
+    end % saveTagsCtrlCallback
 
     function tagsCtrlCallback(hObject, eventdata, tagsCtrl) %#ok<INUSD>
         % Callback for user directly editing directory control textbox
@@ -288,4 +285,4 @@ function [inDir, baseTagsFile, doSubDirs, updateType, onlyType, saveTagsFile, us
         useGUI = get(src, 'Max') == get(src, 'Value');
     end % useGUICallback
            
-end % getTagDirInputs
+end % tagdirinputs

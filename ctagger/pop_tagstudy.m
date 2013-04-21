@@ -1,27 +1,24 @@
-% pop_tagEEGStudy opens the ctagger GUI as a singleton callback for EEGLAB
+% pop_tagstudy opens ctagger GUI to tag EEGLAB study
 %
 % Usage:
-%   >>  EEGOUT = pop_ctagger(EEG)
-%
-% Inputs:
-%    EEG     EEG dataset to be tagger
-%    HEDXML  XML specification of the hierarchy tag structure
+%   >>  [eTags, com] = pop_tagstudy()
 %
 % Outputs:
-%   EEGOUT  - the input EEG dataset
-% 
-% The pop_ctagger provides a GUI for annotating events in EEG structure 
+%    eTags  - an eventTags object containing consolidated tags
+%    com    - string containing call to tagstudy with all parameters
 %
 % Notes:
-%  -  pop_ctagger() is meant to be used as the callback under the 
-%     EEGLAB Edit menu. It is a singleton and clicking
+%  -  pop_tagstudy() is meant to be used as the callback under the 
+%     EEGLAB Study menu. It is a singleton and clicking
 %     the menu item again will not create a new window if one already
 %     exists.
+%  -  The function first brings up a GUI to enter the parameters to 
+%     override the default values for tagstudy and then optionally allows
+%     the user to use the ctagger GUI to modify the tags.
 % 
 % See also:
-%   eeglab, ctagger, and eegplugin_ctagger
+%   eeglab, tageeg, tagdir, and eegplugin_ctagger
 %
-
 %
 % Copyright (C) 2012-2013 Thomas Rognon tcrognon@gmail.com and
 % Kay Robbins, UTSA, kay.robbins@utsa.edu
@@ -42,29 +39,30 @@
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 % $Log: pop_ctagger.m,v $
-% Revision 1.0 03-Feb-2013 10:22:05  kay
+% Revision 1.0 21-Apr-2013 09:25:25  kay
 % Initial version
 %
 
 
-function [eTags, com] = pop_tagEEGStudy()    
+function [eTags, com] = pop_tagstudy()    
 % Create the tagger for this EEG study
-[studyFile, baseTagsFile, updateType, onlyType, saveTagsFile, useGUI, ...
-    cancelled] = getTagStudyInputs();
-if cancelled
-    eTags = '';
-    com = '';
-else
-    eTags = tagEEGStudy(studyFile, 'BaseTagsFile', baseTagsFile, ...
+    [studyFile, baseTagsFile, updateType, onlyType, saveTagsFile, useGUI, ...
+        cancelled] = tagstudyinputs();
+    if cancelled
+        eTags = '';
+        com = '';
+        return;
+    end
+    eTags = tagstudy(studyFile, 'BaseTagsFile', baseTagsFile, ...
                   'OnlyType', onlyType, ...
                   'TagFileName', saveTagsFile, 'UpdateType', updateType, ...
                   'UseGUI', useGUI, 'Synchronize', false);
-              
-    com = char(['tagEEGStudy(''' studyFile ''', ' ...
+
+    com = char(['tagstudy(''' studyFile ''', ' ...
             '''BaseTagsFile'', ''' baseTagsFile ''', '...
             '''OnlyType'', ' ...
              num2str(onlyType) ', ''TagFileName'', ''' saveTagsFile ''', ' ...
             '''UpdateType'', ''' updateType ''', ' ...
             '''UseGui'', ' num2str(useGUI) ...
             ', ''Synchronize'', ' num2str(false) ')']);
-end % pop_tagEEGStudy
+end % pop_tagstudy

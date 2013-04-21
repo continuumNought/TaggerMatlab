@@ -1,4 +1,4 @@
-function eTags = tagEEGStudy(studyFile, varargin)
+function eTags = tagstudy(studyFile, varargin)
     % Tag all of the EEG files in a study
     eTags = '';
     parser = inputParser;
@@ -18,14 +18,14 @@ function eTags = tagEEGStudy(studyFile, varargin)
     parser.parse(studyFile, varargin{:});
     p = parser.Results;
  
-    [s, fPaths] = loadStudyInfo(p.StudyFile);
+    [s, fPaths] = loadstudy(p.StudyFile);
     if isempty(s) 
         return;
     end
 
-    eTags = getEEGGroupEventTags(fPaths);
+    eTags = getgrouptags(fPaths);
     baseTags = eventTags.loadTagFile(p.BaseTagsFile);
-    eTags = tagEvents(eTags, 'BaseTags', baseTags, ...
+    eTags = tagevents(eTags, 'BaseTags', baseTags, ...
                      'UpdateType', p.UpdateType, 'UseGUI', p.UseGUI, ...
                      'Synchronize', p.Synchronize);
   
@@ -48,28 +48,27 @@ function eTags = tagEEGStudy(studyFile, varargin)
     % Rewrite all of the EEG files with updated tag information
     for k = 1:length(fPaths) % Assemble the list
         teeg = pop_loadset(fPaths{k});
-        teeg = tagEEG(teeg, 'BaseTagsFile', bName, ...
+        teeg = tageeg(teeg, 'BaseTagsFile', bName, ...
               'UpdateType', p.UpdateType, 'UseGUI', false);
         pop_saveset(teeg, 'filename', fPaths{k});
     end
-    
-    
-    function [s, fNames] = loadStudyInfo(studyFile)
+     
+    function [s, fNames] = loadstudy(studyFile)
         % Set baseTags if tagsFile contains an eventTags object
         try
             t = load('-mat', studyFile);
             tFields = fieldnames(t);
             s = t.(tFields{1});
             sPath = fileparts(studyFile);
-            fNames = getStudyFiles(s, sPath);
+            fNames = getstudyfiles(s, sPath);
         catch ME %#ok<NASGU>
             warning('tagEEGStudy:loadStudyFile', 'Invalid study file');
             s = '';
             fNames = '';
         end
-    end % loadStudyInfo
+    end % loadstudy
 
-    function fNames = getStudyFiles(study, sPath)
+    function fNames = getstudyfiles(study, sPath)
         % Set baseTags if tagsFile contains an eventTags object
         datasets = {study.datasetinfo.filename};
         paths = {study.datasetinfo.filepath};
@@ -91,5 +90,5 @@ function eTags = tagEEGStudy(studyFile, varargin)
             fNames{ik} = fName;
         end
         fNames(~validPaths) = [];  % Get rid of invalid paths
-    end % getStudyFiles
-end % tagEEGStudy
+    end % getstudyfiles
+end % tagstudy

@@ -1,25 +1,28 @@
-% pop_tagEEG opens the ctagger GUI as a singleton callback for EEGLAB
+% pop_tageeg opens the ctagger GUI as a singleton callback for EEGLAB
 %
 % Usage:
-%   >>  EEGOUT = pop_ctagger(EEG)
+%   >>  EEGOUT = pop_tageeg(EEG)
 %
 % Inputs:
-%    EEG     EEG dataset to be tagger
-%    HEDXML  XML specification of the hierarchy tag structure
+%    EEG     EEG dataset to be tagged
 %
 % Outputs:
-%   EEGOUT  - the input EEG dataset
+%   EEGOUT  - the input EEG dataset after tagging
 % 
-% The pop_ctagger provides a GUI for annotating events in EEG structure 
+% The pop_tageeg provides a GUI for annotating events in EEG structure 
+% 
 %
 % Notes:
-%  -  pop_ctagger() is meant to be used as the callback under the 
+%  -  pop_tageeg() is meant to be used as the callback under the 
 %     EEGLAB Edit menu. It is a singleton and clicking
 %     the menu item again will not create a new window if one already
 %     exists.
+%  -  The function first brings up a GUI to enter the parameters to 
+%     override the default values for tageeg and then optionally allows
+%     the user to use the ctagger GUI to modify the tags.
 % 
 % See also:
-%   eeglab, ctagger, and eegplugin_ctagger
+%   eeglab, tageeg, tagdir, tagstudy, and eegplugin_ctagger
 %
 
 %
@@ -41,38 +44,37 @@
 % along with this program; if not, write to the Free Software
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-% $Log: pop_ctagger.m,v $
-% Revision 1.0 03-Feb-2013 10:22:05  kay
+% $Log: pop_tageeg.m,v $
+% Revision 1.0 21-Apr-2013 09:25:25  kay
 % Initial version
 %
 
 
-function [EEG, com] = pop_tagEEG(EEG) 
+function [EEG, com] = pop_tageeg(EEG) 
 % Create the tagger for a single EEG file
-com = '';       
+    com = '';       
 
-% Display help if inappropriate number of arguments
-if nargin < 1 
-	help pop_tagEEG;
-	return;
-end;
+    % Display help if inappropriate number of arguments
+    if nargin < 1 
+        help pop_tageeg;
+        return;
+    end;
 
-% Create the tagger for this EEG set
-[baseTagsFile, updateType, onlyType, saveTagsFile, useGUI, isCancelled] ...
-          = getTagEEGInputs();
-fprintf(2, 'Now tagging EEG....\n');
-if isCancelled
-    return;
-end
+    % Create the tagger for this EEG set
+    [baseTagsFile, updateType, onlyType, saveTagsFile, useGUI, cancelled] ...
+              = tageeginputs();
+    if cancelled
+        return;
+    end
 
-EEG = tagEEG(EEG, 'BaseTagsFile', baseTagsFile, 'OnlyType', onlyType, ...
-             'TagFileName', saveTagsFile,'UpdateType', updateType, ...
-             'UseGUI', useGUI, 'Synchronize', false);
-formatString = ['%s = pop_tagEEG(%s, ''BaseTagsFile'', ''' baseTagsFile ''', '...
-       '''OnlyType'', ' num2str(onlyType) ', ''TagFileName'', ''' saveTagsFile ''', ' ...
-       '''UpdateType'', ' updateType ', ''UseGui'', ' ...
-       num2str(useGUI) ', ''Synchronize'', ' num2str(false) ')'];
-com = sprintf(formatString, inputname(1), inputname(1));
-
+    EEG = tageeg(EEG, 'BaseTagsFile', baseTagsFile, 'OnlyType', onlyType, ...
+                 'TagFileName', saveTagsFile,'UpdateType', updateType, ...
+                 'UseGUI', useGUI, 'Synchronize', false);
+    formatString = ['%s = pop_tageeg(%s, ''BaseTagsFile'', ''' baseTagsFile ''', '...
+           '''OnlyType'', ' num2str(onlyType) ', ''TagFileName'', ''' saveTagsFile ''', ' ...
+           '''UpdateType'', ' updateType ', ''UseGui'', ' ...
+           num2str(useGUI) ', ''Synchronize'', ' num2str(false) ')'];
+    com = sprintf(formatString, inputname(1), inputname(1));
+end % pop_tageeg
 
   

@@ -1,4 +1,4 @@
-function test_suite = testTagEEGDir%#ok<STOUT>
+function test_suite = test_tagdir%#ok<STOUT>
 initTestSuite;
 
 function values = setup %#ok<DEFNU>
@@ -24,92 +24,92 @@ values.BCI2000 = 'BCI2000Set';
 values.EEGLAB = 'EEGLABSet';
 values.Shooter = 'ShooterSet';
 
-function teardown(values) %#ok<DEFNU>
+function teardown(values) %#ok<INUSD,DEFNU>
 % Function executed after each test
 
-function testTagEEGDirAttn(values)  %#ok<DEFNU>
+function test_tagdirAttn(values)  %#ok<DEFNU>
 % % Unit test for cTagger tagEEGDIR static method 
-fprintf('\nUnit tests for cTagger tagEEG static method\n');
+fprintf('\nUnit tests for tagdir for attention shift data\n');
 
 fprintf('It should work for the attention shift data without GUI\n');
 thisDir = [values.TestDirectory filesep values.Attn];
-[eTags1, fPaths1] = tagEEGDir(thisDir, 'UseGui', false);
+[eTags1, fPaths1] = tagdir(thisDir, 'UseGui', false);
 attnEvents1 = eTags1.getEvents();
 assertEqual(length(attnEvents1), 17);
 assertEqual(length(fPaths1), 6);
 
 fprintf('It should work for the attention shift data with GUI\n');
 thisDir = [values.TestDirectory filesep values.Attn];
-[eTags2, fPaths2] = tagEEGDir(thisDir);
+[eTags2, fPaths2] = tagdir(thisDir);
 attnEvents2 = eTags2.getEvents();
 assertEqual(length(attnEvents2), 17);
 assertEqual(length(fPaths2), 6);
 
 fprintf('It should work for the attention shift data with GUI\n');
 thisDir = [values.TestDirectory filesep values.Attn];
-[eTags2, fPaths2] = tagEEGDir(thisDir, 'UseGui', true);
+[eTags2, fPaths2] = tagdir(thisDir, 'UseGui', true);
 attnEvents2 = eTags2.getEvents();
 assertEqual(length(attnEvents2), 17);
 assertEqual(length(fPaths2), 6);
 
 fprintf('It should work for the attention shift data with GUI and no synchronization\n');
 thisDir = [values.TestDirectory filesep values.Attn];
-[eTags2, fPaths2] = tagEEGDir(thisDir, 'UseGui', true, 'Synchronize', false);
+[eTags2, fPaths2] = tagdir(thisDir, 'UseGui', true, 'Synchronize', false);
 attnEvents2 = eTags2.getEvents();
 assertEqual(length(attnEvents2), 17);
 assertEqual(length(fPaths2), 6);
 
-function testTagEEGDirBCI2000(values)  %#ok<DEFNU>
-% Unit test for cTagger tagEEGDIR static method 
-fprintf('\nUnit tests for cTagger tagEEG static method for BCI2000\n');
+function test_tagdirBCI2000(values)  %#ok<DEFNU>
+% Unit test for tagdir for BCI2000 data
+fprintf('\nUnit tests for tagdir for BCI2000\n');
 
 fprintf('It should work for the BCI 2000 data without GUI\n');
 thisDir = [values.TestDirectory filesep values.BCI2000];
-[eTags3, fPaths3] = tagEEGDir(thisDir, 'UseGui', false);
+[eTags3, fPaths3] = tagdir(thisDir, 'UseGui', false);
 bci2000Events3 = eTags3.getEvents();
 assertEqual(length(bci2000Events3), 17);
 assertEqual(length(fPaths3), 42);
 
 fprintf('It should work for the BCI 2000 data witht GUI\n');
 thisDir = [values.TestDirectory filesep values.BCI2000];
-[eTags4, fPaths4] = tagEEGDir(thisDir);
+[eTags4, fPaths4] = tagdir(thisDir);
 bci2000Events4 = eTags4.getEvents();
 assertEqual(length(bci2000Events4), 17);
 assertEqual(length(fPaths4), 42);
 
 fprintf('It should work for the BCI 2000 data witht GUI and no synchronization\n');
 thisDir = [values.TestDirectory filesep values.BCI2000];
-[eTags4, fPaths4] = tagEEGDir(thisDir, 'Synchronize', false);
+[eTags4, fPaths4] = tagdir(thisDir, 'Synchronize', false);
 bci2000Events4 = eTags4.getEvents();
 assertEqual(length(bci2000Events4), 17);
 assertEqual(length(fPaths4), 42);
 
-function testTagEEGDirEEGLAB(values)  %#ok<DEFNU>
-% Unit test for cTagger tagEEGDIR static method 
-fprintf('\nUnit tests for cTagger tagEEG static method for EEGLAB data\n');
+function test_tagdirEEGLAB(values)  %#ok<DEFNU>
+% Unit test for tagdir for EEGLAB sample data
+fprintf('\nUnit tests for tagdir with EEGLAB data\n');
 
 fprintf('It should work for the EEGLAB data without the GUI\n');
 thisDir = [values.TestDirectory filesep values.EEGLAB];
-[eTags5, fPaths5] = tagEEGDir(thisDir, 'UseGui', false);
+[eTags5, fPaths5] = tagdir(thisDir, 'UseGui', false);
 eeglabEvents = eTags5.getEvents();
 assertEqual(length(eeglabEvents), 2)
 assertEqual(length(fPaths5), 3);
 
 fprintf('It should work for the EEGLAB data\n');
 thisDir = [values.TestDirectory filesep values.EEGLAB];
-[eTags6, fPaths6] = tagEEGDir(thisDir);
+[eTags6, fPaths6] = tagdir(thisDir);
 eeglabEvents6 = eTags6.getEvents();
 fprintf('events: %d, paths: %d\n', length(eeglabEvents6), length(fPaths6));
 assertEqual(length(eeglabEvents6), 2)
 assertEqual(length(fPaths6), 3);
 
-function testTagEEGDirShooter(values)  %#ok<DEFNU>
-% Unit test for cTagger tagEEGDIR static method 
-fprintf('\nUnit tests for cTagger tagEEG static method\n');
+function test_tagdirShooter(values)  %#ok<DEFNU>
+% Unit test for tagdir with shooter data 
+fprintf('\nUnit tests for tagdir with shooter data\n');
 
 fprintf('It should work for the shooter data\n');
 thisDir = [values.TestDirectory filesep values.Shooter];
-[eTags7, fPaths7] = tagEEGDir(thisDir);
+[eTags7, fPaths7] = tagdir(thisDir);
 shooterEvents7 = eTags7.getEvents();
 fprintf('events: %d, paths: %d\n', length(shooterEvents7), length(fPaths7));
 

@@ -1,4 +1,4 @@
-function test_suite = testShowDialog%#ok<STOUT>
+function test_suite = test_showDialog%#ok<STOUT>
 initTestSuite;
 
 function values = setup %#ok<DEFNU>

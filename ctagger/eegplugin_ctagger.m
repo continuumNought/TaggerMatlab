@@ -43,7 +43,7 @@
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1.07  USA
 
 % $Log: eegplugin_ctagger.m,v $
-% Revision 1.0 03-Feb-2013 10:22:05  kay
+% Revision 1.0 21-Apr-2013 09:25:25 10:22:05  kay
 % Initial revision
 %
 
@@ -76,26 +76,26 @@ function vers = eegplugin_ctagger(fig, trystrs, catchstrs)
 
     % Add to EEGLAB edit menu for current EEG dataset
     parentMenu = findobj(fig, 'Label', 'Edit');
-    tagMenu = uimenu(parentMenu, 'Label', 'Tag events',  'Separator', 'on');
-    
-    % Add tagging of current EEG
-    finalcmd = '[EEG LASTCOM] = pop_tagEEG(EEG);';
+    finalcmd = '[EEG LASTCOM] = pop_tageeg(EEG);';
     ifeegcmd = 'if ~isempty(LASTCOM) && ~isempty(EEG)';
     savecmd = '[ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET);';
     finalcmd =  [trystrs.no_check finalcmd ifeegcmd savecmd 'end;' catchstrs.add_to_hist];
-    uimenu(tagMenu, 'Label', 'Tag current EEG', 'Callback', finalcmd);
+    uimenu(parentMenu, 'Label', 'Tag current EEG', 'Callback', finalcmd, ...
+        'Separator', 'on');
     
     % Add tagging of directory of EEG
-    finalcmd = '[~, ~, LASTCOM] = pop_tagEEGDir();';
+    parentMenu = findobj(fig, 'Label', 'File');
+    finalcmd = '[~, ~, LASTCOM] = pop_tagdir();';
     finalcmd =  [trystrs.no_check finalcmd catchstrs.add_to_hist];
-    uimenu(tagMenu, 'Label', 'Tag EEG Directory', 'Callback', finalcmd);
+    uimenu(parentMenu, 'Label', 'Tag EEG Directory', 'Callback', finalcmd, ...
+        'Separator', 'on', 'userdata', 'startup:on');
     
     % Add tagging of current study 
     studyMenu = findobj(fig, 'Label', 'Study');
-    finalcmd = '[~, ~, LASTCOM] = pop_tagEEGStudy();';
+    finalcmd = '[~, ~, LASTCOM] = pop_tagstudy();';
     finalcmd =  [trystrs.no_check finalcmd catchstrs.add_to_hist];
     uimenu(studyMenu, 'Label', 'Tag EEG Study', 'Callback', finalcmd, ...
-        'Separator', 'on');
+        'Separator', 'on', 'userdata', 'study:on');
 
     
     

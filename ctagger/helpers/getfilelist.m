@@ -1,4 +1,4 @@
-function fPaths = getFileList(inDir, fileExt, doSubDirs)
+function fPaths = getfilelist(inDir, fileExt, doSubDirs)
 % Get a list of the files in a directory tree
 %
 % Parameters:

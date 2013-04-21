@@ -1,10 +1,10 @@
-function test_suite = testEegplugin_eegvis %#ok<STOUT>
-% Unit tests for eegplugin_eegvis
+function test_suite = test_eegplugin_ctagger %#ok<STOUT>
+% Unit tests for eegplugin_ctagger
 initTestSuite;
 
-function testEegplugin_eegvisNormalConstructor %#ok<DEFNU>
-% Unit test for normal eegplugin_eegvis constructor
-fprintf('\nUnit tests for eegplugin_eegvis valid constructor\n');
+function test_eegplugin_ctagger_eeglab %#ok<DEFNU>
+% Unit test for normal eegplugin_ctagger bring up eeglab
+fprintf('\nUnit tests for eegplugin_ctagger bringing up eegalb\n');
 
 [ALLEEG EEG CURRENTSET ALLCOM] = eeglab; %#ok<NASGU,ASGLU>
 eeglabfig = gcf;
