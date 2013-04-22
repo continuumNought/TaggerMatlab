@@ -31,11 +31,12 @@
                  image="HelpIcon.FUNCTION">Function Reference
             <!-- List category with link to anchor in above page -->
             <tocitem target="ctagger_functions_by_cat.html#1">Top-level tagging functions 
-                <tocitem target="getdirtags_help.html" image="HelpIcon.FUNCTION">getdirtags</tocitem>
-                 <tocitem target="geteegtags_help.html" image="HelpIcon.FUNCTION">geteegtags</tocitem>
-                <tocitem target="tagEEG_help.html" image="HelpIcon.FUNCTION">tagEEG</tocitem> 
-                <tocitem target="tagEEGDir_help.html" image="HelpIcon.FUNCTION">tagEEGDir</tocitem>
+                <tocitem target="findtags_help.html" image="HelpIcon.FUNCTION">findtags</tocitem>
+                <tocitem target="findtagsdir_help.html" image="HelpIcon.FUNCTION">findtagsdir</tocitem>
+                <tocitem target="tagdir_help.html" image="HelpIcon.FUNCTION">tagdir</tocitem>
+                <tocitem target="tageeg_help.html" image="HelpIcon.FUNCTION">tageeg</tocitem> 
                 <tocitem target="tagEvents_help.html" image="HelpIcon.FUNCTION">tagEvents</tocitem>
+                <tocitem target="tagstudy_help.html" image="HelpIcon.FUNCTION">tagstudy</tocitem>
             </tocitem>
             <tocitem target="ctagger_functions_by_cat.html#2">The eventTags object 
                 <tocitem target="eventTagsOverview_help.html" image="HelpIcon.FUNCTION">eventTagsOverview</tocitem>   

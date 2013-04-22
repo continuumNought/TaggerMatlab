@@ -13,7 +13,7 @@ function eTags = tagevents(eTags, varargin)
     parser.parse(eTags, varargin{:});
     p = parser.Results;
     eTags = p.ETags;
-    eTags.mergeEventTags(p.BaseTags, p.UpdateType)
+    eTags.mergeEventTags(p.BaseTags, p.UpdateType);
     if p.UseGUI
         hed = char(eTags.getHedXML());              
         tEvents = char(eTags.getJsonEvents());
