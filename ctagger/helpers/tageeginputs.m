@@ -10,7 +10,7 @@ function [baseTagsFile,  match, onlyType, preservePrefix, ...
     preservePrefix = false;
     saveTagsFile = '';
     updateCtrl = '';
-    updateType = 'TagsOnly';
+    updateType = 'OnlyTags';
     useGUI = true;
     theTitle = 'Inputs for tagging an EEG structure';
     inputFig = figure( ...

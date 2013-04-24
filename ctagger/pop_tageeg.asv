@@ -1,16 +1,13 @@
-% pop_tageeg opens the ctagger GUI as a singleton callback for EEGLAB
+% pop_tageeg provides a GUI for annotating events in the EEGLAB EEG structure 
 %
 % Usage:
-%   >>  EEGOUT = pop_tageeg(EEG)
+%   >>  [EEGOUT, com] = pop_tageeg(EEG)
 %
-% Inputs:
-%    EEG     EEG dataset to be tagged
-%
-% Outputs:
-%   EEGOUT  - the input EEG dataset after tagging
-% 
-% The pop_tageeg provides a GUI for annotating events in EEG structure 
-% 
+% [EEGOUT, com] = pop_tageeg(EEG) takes an input EEGLAB EEG structure,
+% brings up a GUI to enter parameters for tageeg, and calls
+% tageeg to extracts the EEG structure's tags, if any. The tageeg
+% function then brings up the ctagger GUI to allow users to modify the
+% tags.
 %
 % Notes:
 %  -  pop_tageeg() is meant to be used as the callback under the 
@@ -60,26 +57,26 @@ function [EEG, com] = pop_tageeg(EEG)
         return;
     end;
 
-    % Create the tagger for this EEG set
+    % Get the tagger input parameters
     [baseTagsFile,  match, onlyType,  preservePrefix, ...
-          saveTagsFile, updateType, useGUI, cancelled] = tageeginputs();
-     
+          saveTagsFile, updateType, useGUI, cancelled] = tageeginputs();     
     if cancelled
         return;
     end
 
+    % Tag the EEG structure and return the command string
     EEG = tageeg(EEG, 'BaseTagsFile', baseTagsFile, 'Match', match, ...
                  'OnlyType', onlyType, 'PreservePrefix', preservePrefix, ...
                  'TagFileName', saveTagsFile,'UpdateType', updateType, ...
                  'UseGUI', useGUI, 'Synchronize', false);
-    formatString = ['%s = pop_tageeg(%s, ''BaseTagsFile'', ''' 
+    formatString = ['%s = pop_tageeg(%s, ''BaseTagsFile'', ''' ...
            baseTagsFile ''', ''Match'', ''' match, ''', ' ...
            '''OnlyType'', ' logical2str(onlyType) ', ' ...
            '''PreservePrefix'', ' logical2str(preservePrefix) ', ' ...
+           '''Synchronize'', ' logical2str(false) ', ' ...
            '''TagFileName'', ''' saveTagsFile ''', ' ...
-           '''UpdateType'', ''' updateType ''', '
-           '''UseGui'', ' logical2str(useGUI) ')'...
-           num2str(useGUI) ', ''Synchronize'', ' num2str(false) ')'];
+           '''UpdateType'', ''' updateType ''', ' ...
+           '''UseGui'', ' logical2str(useGUI) ')'];
     com = sprintf(formatString, inputname(1), inputname(1));
 end % pop_tageeg
 

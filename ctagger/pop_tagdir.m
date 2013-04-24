@@ -3,10 +3,12 @@
 % Usage:
 %   >>  [eTags, fPaths, com] = pop_tagdir()
 %
-% Outputs:
-%    eTags  - an eventTags object containing consolidated tags
-%    fPaths - full path names of all EEG files
-%    com    - string containing call to tagdir with all parameters
+% [eTags, fPaths, com] = pop_tagdir() first brings up a GUI to allow the
+% user to set parameters for the tagdir function, and then calls tagdir
+% to consolidate the tags from all of the .set files in the specified
+% directories. Depending on the arguments, tagdir may also bring up
+% the ctagger GUI to allow users to edit the tags and then write the
+% resulting tags back into each of the .set files.
 %
 % Notes:
 %  -  pop_tagdir() is meant to be used as the callback under the 

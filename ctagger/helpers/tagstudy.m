@@ -1,6 +1,5 @@
 function eTags = tagstudy(studyFile, varargin)
     % Tag all of the EEG files in a study
-    eTags = '';
     parser = inputParser;
     parser.addRequired('StudyFile', ...
         @(x) (~isempty(x) && exist(studyFile, 'file')));
@@ -14,13 +13,16 @@ function eTags = tagstudy(studyFile, varargin)
     parser.addParamValue('Synchronize', true, @islogical);
     parser.addParamValue('TagFileName', '', ...
          @(x)(isempty(x) || (ischar(x))));
-    parser.addParamValue('UpdateType', 'tagsonly', ...
+    parser.addParamValue('UpdateType', 'onlytags', ...
           @(x) any(validatestring(lower(x), ...
           {'merge', 'replace', 'onlytags', 'update', 'none'})));
     parser.addParamValue('UseGUI', true, @islogical);
     parser.parse(studyFile, varargin{:});
     p = parser.Results;
  
+   % Consolidate all of the tags from the study
+    eTags = eventTags('', '', 'Match', p.Match, 'PreservePrefix', ...
+                      p.PreservePrefix);
     [s, fPaths] = loadstudy(p.StudyFile);
     if isempty(s) 
         return;
@@ -35,7 +37,6 @@ function eTags = tagstudy(studyFile, varargin)
     end
     baseTags = eventTags.loadTagFile(p.BaseTagsFile);
     eTags = tagevents(eTags, 'BaseTags', baseTags, ...
-        'Match', p.Match, 'PreservePrefix', p.PreservePrefix, ...
         'UpdateType', p.UpdateType, 'UseGUI', p.UseGUI, ...
         'Synchronize', p.Synchronize);
   
@@ -73,7 +74,7 @@ function eTags = tagstudy(studyFile, varargin)
             sPath = fileparts(studyFile);
             fNames = getstudyfiles(s, sPath);
         catch ME %#ok<NASGU>
-            warning('tagEEGStudy:loadStudyFile', 'Invalid study file');
+            warning('tagstudy:loadStudyFile', 'Invalid study file');
             s = '';
             fNames = '';
         end
@@ -94,7 +95,7 @@ function eTags = tagstudy(studyFile, varargin)
                 fName = fullfile(sPath, paths{ik}, datasets{ik});
             end
             if ~exist(fName, 'file') % Give up
-                warning('tagEEGStudy:getStudyFiles', ...
+                warning('tagstudy:getStudyFiles', ...
                     ['Study file ' fname ' doesn''t exist']);
                 validPaths(ik) = false;
             end

@@ -511,7 +511,6 @@ classdef eventTags < hgsetget
                 t = load(tagsFile);
                 tFields = fieldnames(t);
                 for k = 1:length(tFields);
-                    %nextField =  eval(['t.' tFields{k}]);
                     nextField = t.(tFields{k});
                     if isa(nextField, 'eventTags')
                         baseTags = nextField;

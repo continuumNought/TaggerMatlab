@@ -148,12 +148,14 @@ function [eTags, fPaths] = tagdir(inDir, varargin)
     if isempty(fPaths) || strcmpi(p.UpdateType, 'none')
         return;
     end
+    
     % Rewrite all of the EEG files with updated tag information
     for k = 1:length(fPaths) % Assemble the list
         teeg = pop_loadset(fPaths{k});
         teeg = tageeg(teeg, 'BaseTagsFile', bName, ...
-              'UpdateType', p.UpdateType, 'UseGUI', false, ...
-              'Synchronize', p.Synchronize);
+              'Match', p.Match, 'PreservePrefix', p.PreservePrefix, ...
+              'Synchronize', p.Synchronize, ...
+              'UpdateType', p.UpdateType, 'UseGUI', false);
         pop_saveset(teeg, 'filename', fPaths{k});
     end
 end % tagdir

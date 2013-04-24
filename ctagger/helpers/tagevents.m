@@ -35,4 +35,4 @@ function eTags = tagevents(eTags, varargin)
         end
         eTags.reset(strtrim(tags), eventTags.json2Events(strtrim(events)));
     end
-end % tagEvents     
+end % tagevents     
