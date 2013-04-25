@@ -17,7 +17,8 @@
 %
 % The final, consolidated and edited eventTags object is returned in eTags
 % and fPaths is a cell array containing the full path names of all of the
-% .set files that were affected.
+% .set files that were affected. If fPaths is empty, then eTags will also
+% be empty.
 %
 %
 % [eTags, fPaths] = tagdir(EEG, 'key1', 'value1', ...) specifies 
@@ -119,10 +120,16 @@ function [eTags, fPaths] = tagdir(inDir, varargin)
     parser.parse(inDir, varargin{:});
     p = parser.Results;
     
+
+    fPaths = getfilelist(p.InDir, '.set', p.DoSubDirs);
+    if isempty(fPaths)
+        eTags = '';
+        return;
+    end
+    
     % Consolidate all of the tags from the input directory and base
     eTags = eventTags('', '', 'Match', p.Match, 'PreservePrefix', ...
                       p.PreservePrefix);
-    fPaths = getfilelist(p.InDir, '.set', p.DoSubDirs);
     for k = 1:length(fPaths) % Assemble the list
         eegTemp = pop_loadset(fPaths{k});
         eTagsNew = findtags(eegTemp, 'Match', p.Match, ...

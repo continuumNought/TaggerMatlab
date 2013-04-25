@@ -155,31 +155,35 @@ classdef eventTags < hgsetget
                     ' label, description and tag fields']);
                 return;
             elseif sum(strcmpi(updateType, ...
-                    {'TagsOnly', 'Update', 'Replace', 'Merge'})) == 0
+                    {'OnlyTags', 'Update', 'Replace', 'Merge', 'None'})) == 0
                 warning('addTags:invalidType', ...
-                    ['updateType must be one of TagsOnly, Update, Replace, ' ...
-                    ' or Merge']);
+                    ['updateType must be one of OnlyTags, Update, Replace, ' ...
+                     'Merge, or None']);
                 return;
             end
+            
+            % Does this event exist in this object?
             key = obj.getKey(event);
-            if ~obj.TagMap.isKey(key) % Include a new event if Merge
-                if strcmpi(updateType, 'Merge')
-                    obj.TagMap(key) = event;
-                end
+            eventExists = obj.TagMap.isKey(key);
+            if strcmpi(updateType, 'None') 
                 return;
+            elseif ~eventExists && ~strcmpi(updateType, 'Merge')
+                return
+            elseif ~eventExists || strcmpi(updateType, 'Replace')
+                 obj.TagMap(key) = event;
+                 return
             end
-            eventExists = true;
-            if strcmpi(updateType, 'Replace')
-                obj.TagMap(key) = event;
-                return;
-            end
+   
+            % Merge tags of existing events
             oldEvent = obj.TagMap(key);
             oldEvent.tags = mergetaglists(oldEvent.tags, ...
                 event.tags, obj.PreservePrefix);
-            if strcmpi(updateType, 'TagsOnly')
+            if strcmpi(updateType, 'OnlyTags')
                 obj.TagMap(key) = oldEvent;
                 return;
             end
+            
+            % Now handle merge or update of an existing event itself
             if isempty(oldEvent.code)
                 oldEvent.code = event.code;
             end
@@ -190,7 +194,6 @@ classdef eventTags < hgsetget
                 oldEvent.description = event.description;
             end
             obj.TagMap(key) = oldEvent;
-            eventExists = true;
         end % addEvent
         
         function event = getEvent(obj, key)
@@ -208,7 +211,7 @@ classdef eventTags < hgsetget
         end % getEvents
         
         function eStruct = getEventStruct(obj)
-            % Retrieve the events as a structure array
+            % Return the events as a structure array
             events = obj.TagMap.values;
             if isempty(events)
                 eStruct = '';
@@ -222,6 +225,7 @@ classdef eventTags < hgsetget
         end % getEvents
         
         function hedXML = getHedXML(obj)
+            % Return a string containing the HEDXML
             hedXML = obj.HedXML;
         end % getHedXML
         
@@ -241,23 +245,23 @@ classdef eventTags < hgsetget
         end % getMatch
         
         function pPrefix = getPreservePrefix(obj)
-            % Return the PreservePrefix flag (false means no duplication)
+            % Return the PreservePrefix flag (false means no tag prefix duplication)
             pPrefix = obj.PreservePrefix;
         end % getPreservePrefix
         
-        function eTags = getStruct(obj)
+        function thisStruct = getStruct(obj)
             % Return this object in structure form
-            eTags = struct('hedXML', obj.HedXML, 'events', obj.getEventStruct());
+            thisStruct = struct('hedXML', obj.HedXML, 'events', obj.getEventStruct());
         end % getStruct
         
-        function tString = getText(obj)
-            % Convert this object to semi-colon separated text
-            tString = [obj.HedXML ';' obj.getTextEvents()];
+        function thisText = getText(obj)
+            % Return this object as semi-colon separated text
+            thisText = [obj.HedXML ';' obj.getTextEvents()];
         end % getText
         
-        function tString = getTextEvents(obj)
-            % Convert this eventTags object to semi-colon separated text
-            tString = eventTags.events2Text(obj.TagMap.values);
+        function eventsText = getTextEvents(obj)
+            % Return events of this object as semi-colon separated text
+            eventsText  = eventTags.events2Text(obj.TagMap.values);
         end % getTextEvents
         
         function mergeEventTags(obj, eTags, updateType)
@@ -278,8 +282,7 @@ classdef eventTags < hgsetget
                 return;
             end
             try
-               edu.utsa.tagger.database.XMLGenerator.validateSchemaString(...
-                                           char(hedMerge), obj.HedSchema);
+               validateHed(obj.HedSchema, hedMerge);
             catch ex
                 warning('eventTags:mergeHed', ['Could not merge XML ' ...
                      ' [' ex.message ']']);
@@ -305,7 +308,7 @@ classdef eventTags < hgsetget
     methods(Access = private)
         
         function hedXML = getHed(hedFile)
-            % Merges the specified hedfile with the default
+            % Merge the specified hedfile with the default
             hedXML = fileread(eventTags.DefaultHED);
             if nargin == 1 && ~isempty(hedFile)
                 hedXML = eventTags.mergeHed(hedXML, fileread(hedFile));
@@ -335,7 +338,6 @@ classdef eventTags < hgsetget
             obj.reset(pdata.HedString, pdata.Events)
         end % parseParameters
         
- 
     end % private methods
     
     methods(Static = true)
@@ -348,7 +350,7 @@ classdef eventTags < hgsetget
         end % createEvent
         
         function eJson = event2Json(event)
-            % Create Json with correct format for Java Jackson parser
+            % Convert an event structure to a JSON string
             tags = event.tags;
             if isempty(tags)
                 tagString = '';
@@ -367,7 +369,7 @@ classdef eventTags < hgsetget
         end
         
         function eText = event2Text(event)
-            % Return text version of a non empty event
+            % Convert an event structure to comma-separated string
             tags = event.tags;
             if isempty(tags)
                 tagString = '';
@@ -384,7 +386,7 @@ classdef eventTags < hgsetget
         end % event2Text
         
         function eText = events2Json(events)
-            % Return text version of a cell array of events
+            % Convert an event structure array to a JSON string 
             if isempty(events)
                 eText = '';
             else
@@ -397,7 +399,7 @@ classdef eventTags < hgsetget
         end % events2Json
         
         function eText = events2Text(events)
-            % Return text version of a cell array of events
+            % Convert an event structure array to semi-colon separated string
             if isempty(events)
                 eText = '';
             else
@@ -407,9 +409,7 @@ classdef eventTags < hgsetget
                 end
             end
         end % events2Text
-        
-
-        
+          
         function parser = getParser()
             % Create a parser for blockedData
             parser = inputParser;
@@ -427,7 +427,7 @@ classdef eventTags < hgsetget
         end % getParser
         
         function theStruct = json2Mat(json)
-            % Converts a JSON specification to a structure
+            % Convert a JSON object specification to a structure
             theStruct = struct('hedXML', '', 'events', '');
             if isempty(json)
                 return;
@@ -442,16 +442,33 @@ classdef eventTags < hgsetget
                         ['json:[%s] ' ME.message], json);
                 end
             end
-%            [theStruct, valid] = eventTags.reformatStruct(theStruct);
         end % json2mat
         
-        function theStruct = json2Events(json)
+        function eStruct = json2Events(json)
+            % Converts a JSON events string to a structure or empty string
             if isempty(json)
-                theStruct = '';
+                eStruct = '';
             else
-                theStruct = loadjson(json);
+                eStruct = loadjson(json);
             end
         end % json2Events
+        
+        function baseTags = loadTagFile(tagsFile)
+            % Load an eventTags object from tagsFile
+            baseTags = '';
+            try
+                t = load(tagsFile);
+                tFields = fieldnames(t);
+                for k = 1:length(tFields);
+                    nextField = t.(tFields{k});
+                    if isa(nextField, 'eventTags')
+                        baseTags = nextField;
+                        return;
+                    end
+                end
+            catch ME         %#ok<NASGU>
+            end
+        end % loadTagFile
         
         function [event, valid] = reformatEvent(event)
             % Reformat and check event making sure empty tags are removed
@@ -481,48 +498,8 @@ classdef eventTags < hgsetget
             end
         end % reformatEvent
         
-%         function [eStruct, valid] = reformatStruct(eStruct)
-%             % Reformat the struct, detecting whether or not valid
-%             if ~isstruct(eStruct) || ...
-%                     sum(isfield(eStruct, {'hedXML', 'events'})) ~= 2 || ...
-%                     ~ischar(eStruct.hedXML) || ...
-%                     (~isempty(eStruct.events) && ~isstruct(eStruct.events))
-%                 valid = false;
-%                 return;
-%             end
-%             valid = eventTags.validateHed(eStruct.hedXML);
-%             if ~valid
-%                 return;
-%             end
-%             events = eStruct.events;
-%             for k = 1:length(events)
-%                 [events(k), valid] = eventTags.reformatEvent(events(k));
-%                 if ~valid
-%                     return;
-%                 end
-%             end
-%             eStruct.events = events;
-%         end % validateStruct
-
-        function baseTags = loadTagFile(tagsFile)
-            % Set baseTags if tagsFile contains an eventTags object
-            baseTags = '';
-            try
-                t = load(tagsFile);
-                tFields = fieldnames(t);
-                for k = 1:length(tFields);
-                    nextField = t.(tFields{k});
-                    if isa(nextField, 'eventTags')
-                        baseTags = nextField;
-                        return;
-                    end
-                end
-            catch ME         %#ok<NASGU>
-            end
-        end % loadTagFile
-        
         function successful = saveTagFile(tagsFile, tagsObject) %#ok<INUSD>
-            % Set baseTags if tagsFile contains an eventTags object
+            % Save the tagsObject variable in the tagsFile file
             successful = true;
             try
                 save(tagsFile, inputname(2));
@@ -532,7 +509,7 @@ classdef eventTags < hgsetget
         end % saveTagFile
         
         function [hedXML, events] = split(inString, useJson)
-            % Return the hedString and the events structure
+            % Parse inString into xml hed string and events structure 
             hedXML = '';
             events = '';
             if isempty(inString)
@@ -548,7 +525,7 @@ classdef eventTags < hgsetget
         end % split
         
         function theStruct = text2Event(eString)
-            %Parse a comma separated event string into its constituent pieces.
+            % Parse a comma separated event string into its constituent pieces.
             theStruct = struct('code', '', 'label', '', 'description', '', ...
                 'tags', '');
             if isempty(eString)
@@ -571,7 +548,7 @@ classdef eventTags < hgsetget
         end %text2Event
         
         function eStruct = text2Events(events)
-            % Return an events structure from a cell array of text events
+            % Create an events structure array from a cell array of text events
             if length(events) < 1
                 eStruct = '';
             else  
@@ -594,7 +571,7 @@ classdef eventTags < hgsetget
         end % text2mat
 
         function valid = validateEvent(event)
-            % validate the structure array corresponding to event
+            % Validate the structure array corresponding to event
             if ~isstruct(event)
                 valid = false;
             elseif sum(isfield(event, ...
@@ -611,18 +588,15 @@ classdef eventTags < hgsetget
             end
         end % validateEvent
         
-
+        function validateHed(hedSchema, hedString)
+            % Validate hedString as empty or valid XML (invalid throws exception) 
+            if isempty(hedString)
+                return;
+            end
+            edu.utsa.tagger.database.XMLGenerator.validateSchemaString(...
+                                           char(hedString), hedSchema);
+        end % validateHed
         
-%         function valid = validateHed(hedString, hedSchema)
-%             % Validate hedString as empty or valid XML 
-%             valid = true;
-%             if isempty(hedString)
-%                 return;
-%             end
-%             edu.utsa.tagger.database.XMLGenerator.validateSchemaString(...
-%                                                    hedString, hedSchema);
-%         end % validHED
-%         
     end % static method
 end % eventTags
 

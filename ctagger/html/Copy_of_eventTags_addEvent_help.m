@@ -1,8 +1,8 @@
-%% get method of eventTags
-% Different ways of getting information from an eventTags object
+%% addEvent - method of eventTags
+% add an event to this eventTags object
 %
 %% Syntax
-%     |event = getEvent(obj, key)|
+%     eventExists = addEvent(obj, event, mergeType)
 %
 %% Description
 % |eventExists = addEvent(obj, event, updateType)| adds an event, as specified

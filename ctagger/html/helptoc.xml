@@ -39,11 +39,10 @@
                 <tocitem target="tagstudy_help.html" image="HelpIcon.FUNCTION">tagstudy</tocitem>
             </tocitem>
             <tocitem target="ctagger_functions_by_cat.html#2">The eventTags object 
-                <tocitem target="eventTagsOverview_help.html" image="HelpIcon.FUNCTION">eventTagsOverview</tocitem>   
-                <tocitem target="eventTags_addEvent_help.html" image="HelpIcon.FUNCTION">addEvent method</tocitem> 
-                <tocitem target="eventTags_getEvent_help.html" image="HelpIcon.FUNCTION">getEvent method</tocitem>
-                <tocitem target="eventTags_getEvents_help.html" image="HelpIcon.FUNCTION">getEvets method</tocitem> 
-                <tocitem target="eventTags_getEvent_help.html" image="HelpIcon.FUNCTION">getEvent method</tocitem> 
+                <tocitem target="eventTags_overview_help.html" image="HelpIcon.FUNCTION">Overview</tocitem>   
+                <tocitem target="eventTags_addEvent_help.html" image="HelpIcon.FUNCTION">The addEvent method</tocitem> 
+                <tocitem target="eventTags_get_methods_help.html" image="HelpIcon.FUNCTION">Get methods</tocitem>
+                <tocitem target="eventTags_static_methods_help.html" image="HelpIcon.FUNCTION">Static method</tocitem> 
             </tocitem>
             <tocitem target="ctagger_functions_by_cat.html#3">Other helper functions
                 <tocitem target="getfilelist_help.html" image="HelpIcon.FUNCTION">getfilelist</tocitem>   

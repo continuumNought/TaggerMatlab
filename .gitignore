@@ -31,6 +31,7 @@ procominfinity1.00/*
 *.html
 !ctagger/html/index.html
 !ctagger/*
+ctagger/html/*.html
 
 *help_*.png
 !help_ex.png
