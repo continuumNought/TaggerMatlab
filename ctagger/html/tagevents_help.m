@@ -75,7 +75,7 @@
    e2 = eventTags.json2Events(['[{"code":"1", "label":"code 1",' ...
        '"description":"event 1", "tags":[ "/light/stimulus"]}]'])
    eTags2 = eventTags('', e2);
-   eTags1 = cTagger.tagThis(eTags1, 'BaseTags', eTags2, 'UseGUI', false);
+   eTags1 = tagevents(eTags1, 'BaseTags', eTags2, 'UseGUI', false);
    events = eTags1.getEvents() 
    event1 = events{1}    % Just show the output here
    
@@ -83,12 +83,12 @@
 % The first pair of statements creates an |eventTags| object from a
 % a text string that has an empty hedXML and a single event with
 % two tags. The |eventTags.split| function splits this string into an
-% the string specifying the hed XML hierarch and an events structure array.
+% the string specifying the hed XML hierarchy and an events structure array.
 %
 % The |eventTags.json2Events| function takes a JSON string encoding one
 % or more events and creates an events structure array for the events.
 % 
-% The |cTagger.tagThis| function then merges the tags from |eTags2| into the 
+% The |tagevents| function then merges the tags from |eTags2| into the 
 % |eTags1| object. After this code has completed, the event with code 1 
 % will have 3 tags: |'/a/b/c'|, |'/def'| and |'/light/stimulus'|.
 
@@ -99,11 +99,12 @@
 %    doc cTagger
 %
 %% See also
-% <cTagger_getEEGDIREventTags_help.html |cTagger.getEEGEventTags|>,
-% <cTagger_getEEGEventTags_help.html |cTagger.getEEGEventTags|>,
-% <cTagger_tagEEG_help.html |cTagger.tagEEG|>, 
-% <cTagger_tagEEGDir_help.html |cTagger.tagEEGDir|>, 
-% <cTagger_tagThis_help.html |cTagger.tagThis|>, 
+% <eventTags_help.html |eventTags|>,
+% <findtags_help.html |findtags|>,
+% <tagdir_help.html |tagdir|>,
+% <tageeg_help.html |tageeg|>, 
+% <tagevents_help.html |tagevents|>, 
+% <tagstudy_help.html |tagstudy|>
 %
 
 %% 

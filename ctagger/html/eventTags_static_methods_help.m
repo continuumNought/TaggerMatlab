@@ -2,21 +2,22 @@
 % Methods for conversion and loading of events
 %
 %% Syntax
-%     |eJson = eventTags.event2Json(event)|
-%     |eText = eventTags.event2Text(event)|
-%     |eText = eventTags.events2Json(events)|
-%     |eText = eventTags.events2Text(events)|
-%     |theStruct =  eventTags.json2Mat(json)|
-%     |eStruct = eventTags.json2Events(json)|
-%     |baseTags = eventTags.loadTagFile(tagsFile)|
-%     |[event, valid] = eventTags.reformatEvent(event)|  
-%     |successful = eventTags.saveTagFile(tagsFile, tagsObject)|
-%     |[hedXML, events] = eventTags.split(inString, useJson)|
-%     |theStruct = eventTags.text2Event(eString)|
-%     |eStruct = eventTags.text2Events(events)|
-%     |theStruct = eventTags.text2Mat(eString)|
-%     |valid = eventTags.validateEvent(event)|
-%     |eventTags.validateHed(hedSchema, hedString)|
+%     eJson = eventTags.event2Json(event)
+%     eText = eventTags.event2Text(event)
+%     eText = eventTags.events2Json(events)
+%     eText = eventTags.events2Text(events)
+%     theStruct =  eventTags.json2Mat(json)
+%     eStruct = eventTags.json2Events(json)
+%     baseTags = eventTags.loadTagFile(tagsFile)
+%     [event, valid] = eventTags.reformatEvent(event)  
+%     successful = eventTags.saveTagFile(tagsFile, tagsObject)
+%     [hedXML, events] = eventTags.split(inString, useJson)
+%     theStruct = eventTags.text2Event(eString)
+%     eStruct = eventTags.text2Events(events)
+%     theStruct = eventTags.text2Mat(eString)
+%     valid = eventTags.validateEvent(event)
+%     eventTags.validateHed(hedSchema, hedString)
+%
 %% Description
 % |eJson = eventTags.event2Json(event)| converts an event structure 
 % to a JSON string.

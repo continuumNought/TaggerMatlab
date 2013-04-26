@@ -5,23 +5,31 @@
 %   >>  eTags = findtags(EEG)
 %   >>  eTags = findtags(EEG, 'key1', 'value1', ...)
 %
-%% Description
+% Description:
 % eTags = findtags(EEG) extracts an eventTags object representing the
 % events and their tags for the EEG structure.
 %
-% eTags = findtags(EEG, 'key1', 'value1', ...)| specifies 
-% optional name/value parameter pairs:
-%   'Match'          A string with event matching criteria:
-%                         'code' (default), 'label', or 'both'
-%   'OnlyType'       If true (default), only tag based on unique event types
-%                    and not on the other fields of EEG.event and
-%                    EEG.urevent.
+% eTags = findtags(EEG, 'key1', 'value1', ...) specifies optional name/value
+% parameter pairs:
+%   'Match'          Specifies the event matching criteria:
+%                    'code' (default), 'label', or 'both' (see notes).
+%   'OnlyType'       If true (default), tag only based on the type field of
+%                    EEG.event and EEG.urevent, ignoring other fields
+%                    of these structures.
 %   'PreservePrefix' If false (default), tags of the same event type that
 %                    share prefixes are combined and only the most specific
 %                    is retained (e.g., /a/b/c and /a/b become just
 %                    /a/b/c). If true, then all unique tags are retained.
 %
-% See also: tageeg and eventTags
+% Notes:
+% The |match| parameter determines whether two events match. There are
+% three possible strategies:  
+% 
+% * |code| - (the default) events match if their codes match
+% * |label| - events match if their labels match
+% * |both| - events match if both their labels and codes match
+%
+% See also: tageeg, tagevents, and eventTags
 %
 
 %1234567890123456789012345678901234567890123456789012345678901234567890
