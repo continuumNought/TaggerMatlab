@@ -282,7 +282,7 @@ classdef eventTags < hgsetget
                 return;
             end
             try
-               validateHed(obj.HedSchema, hedMerge);
+               eventTags.validateHed(obj.HedSchema, hedMerge);
             catch ex
                 warning('eventTags:mergeHed', ['Could not merge XML ' ...
                      ' [' ex.message ']']);
@@ -594,7 +594,7 @@ classdef eventTags < hgsetget
                 return;
             end
             edu.utsa.tagger.database.XMLGenerator.validateSchemaString(...
-                                           char(hedString), hedSchema);
+                                 char(hedString), char(hedSchema));
         end % validateHed
         
     end % static method
