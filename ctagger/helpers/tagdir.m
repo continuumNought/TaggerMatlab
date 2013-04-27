@@ -7,15 +7,16 @@
 %
 %% Description
 % [eTags, fPaths] = tagdir(inDir)extracts a consolidated eventTags object 
-% from the EEGLAB .set files from the directory tree inDir. 
+% from the EEGLAB .set files in the directory tree inDir.
+%
 % First the events and tags from all EEGLAB .set files are extracted and 
 % consolidated into a single eventTags object by merging all of the 
-% existing tags. Then the ctagger GUI is displayed so that users can
+% existing tags. A Then the ctagger GUI is displayed so that users can
 % edit/modify the tags. The GUI is launched in synchronous mode, meaning 
 % that it behaves like a modal dialog and must be closed before execution 
 % continues. Finally the tags for each EEG file are updated.
 %
-% The final, consolidated and edited eventTags object is returned in eTags
+% The final, consolidated and edited eventTags object is returned in eTags,
 % and fPaths is a cell array containing the full path names of all of the
 % .set files that were affected. If fPaths is empty, then eTags will also
 % be empty.

@@ -2,24 +2,16 @@
 % Allows a user to tag an entire directory of similar EEG .set files.
 %
 %% Syntax
-%     [eTags, fPaths] = cTagger.tagEEGDir(inDir)
-%     [eTags, fPaths] = cTagger.tagEEGDir(inDir, 'key1', 'value1', ...)
+%     [eTags, fPaths] = tagdir(inDir)
+%     [eTags, fPaths] = tagdir(inDir, 'key1', 'value1', ...)
 %
 %% Description
-% |[eTags, fPaths] = cTagger.tagEEGDir(inDir)| 
-% extracts a consolidated eventTags object from the directory |inDir| by calling
-% |cTagger.getEEGDirEventTags|. First the events and tags from all
-% EEGLAB .set files are extracted and consolidated into a single eventTags
-% object. A previously defined |eBaseTags| eventTags object is merged. The
-% |updateType| controls the way the events are combined. If |useGUI| is
-% true, the user can than modify this consolidated eventTags object using
-% the |cTagger| GUi. Once the user has completed editing and closed the
-% GUI, the event information in all of the .set files is updated. If
-% |doSubDirs| is true, all .set files in the |inDir| directory tree are
-% affected. If |doSubDirs| is false, then only the .set files in the |inDir|
-% tree are used.  
-%
-% The final, consolidated and edited |eventTags| object is returned in |eTags|
+% |[eTags, fPaths] = tagdir(inDir)| 
+% extracts a consolidated |eventTags| object from the EEGLAB .set files 
+% in the directory tree |inDir|.
+
+% The final, consolidated and edited |eventTags| object is returned in
+% |eTags|,
 % and |fPaths| is a cell array containing the full path names of all of the
 % .set files that were affected.
 %
@@ -75,7 +67,20 @@
 % </table>
 % </html>
 %
-
+%
+%% Notes
+% The procedure for merging all the files is as
+% First the events and tags from all EEGLAB .set files are extracted and 
+% consolidated into a single |eventTags| object. An optional previously defined 
+% |eventTags| object from the base tags fileis merged. The
+% |updateType| controls the way the events are combined. If |useGUI| is
+% true, the user can than modify this consolidated eventTags object using
+% the |cTagger| GUi. Once the user has completed editing and closed the
+% GUI, the event information in all of the .set files is updated. If
+% |doSubDirs| is true, all .set files in the |inDir| directory tree are
+% affected. If |doSubDirs| is false, then only the .set files in the |inDir|
+% tree are used.  
+%
 %% Example 1
 % Tag all of the .set files in the directory h:\EEGLABSet
    [eTags, fPaths] = tagdir('h:\EEGLABSet');
@@ -96,15 +101,14 @@
 % after retagging. Therefore EEGLAB must be in the path.
 %
 %% Class documentation
-% Execute the following in the MATLAB command window to view the class 
-% documentation for |cTagger|:
+% Execute the following in the MATLAB command window to view the function
+% documentation:
 %
-%    doc cTagger
+%    doc tagdir
 %
 %% See also
 % <eventTags_help.html |eventTags|>,
 % <findtags_help.html| |findtags|>,
-% <tagdir_help.html |tagdir|>,
 % <tageeg_help.html |tageeg|>, 
 % <tagevents_help.html |tagevents|>, 
 % <tagstudy_help.html |tagstudy|> 

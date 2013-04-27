@@ -24,7 +24,7 @@ xsi:noNamespaceSchemaLocation="optional">
          <listitem>
             <!-- Include call to open your documentation, if any -->
             <label>CTAGGER Package Documentation</label>
-            <callback>web(fullfile(fileparts(which('eegbrowse')),'html','ctagger_product_page.html'),'-helpbrowser')
+            <callback>web(fullfile(fileparts(which('pop_tagdir')),'html','ctagger_product_page.html'),'-helpbrowser')
             </callback>
         <icon>$toolbox/matlab/icons/bookicon.gif</icon>
         </listitem>
@@ -32,7 +32,7 @@ xsi:noNamespaceSchemaLocation="optional">
         <listitem>
             <!-- Include call to show release note, if any -->
             <label>CTAGGER Toolbox Release Notes</label>
-            <callback>web(fullfile(fileparts(which('eegbrowse')),'html','ctagger_release_notes.html'),'-helpbrowser')</callback>
+            <callback>web(fullfile(fileparts(which('pop_tagdir')),'html','ctagger_release_notes.html'),'-helpbrowser')</callback>
             <icon>HelpIcon.RELEASE_NOTES</icon>
         </listitem>
 

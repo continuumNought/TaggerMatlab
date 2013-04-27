@@ -14,32 +14,32 @@
 %
 % <html>
 % <table>
-% <thead><tr><td>Name</td><td>Description of action</td></tr></thead>
+% <thead><tr><td><strong>Name</strong></td><td><strong>Description of action</strong></td></tr></thead>
 % <tr><td><tt>'Match'</tt></td>
 %     <td>Specifies the event matching criteria:
 %    <tt>'code'</tt> (default), <tt>'label'</tt>, 
 %    or <tt>'both'</tt> (see notes).</td></tr>
 % <tr><td><tt>'OnlyType'</tt></td>
-%     <td>If |true| (default), tag only based on the |type| field of
-%           |EEG.event| and |EEG.urevent|, ignoring other fields
+%     <td>If <tt>true</tt> (default), tag only based on the <tt>type</tt> field of
+%           <tt>EEG.event</tt> and <tt>EEG.urevent</tt>, ignoring other fields
 %           of these structures.</td></tr>
 % <tr><td><tt>'PreservePrefix'</tt></td>
-%     <td>If |false| (default), tags of the same event type that
+%     <td>If <tt>false</tt> (default), tags of the same event type that
 %        share prefixes are combined and only the most specific
 %        is retained (e.g., /a/b/c and /a/b become just
-%        /a/b/c). If |true|, then all unique tags are retained.</td></tr>
+%        /a/b/c). If <tt>true</tt>, then all unique tags are retained.</td></tr>
 % </table>
 % </html>
 %
 %% Notes
-% The <tt>match</tt> parameter determines whether two events match. There are
-% three possible strategies:  
+% The |match| parameter determines whether two events are of the same type. 
+% There are three possible strategies:  
 % 
 % <html>
 % <ul>
-% <li> <tt>code</tt> - (the default) events match if their codes match</li>
-% <li> <tt>label</tt> - events match if their labels match</li>
-% <li> <tt>both</tt> - events match if both their labels and codes match</li>
+% <li> <tt>code</tt> - (the default) events match if their code fields are the same.</li>
+% <li> <tt>label</tt> - events match if their label fields are the same.</li>
+% <li> <tt>both</tt> - events match if both their label and code fields are the same.</li>
 % </ul>
 % </html>
 %
