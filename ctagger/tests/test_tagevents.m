@@ -61,7 +61,7 @@ e5 = eventTags.json2Events(['[{"code":"1", "label":"code 1",' ...
 eTagsNew5 = eventTags('', e5);
 assertTrue(isa(eTagsNew5, 'eventTags'));
 eTagsNew6 = tagevents(eTagsNew4, 'BaseTags', eTagsNew5, ...
-    'UpdateType', 'TagsOnly', 'UseGui', false);
+    'UpdateType', 'OnlyTags', 'UseGui', false);
 assertTrue(isa(eTagsNew6, 'eventTags'));
 
 function testValidSyncOff(values)  %#ok<DEFNU>
@@ -98,5 +98,5 @@ e5 = eventTags.json2Events(['[{"code":"1", "label":"code 1",' ...
 eTagsNew5 = eventTags('', e5);
 assertTrue(isa(eTagsNew5, 'eventTags'));
 eTagsNew6 = tagevents(eTagsNew4, 'BaseTags', eTagsNew5, ...
-    'UpdateType', 'TagsOnly', 'UseGui', true, 'Synchronize', false);
+    'UpdateType', 'OnlyTags', 'UseGui', true, 'Synchronize', false);
 assertTrue(isa(eTagsNew6, 'eventTags'));
