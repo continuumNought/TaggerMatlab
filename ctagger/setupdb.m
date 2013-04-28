@@ -23,25 +23,3 @@ catch me   % if database already exists, creation fails and warning is output
     DB.close();
 end
 DB.close();
-
-
-% 
-% %% Set up the paths
-% % Run from ctagger directory or have ctagger directory in your path
-% configPath = which('eegplugin_ctagger.m');
-% if isempty(configPath)
-%     error('Cannot configure: change to ctagger directory');
-% end
-% dirPath = strrep(configPath, [filesep 'eegplugin_ctagger.m'],'');
-% addpath(genpath(dirPath));
-% 
-% %% Now add java jar paths
-% jarPath = [dirPath filesep 'jars' filesep];  % With jar
-% warning off all;
-% try
-%     javaaddpath([jarPath 'ctagger.jar']);
-%     javaaddpath([jarPath 'jackson.jar']);
-%     javaaddpath([jarPath 'postgresql-9.2-1002.jdbc4.jar']);
-% catch mex 
-% end
-% warning on all;
