@@ -8,7 +8,7 @@ fprintf('Your credentials path is: %s\n', credPath);
   
 %% Now creating a database manager
 try
-     DB = edu.utsa.tagger.database.TagDBManager(credPath);
+     DB = edu.utsa.tagger.database.TagsDBManager(credPath);
  catch me   % if database already exists, creation fails and warning is output
     error('setupdb:credentialsFailed', me.message);
 end
@@ -16,10 +16,13 @@ fprintf('Database manager created\n');
 
 %% Now attempt to create the database
 try
-    DB.setupDatabase(credPath);
+    dbScript = char(which('tags.sql'));
+    DB.setupDatabase(dbScript);
 catch me   % if database already exists, creation fails and warning is output
     warning('setupdb:creationfailed', me.message);
+    DB.close();
 end
+DB.close();
 
 
 % 
