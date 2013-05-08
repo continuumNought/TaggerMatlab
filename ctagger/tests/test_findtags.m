@@ -31,7 +31,7 @@ function testValidValues(values)  %#ok<DEFNU>
 % Unit test for findtags
 fprintf('\nUnit tests for findtags\n');
 fprintf('It should tag an EEG structure that hasn''t been tagged\n');
-assertTrue(~isfield(values.EEGEpoch.etc, 'eventHedTags'));
+assertTrue(~isfield(values.EEGEpoch.etc, 'tags'));
 eTags = findtags(values.EEGEpoch);
 events = eTags.getEvents();
 assertEqual(length(events), 2);

@@ -55,7 +55,7 @@
 % $Initial version $
 %
 
-function eTags = findtags(EEG, varargin)
+function [eTags] = findtags(EEG, varargin)
     % Parse the input arguments
     parser = inputParser;
     parser.addRequired('EEG', @(x) (isempty(x) || ...
@@ -63,29 +63,52 @@ function eTags = findtags(EEG, varargin)
         isstruct(EEG.event) || isfield(EEG.event, 'type') || ...
         isfield(EEG, 'urevent') || isstruct(EEG.urevent) && ...
         isfield(EEG.urevent, 'type')));
+    parser.addParamValue('FieldName', 'type', ...
+        @(x) validateattributes(x, {'char'}, {}));
     parser.addParamValue('Match', 'code', ...
-        @(x) any(validatestring(lower(x), {'code', 'label', 'both'})));
-    parser.addParamValue('OnlyType', true, ...
-        @(x) validateattributes(x, {'logical'}, {}));
+        @(x) any(validatestring(lower(x), {'code', 'label', 'both'})));  
     parser.addParamValue('PreservePrefix', false, ...
         @(x) validateattributes(x, {'logical'}, {}));
     parser.parse(EEG, varargin{:});
     p = parser.Results;
     
-    % Extract the existing events
-    if ~isfield(EEG, 'etc')
-        EEG.etc = struct('eventTags', '');
+    % Make sure EEG structure has .etc and .etc.tags fields
+    if ~isfield(EEG, 'etc') || ~isfield(EEG.etc, 'tags')
+        EEG.etc.tags = '';
     elseif ~isstruct(EEG.etc)
-        EEG.etc = struct('other', EEG.etc, 'eventTags', '');
-    elseif ~isfield(EEG.etc, 'eventTags')
-        EEG.etc.eventTags = '';
+        EEG.etc = struct('other', EEG.etc, 'tags', '');
     end
-    [hed, events] = eventTags.split(EEG.etc.eventTags, true);
+    
+    % Make sure EEG structure has .etc.tags.hed 
+    if ~isfield(EEG.etc.tags, 'hed')
+        EEG.etc.tags.hed = '';
+    end
+    
+    % Make sure EEG structure has .etc.tags.type fields
+    if ~isfield(EEG.etc.tags, p.FieldName)
+        EEG.etc.tags.(p.FieldName) =  ''; 
+    end
+    
+    % Extract existing tags from the structure
+    hed = EEG.etc.tags.hed;
+    events = EEG.etc.tags.(p.FieldName);
     eTags = eventTags(hed, events, 'Match', p.Match, ...
                       'PreservePrefix', p.PreservePrefix);
-    typesE =  unique(cellfun(@num2str, {EEG.event.type}, 'UniformOutput', false));
-    typesURE =  unique(cellfun(@num2str, {EEG.urevent.type}, 'UniformOutput', false));
-    types = union(typesE, typesURE);
+      
+    % Now find events 
+    if ~isfield(EEG.event, p.FieldName)
+        return;
+    end
+    try
+       types =  unique(cellfun(@num2str, {EEG.event.(p.FieldName)}, 'UniformOutput', false));
+       
+       if isfield(EEG, 'urevent')
+          typesURE =  unique(cellfun(@num2str, {EEG.urevent.(p.FieldName)}, 'UniformOutput', false));
+          types = union(types, typesURE);
+       end
+    catch ME %#ok<NASGU>
+        return;
+    end
     if isempty(types)
         return;
     end
