@@ -121,7 +121,7 @@ b1 = eventTags(h1a, b1);
 e1.mergeEventTags(b1, 'OnlyTags');
 eEvents = e1.getEvents();
 assertEqual(length(eEvents), 2);
-event1 = e1.getEvent('Trigger');
+event1 = e1.getEvent('1');
 assertTrue(~isempty(event1));
 fprintf('It should correctly merge tags when event codes match\n');
 assertEqual(length(event1.tags), 3);
