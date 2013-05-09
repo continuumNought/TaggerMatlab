@@ -131,7 +131,7 @@ classdef eventTags < hgsetget
         PreservePrefix       % If true, don't eliminate duplicate prefixes (default false)
         TagMap               % Map for matching event labels
         Xml                  % Tag hierarchy as an XML string
-        XmlSchema               % String containing the XML schema
+        XmlSchema            % String containing the XML schema
     end % private properties
     
     methods
