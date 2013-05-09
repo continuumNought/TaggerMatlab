@@ -128,10 +128,10 @@ classdef eventTags < hgsetget
     
     properties (Access = private)
         Field                % Name of field for this group of tags
-        XmlSchema            % String containing the XML schema
-        Xml                  % Tag hierarchy as an XML string
         PreservePrefix       % If true, don't eliminate duplicate prefixes (default false)
         TagMap               % Map for matching event labels
+        Xml                  % Tag hierarchy as an XML string
+        XmlSchema               % String containing the XML schema
     end % private properties
     
     methods
@@ -265,7 +265,7 @@ classdef eventTags < hgsetget
             if isempty(eTags)
                 return;
             end
-            obj.mergeHed(eTags.HedXML);
+            obj.mergeXml(eTags.Xml);
             events = eTags.getEvents();
             for k = 1:length(events)
                 obj.addEvent(events{k}, updateType);
@@ -278,7 +278,7 @@ classdef eventTags < hgsetget
                 return;
             end
             try
-               eventTags.validateHed(obj.Schema, xmlMerge);
+               eventTags.validateXml(obj.XmlSchema, xmlMerge);
             catch ex
                 warning('eventTags:mergeXml', ['Could not merge XML ' ...
                      ' [' ex.message ']']);
@@ -303,7 +303,7 @@ classdef eventTags < hgsetget
     
     methods(Access = private)
         
-        function xml = getXml(xmlFile)
+        function xml = getXmlFile(xmlFile)
             % Merge the specified hedfile with the default
             xml = fileread(eventTags.DefaultXml);
             if nargin == 1 && ~isempty(xmlFile)

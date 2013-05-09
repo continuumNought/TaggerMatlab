@@ -2,29 +2,28 @@ function test_suite = testEventTags %#ok<STOUT>
 initTestSuite;
 
 function values = setup %#ok<DEFNU>
-codes = {'1', '2', '3'};
 types = {'RT', 'Trigger', 'Missed'};
-eStruct = struct('hedXML', 'abc', 'events', 'def');
+eStruct = struct('field', 'type', 'xml', 'abc', 'events', 'def');
 tags = {'/Time-Locked Event/Stimulus/Visual/Shape/Ellipse/Circle', ...
         '/Time-Locked Event/Stimulus/Visual/Fixation Point', ...
         '/Time-Locked Event/Stimulus/Visual/Uniform Color/Black'};
-sE = struct('code', codes, 'label', types, 'description', types, 'tags', '');
+sE = struct('label', types, 'description', types, 'tags', '');
 sE(1).tags = tags;
 eStruct.events = sE;
 eStruct.hedXML = fileread('HEDSpecification1.3.xml');
 values.eJSON1 = savejson('', eStruct);
 values.eStruct1 = eStruct;
-values.eventList1 = '1,Trigger,code 1,/my/tag1, /my/tag2; 2,Trigger2,t2,';
-values.baseList1 = '1,Button Press,code 1,/my/tag1/a, /my/tag3';
-values.eventList2 = '2,Trigger,code 2,/my/tag1, /my/tag2';
-values.baseList2 = '3,Trigger,code 3,/my/tag3, /my/tag4';
-values.eventList3 = '4,RT,code 4,/my/tag1, /my/tag2';
-values.baseList3 = '1,Trigger,code 1,/my/tag4, /my/tag2; 4,RT,code 4,/my/tag1, /my/tag2';
+values.eventList1 = 'Trigger,code 1,/my/tag1, /my/tag2;Trigger2,t2,';
+values.baseList1 = 'Trigger,code 1,/my/tag1/a, /my/tag3';
+values.eventList2 = 'Trigger,code 2,/my/tag1, /my/tag2';
+values.baseList2 = 'Trigger,code 3,/my/tag3, /my/tag4';
+values.eventList3 = 'RT,code 4,/my/tag1, /my/tag2';
+values.baseList3 = 'Trigger,code 1,/my/tag4, /my/tag2; RT,code 4,/my/tag1, /my/tag2';
 
 values.emptyEvent = '';
-values.eventMissingFields = struct('code', codes, 'label', types);
-values.eventEmptyTags = struct('code', codes, 'label', types, 'description', types, 'tags', '');
-values.oneEvent = struct('code', 'abc', 'label', 'abc type', 'description', '', 'tags', '/a/b');
+values.eventMissingFields = struct('label', types);
+values.eventEmptyTags = struct('label', types, 'description', types, 'tags', '');
+values.oneEvent = struct('label', 'abc type', 'description', '', 'tags', '/a/b');
 values.noTagsFile = 'EEGEpoch.mat';
 values.oneTagsFile = 'etags.mat';
 values.otherTagsFile = 'eTagsOther.mat';
@@ -38,16 +37,20 @@ function testSplit(values) %#ok<DEFNU>
 fprintf('\nUnit tests for eventTags split static method \n');
 
 fprintf('It should split a valid JSON string\n');
-[hed1, events1] = eventTags.split(values.eJSON1, true);
+[field1, xml1, events1] = eventTags.split(values.eJSON1, true);
+fprintf('It should have the right field\n');
+assertTrue(strcmpi(field1, 'type'));
 fprintf('It should have the right number of events\n');
 assertEqual(length(events1), 3);
-fprintf('It should have the right HEDXML string\n');
-assertTrue(strcmpi(hed1, values.eStruct1.hedXML));
+fprintf('It should have the right XML string\n');
+assertTrue(strcmpi(xml1, values.eStruct1.xml));
 fprintf('It should split a valid text string \n');
-testString = [values.eStruct1.hedXML ';' values.eventList1];
-[hed2, events2] = eventTags.split(testString, false);
-fprintf('It should have the right HEDXML string\n');
-assertTrue(strcmpi(hed2, values.eStruct1.hedXML));
+testString = ['type;' values.eStruct1.xml ';' values.eventList1];
+[field2, xml2, events2] = eventTags.split(testString, false);
+fprintf('It should have the right field\n');
+assertTrue(strcmpi(field2, 'type'));
+fprintf('It should have the right XML string\n');
+assertTrue(strcmpi(xml2, values.eStruct1.xml));
 fprintf('It should have the right number of events\n');
 assertEqual(length(events2), 2);
 
@@ -56,16 +59,18 @@ function testValid(values) %#ok<DEFNU>
 fprintf('\nUnit tests for eventTags valid JSON constructor\n');
 
 fprintf('It should create a valid object for a valid JSON events string\n');
-[hed1, events1] = eventTags.split(values.eJSON1, true);
-obj1 = eventTags(hed1, events1);
+[field1, xml1, events1] = eventTags.split(values.eJSON1, true);
+assertTrue(strcmpi(field1, 'type'));
+obj1 = eventTags(xml1, events1);
 assertTrue(isvalid(obj1));
 fprintf('It should have the right number of events\n');
 events = obj1.getEvents();
 assertEqual(length(events), 3);
 fprintf('It should create a valid object for a valid text string\n');
-testString = [values.eStruct1.hedXML ';' values.eventList1];
-[hed2, events2] = eventTags.split(testString, false);
-obj2 = eventTags(hed2, events2);
+testString = ['type;' values.eStruct1.xml ';' values.eventList1];
+[field2, xml2, events2] = eventTags.split(testString, false);
+assertTrue(strcmpi(field2, 'type'));
+obj2 = eventTags(xml2, events2);
 assertTrue(isvalid(obj2));
 fprintf('It should have the right number of events\n');
 events = obj2.getEvents();
@@ -85,21 +90,21 @@ assertTrue(isvalid(obj1));
 fprintf('---the resulting structure should have the right fields\n');
 eStruct1 = obj1.getStruct();
 assertTrue(isstruct(eStruct1));
-assertEqual(length(fieldnames(eStruct1)), 2);
-assertElementsAlmostEqual(sum(isfield(eStruct1, {'hedXML', 'events'})), 2);
-assertTrue(~isempty(eStruct1.hedXML));
+assertEqual(length(fieldnames(eStruct1)), 3);
+assertElementsAlmostEqual(sum(isfield(eStruct1, {'field', 'xml', 'events'})), 3);
+assertTrue(~isempty(eStruct1.xml));
 assertTrue(isempty(eStruct1.events));
 
 
-function testMergeHedXML(values) %#ok<INUSD,DEFNU>
-% Unit test for eventTags mergeHed static method
-fprintf('\nUnit tests for mergeHed static method of eventTags\n');
+function testMergeXml(values) %#ok<INUSD,DEFNU>
+% Unit test for eventTags mergeXml static method
+fprintf('\nUnit tests for mergeXml static method of eventTags\n');
 
-fprintf('It should merge Hed XML when both tag sets are empty\n');
+fprintf('It should merge XML when both tag sets are empty\n');
 obj1 = eventTags('', '');
-obj1.mergeHed('');
-hed1 = obj1.getHedXML;
-assertTrue(~isempty(hed1));
+obj1.mergeXml('');
+xml1 = obj1.getXml;
+assertTrue(~isempty(xml1));
 % obj.mergeHedXML('');
 % assertTrue(isempty(obj.getHedXML));
 % fprintf('It should merge Hed XML when new set is not empty\n');
@@ -114,14 +119,16 @@ function testMergeEventTags(values) %#ok<DEFNU>
 fprintf('\nUnit tests for mergeEventTags method of eventTags\n');
 
 fprintf('It should merge correctly when code match is specified with matches found\n');
-[h1, e1] = eventTags.split([';' values.eventList1], false);
-[h1a, b1] = eventTags.split([';' values.baseList1], false);
+[f1, h1, e1] = eventTags.split([';;' values.eventList1], false);
+[f1a, h1a, b1] = eventTags.split([';;' values.baseList1], false);
+assertTrue(isempty(f1));
+assertTrue(isempty(f1a));
 e1 = eventTags(h1, e1);
 b1 = eventTags(h1a, b1);
 e1.mergeEventTags(b1, 'OnlyTags');
 eEvents = e1.getEvents();
 assertEqual(length(eEvents), 2);
-event1 = e1.getEvent('1');
+event1 = e1.getEvent('Trigger');
 assertTrue(~isempty(event1));
 fprintf('It should correctly merge tags when event codes match\n');
 assertEqual(length(event1.tags), 3);
@@ -133,7 +140,8 @@ e1.mergeEventTags('', 'Merge');
 eEvents = e1.getEvents();
 assertEqual(length(eEvents), 2);
 fprintf('It should not include extra events if OnlyTags is true\n');
-[h3, b3] = eventTags.split([';' values.baseList3], false);
+[f3, h3, b3] = eventTags.split([';;' values.baseList3], false);
+assertTrue(isempty(f3));
 b3 = eventTags(h3, b3);
 e1.mergeEventTags(b3, 'OnlyTags');
 eEvents = e1.getEvents();
@@ -144,37 +152,29 @@ eEvents = e1.getEvents();
 assertEqual(length(eEvents), 3);
 
 fprintf('It should work when PreservePrefix is true\n');
-[h2, e2] = eventTags.split([';' values.eventList1], false); 
+[f2, h2, e2] = eventTags.split([';;' values.eventList1], false);
+assertTrue(isempty(f2));
 eT2 = eventTags(h2, e2, 'PreservePrefix', true);
 eT2.mergeEventTags(b1, 'OnlyTags');
 eEvents = eT2.getEvents();
 assertEqual(length(eEvents), 2);
-event2 = eT2.getEvent('1');
+event2 = eT2.getEvent('Trigger');
 assertTrue(~isempty(event2));
 fprintf('It should correctly merge tags when event codes match\n');
 assertEqual(length(event2.tags), 4);
 
-fprintf('It should work when Match is both\n');
-[h3, e3] = eventTags.split([';' values.eventList1], false);
-eT3 = eventTags(h3, e3, 'Match', 'both');
-eT3.mergeEventTags(b1, 'OnlyTags');
-eEvents = eT3.getEvents();
-assertEqual(length(eEvents), 2);
-eEvent3 = eT3.getEvent('1|$Trigger');
-assertEqual(length(eEvent3.tags), 2);
-eT3.mergeEventTags(b1, 'Merge');
-eEvents = eT3.getEvents();
-assertEqual(length(eEvents), 3);
 
 
 function testGetText(values) %#ok<DEFNU>
 % Unit test for eventTags mergeEventTags method
 fprintf('\nUnit tests for getText method of eventTags\n');
 fprintf('The text from an object created in text is valid\n');
-[h1, e1] = eventTags.split([';' values.eventList1], false);
+[f1, h1, e1] = eventTags.split([';;' values.eventList1], false);
+assertTrue(isempty(f1));
 eT1 = eventTags(h1, e1);
 theText = eT1.getText();
-[h2, e2] = eventTags.split(theText, false);
+[f1, h2, e2] = eventTags.split(theText, false);
+assertTrue(strcmpi(f1, 'type'));
 eT2 = eventTags(h2, e2);
 assert(isvalid(eT2));
 theJson = eT1.getJson();
@@ -235,7 +235,7 @@ f = @() eventTags.createEvent();
 assertAltExceptionThrown(f, {'MATLAB:inputArgUndefined', 'MATLAB:minrhs'});
 
 fprintf('It should create a valid structure when one argument invalid\n');
-event = eventTags.createEvent(3, '3', 'event 3', {'a', 'b', 'c'});
+event = eventTags.createEvent('3', 'event 3', {'a', 'b', 'c'});
 assertTrue(isstruct(event));
 assertTrue(eventTags.validateEvent(event));
 
@@ -246,25 +246,23 @@ fprintf('\nUnit tests for parseCommaEvent static method of eventTags\n');
 fprintf('It should return empty values when input is empty\n');
 theStruct = eventTags.text2Event('');
 
-assertTrue(isempty(theStruct.code));
 assertTrue(isempty(theStruct.label));
 assertTrue(isempty(theStruct.description));
 assertTrue(isempty(theStruct.tags));
 fprintf('It should return filled values when there is a valid event string\n');
-theStruct1 = eventTags.text2Event('2,Trigger,code 2,/my/tag1, /my/tag2');
-assertTrue(strcmpi(theStruct1.code, '2'));
+theStruct1 = eventTags.text2Event('Trigger,code 2,/my/tag1, /my/tag2');
 assertTrue(strcmpi(theStruct1.label, 'Trigger'));
 assertTrue(strcmpi(theStruct1.description, 'code 2'));
 assertEqual(length(theStruct1.tags), 2);
 fprintf('It should return filled values when there are no tags\n');
-theStruct2 = eventTags.text2Event('1,Trigger,code 1,');
+theStruct2 = eventTags.text2Event('Trigger,code 1,');
 assertEqual(length(theStruct2), 1);
 fprintf('The tags should be empty after reformatting\n');
 [rEvent2, valid2] = eventTags.reformatEvent(theStruct2);
 assertTrue(valid2);
 assertTrue(isempty(rEvent2.tags));
 fprintf('It should return filled values when there is 1 tag\n');
-theStruct3 = eventTags.text2Event('1,Trigger,code 1,/my/tag1,');
+theStruct3 = eventTags.text2Event('Trigger,code 1,/my/tag1,');
 assertEqual(length(theStruct3), 1);
 [rEvent3, valid3] = eventTags.reformatEvent(theStruct3);
 assertTrue(valid3);
@@ -278,7 +276,7 @@ fprintf('It should be not be valid for empty events\n');
 [event, valid] = eventTags.reformatEvent(''); %#ok<ASGLU>
 assertTrue(~valid);
 fprintf('It should be not be valid for blank label\n');
-event2 = struct('code', '1', 'label', '  ', 'description', '', 'Tags', '');
+event2 = struct('label', '  ', 'description', '', 'Tags', '');
 [events2a, valid2] = eventTags.reformatEvent(event2); %#ok<ASGLU>
 assertTrue(~valid2);
 
