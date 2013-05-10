@@ -1,22 +1,21 @@
 % dataTags    object encapsulating xml tags and type-eventTags association
 %
 % Usage:
-%   >>  eTags = dataTags(xmlString, events)
-%   >>  eTags = dataTags(xmlString, events, 'key1', 'value1', ...)
+%   >>  dTags = dataTags(xmlString)
+%   >>  dTags = dataTags(xmlString, 'key1', 'value1', ...)
 %
 % Description:
-% eTags = eventTags(xmlString, events) creates an object representing the 
+% dTags = dataTags(xmlString) creates an object representing the 
 %    tag hierarchy for community tagging. The object knows how to merge and
 %    can produce output in either JSON or semicolon separated
 %    text format. The xmlString is an XML string with the tag hierarchy
 %    and events is a structure array that holds the events and tags.
 %
-% eTags = eventTags(xmlString, events, 'key1', 'value1', ...)
+% dTags = dataTags(xmlString, 'key1', 'value1', ...)
 %
 %
 % where the key-value pairs are:
 %
-%   'FieldName'        field name corresponding to these event tags
 %   'PreservePrefix'   logical - if false (default) tags with matching
 %                      prefixes are merged to be the longest
 %   'UseJson'          logical - if true (default) the inString is in
@@ -173,31 +172,27 @@ classdef dataTags < hgsetget
         
         function event = getEvent(obj, type, key)
             % Return the event structure corresponding to specified key
-            if obj.TagMap.isKey(key)
-                event = obj.TagMap(key);
+            if obj.TypeMap.isKey(type)
+                events = obj.TypeMap(type);
+                event = events.getEvent(key);
             else
                 event = '';
             end
         end % getEvent
         
-        function events = getEvents(obj)
+        function events = getEvents(obj, type)
             % Return the events as a cell array of structures
-            events = obj.TagMap.values;
+            if obj.typeMap.isKey(type)
+                events = obj.TypeMap(type);
+            else
+                events = '';
+            end;
         end % getEvents
         
-        function eStruct = getEventStruct(obj)
-            % Return the events as a structure array
-            events = obj.TagMap.values;
-            if isempty(events)
-                eStruct = '';
-            else
-                nEvents = length(events);
-                eStruct(nEvents) = events{nEvents};
-                for k = 1:nEvents - 1
-                    eStruct(k) = events{k};
-                end
-            end
-        end % getEvents
+        function eTags = getEventTags(obj)
+            % Returns all of the eventTag objects as a cell array
+            eTags = obj.TypeMap.values;
+        end % getEventTags
         
         function xml = getXml(obj)
             % Return a string containing the xml
@@ -214,20 +209,22 @@ classdef dataTags < hgsetget
             jString = eventTags.events2Json(obj.TagMap.values);
         end % getJson
         
-        function match = getMatch(obj)
-            % Return the event match strategy (code, label, or both)
-            match = obj.Match;
-        end % getMatch
-        
         function pPrefix = getPreservePrefix(obj)
             % Return the PreservePrefix flag (false means no tag prefix duplication)
             pPrefix = obj.PreservePrefix;
         end % getPreservePrefix
         
         function thisStruct = getStruct(obj)
-            % Return this object in structure form
-            thisStruct = struct('field', obj.Field, ...
-                         'xml', obj.Xml, 'events', obj.getEventStruct());
+            % Return this object as a structure array
+            thisStruct = struct('xml', obj.Xml, 'events', '');
+            types = obj.TypeMap.getKeys();
+            if isempty(types)
+                return;
+            end
+            events = struct('type', types, 'events', '');
+            for k = 1:length(types)
+                type = events(k).type;
+            end
         end % getStruct
         
         function thisText = getText(obj)
@@ -291,266 +288,17 @@ classdef dataTags < hgsetget
             end
         end % getXml
         
-        function parseParameters(obj, xmlString, events, varargin)
+        function parseParameters(obj, xmlString,varargin)
             % Parse parameters provided by user in constructor
             parser = eventTags.getParser();
-            parser.parse(xmlString, events, varargin{:})
+            parser.parse(xmlString, varargin{:})
             pdata = parser.Results;
             obj.Field = pdata.Field;
             obj.PreservePrefix = pdata.PreservePrefix;
-            obj.reset(pdata.XmlString, pdata.Events)
+            obj.reset(pdata.XmlString, '')
         end % parseParameters
         
     end % private methods
     
-    methods(Static = true)
-        
-        function event = createEvent(elabel, edescription, etags)
-            % Create structure for one event, output warning if invalid
-            event = struct('label', num2str(elabel), ...
-                'description', num2str(edescription), 'tags', '');
-            event.tags = etags;
-        end % createEvent
-        
-        function eJson = event2Json(event)
-            % Convert an event structure to a JSON string
-            tags = event.tags;
-            if isempty(tags)
-                tagString = '';
-            elseif ischar(tags)
-                tagString = ['"' tags '"'];
-            else
-                tagString = ['"' tags{1} '"'];
-                for j = 2:length(event.tags)
-                    tagString = [tagString ',' '"' tags{j} '"']; %#ok<AGROW>
-                end
-            end
-            tagString = ['[' tagString ']'];
-            eJson = ['{"label":"' event.label ...
-                '","description":"' event.description '","tags":' ...
-                tagString '}'];
-        end
-        
-        function eText = event2Text(event)
-            % Convert an event structure to comma-separated string
-            tags = event.tags;
-            if isempty(tags)
-                tagString = '';
-            elseif ischar(tags)
-                tagString = tags;
-            else
-                tagString = tags{1};
-                for j = 2:length(event.tags)
-                    tagString = [tagString ',' tags{j}]; %#ok<AGROW>
-                end
-            end
-            eText = [event.label ',' event.description ',' tagString];
-        end % event2Text
-        
-        function eText = events2Json(events)
-            % Convert an event structure array to a JSON string 
-            if isempty(events)
-                eText = '';
-            else
-                eText = eventTags.event2Json(events{1});
-                for k = 2:length(events)
-                    eText = [eText ',' eventTags.event2Json(events{k})]; %#ok<AGROW>
-                end
-            end
-            eText = ['[' eText ']'];
-        end % events2Json
-        
-        function eText = events2Text(events)
-            % Convert an event structure array to semi-colon separated string
-            if isempty(events)
-                eText = '';
-            else
-                eText = eventTags.event2Text(events{1});
-                for k = 2:length(events)
-                    eText = [eText ';' eventTags.event2Text(events{k})]; %#ok<AGROW>
-                end
-            end
-        end % events2Text
-          
-        function parser = getParser()
-            % Create a parser for blockedData
-            parser = inputParser;
-            parser.addRequired('XmlString', ...
-                @(x) (isempty(x) || ischar(x)));
-            parser.addRequired('Events', ...
-                @(x) (isempty(x) || (isstruct(x) && isfield(x, 'label') ...
-                      && isfield(x, 'description') && isfield(x, 'tags'))))
-            parser.addParamValue('Field', 'type', ...
-                @(x) (~isempty(x) && ischar(x)));
-            parser.addParamValue('PreservePrefix', false, ...
-                @(x) validateattributes(x, {'logical'}, {}));
-        end % getParser
-        
-        function theStruct = json2Mat(json)
-            % Convert a JSON object specification to a structure
-            theStruct = struct('field', '', 'xml', '', 'events', '');
-            if isempty(json)
-                return;
-            end
-            try
-                theStruct = loadjson(json);
-            catch ME
-                if ~ischar(json)
-                    warning('json2mat:InvalidJSON', ['not string' ME.message]);
-                else
-                    warning('json2mat:InvalidJSON', ...
-                        ['json:[%s] ' ME.message], json);
-                end
-            end
-        end % json2mat
-        
-        function eStruct = json2Events(json)
-            % Converts a JSON events string to a structure or empty string
-            if isempty(json)
-                eStruct = '';
-            else
-                eStruct = loadjson(json);
-            end
-        end % json2Events
-        
-        function baseTags = loadTagFile(tagsFile)
-            % Load an eventTags object from tagsFile
-            baseTags = '';
-            try
-                t = load(tagsFile);
-                tFields = fieldnames(t);
-                for k = 1:length(tFields);
-                    nextField = t.(tFields{k});
-                    if isa(nextField, 'eventTags')
-                        baseTags = nextField;
-                        return;
-                    end
-                end
-            catch ME         %#ok<NASGU>
-            end
-        end % loadTagFile
-        
-        function [event, valid] = reformatEvent(event)
-            % Reformat and check event making sure empty tags are removed
-            valid = eventTags.validateEvent(event);
-            if ~valid
-                return;
-            end
-            event.label = strtrim(event.label);
-            if isempty(event.label)
-                valid = false;
-                return
-            end
-            event.description = strtrim(event.description);
-            if ~isfield(event, 'tags') || isempty(event.tags)
-                event.tags = '';
-            else
-                tags = cellfun(@strtrim, cellstr(event.tags), 'UniformOutput', false);
-                eCheck = cellfun(@isempty, tags);
-                tags(eCheck) = [];
-                if isempty(tags)
-                    tags = '';
-                elseif length(tags) == 1
-                    tags = tags{1};
-                end
-                event.tags = tags;
-            end
-        end % reformatEvent
-        
-        function successful = saveTagFile(tagsFile, tagsObject) %#ok<INUSD>
-            % Save the tagsObject variable in the tagsFile file
-            successful = true;
-            try
-                save(tagsFile, inputname(2));
-            catch ME         %#ok<NASGU>
-                successful = false;
-            end
-        end % saveTagFile
-        
-        function [field, xml, events] = split(inString, useJson)
-            % Parse inString into xml hed string and events structure 
-            field = '';
-            xml = '';
-            events = '';
-            if isempty(inString)
-                return;
-            elseif useJson
-                theStruct = eventTags.json2Mat(inString);
-            else
-                theStruct = eventTags.text2Mat(inString);
-            end
-            field = theStruct.field;
-            xml = theStruct.xml;
-            events = theStruct.events;
-        end % split
-        
-        function theStruct = text2Event(eString)
-            % Parse a comma separated event string into its constituent pieces.
-            theStruct = struct('label', '', 'description', '', 'tags', '');
-            if isempty(eString)
-                return;
-            end
-            splitEvent = regexpi(eString, ',', 'split');
-            theStruct.label = splitEvent{1};
-            if length(splitEvent) < 2
-                return;
-            end
-            theStruct.description = splitEvent{2};
-            if length(splitEvent) < 3
-                return;
-            end
-            theStruct.tags = splitEvent(3:end);
-        end %text2Event
-        
-        function eStruct = text2Events(events)
-            % Create an events structure array from a cell array of text events
-            if length(events) < 1
-                eStruct = '';
-            else  
-                for k = length(events):-1: 1
-                    eStruct(k)= eventTags.text2Event(events{k});
-                end
-            end
-        end % text2Events
-        
-        function theStruct = text2Mat(eString)
-            % Convert semicolon-separated specification to struct 
-            theStruct = struct('field', '', 'xml', '', 'events', '');
-            eString = strtrim(eString);
-            if isempty(eString)
-                return;
-            end
-            eParsed = regexpi(eString, ';', 'split');
-            theStruct.field = eParsed{1};
-            theStruct.xml = eParsed{2};
-            theStruct.events = eventTags.text2Events(eParsed(3:end));
-        end % text2mat
-
-        function valid = validateEvent(event)
-            % Validate the structure array corresponding to event
-            if ~isstruct(event)
-                valid = false;
-            elseif sum(isfield(event, {'label', 'description', 'tags'})) ~= 3
-                valid = false;
-            elseif ~ischar(event.label) || ~ischar(event.description)
-                valid = false;
-            elseif ~isempty(event.tags) && ...
-                    ~iscellstr(event.tags) && ~ischar(event.tags)
-                valid = false;
-            else
-                valid = true;
-            end
-        end % validateEvent
-        
-        function validateXml(schema, xmlString)
-            % Validate xmlString as empty or valid XML (invalid throws exception) 
-            if isempty(xmlString)
-                return;
-            end
-            edu.utsa.tagger.database.XMLGenerator.validateSchemaString(...
-                                 char(xmlString), char(schema));
-        end % validateXml
-        
-    end % static method
-end % eventTags
+end %dataTags
 

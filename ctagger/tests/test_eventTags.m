@@ -1,4 +1,4 @@
-function test_suite = testEventTags %#ok<STOUT>
+function test_suite = test_eventTags %#ok<STOUT>
 initTestSuite;
 
 function values = setup %#ok<DEFNU>
@@ -9,8 +9,9 @@ tags = {'/Time-Locked Event/Stimulus/Visual/Shape/Ellipse/Circle', ...
         '/Time-Locked Event/Stimulus/Visual/Uniform Color/Black'};
 sE = struct('label', types, 'description', types, 'tags', '');
 sE(1).tags = tags;
+eStruct.field = 'type';
 eStruct.events = sE;
-eStruct.hedXML = fileread('HEDSpecification1.3.xml');
+eStruct.xml = fileread('HEDSpecification1.3.xml');
 values.eJSON1 = savejson('', eStruct);
 values.eStruct1 = eStruct;
 values.eventList1 = 'Trigger,code 1,/my/tag1, /my/tag2;Trigger2,t2,';
