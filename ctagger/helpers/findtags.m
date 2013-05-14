@@ -1,15 +1,15 @@
 % findtags
-% Create a dataTags object for the existing tags in an EEG structure
+% Create a dataTags object for the existing tags in a data structure
 %
 % Usage:
-%   >>  eTags = findtags(EEG)
-%   >>  eTags = findtags(EEG, 'key1', 'value1', ...)
+%   >>  eTags = findtags(edata)
+%   >>  eTags = findtags(edata, 'key1', 'value1', ...)
 %
 % Description:
-% dTags = findtags(EEG) extracts a dataTags object representing the
-% events and their tags for the EEG structure.
+% dTags = findtags(edata) extracts a dataTags object representing the
+% events and their tags for the structure.
 %
-% eTags = findtags(EEG, 'key1', 'value1', ...) specifies optional name/value
+% eTags = findtags(edata, 'key1', 'value1', ...) specifies optional name/value
 % parameter pairs:
 %
 %   'Fields'         A cell array containing the field names to extract
@@ -18,6 +18,18 @@
 %                    share prefixes are combined and only the most specific
 %                    is retained (e.g., /a/b/c and /a/b become just
 %                    /a/b/c). If true, then all unique tags are retained.
+%
+%
+% Notes:
+%   The edata structure should have its events encoded as a structure
+%   array edata.events. The findtags will also examinate a edata.urevents
+%   structure array if it exists. 
+%
+%   Tags are assumed to be stored in the edata.etc structure as follows:
+%
+%    edata.etc.tags.xml
+%    edata.etc.tags.type
+%       ...
 %
 % See also: tageeg, tagevents, and eventTags
 %
@@ -45,65 +57,47 @@
 % $Initial version $
 %
 
-function [eTags] = findtags(EEG, varargin)
+function [dTags] = findtags(edata, varargin)
     % Parse the input arguments
     parser = inputParser;
-    parser.addRequired('EEG', @(x) (isempty(x) || ...
-        (isstruct(EEG) && isfield(EEG, 'event') && isstruct(EEG.event) && ...
-        isfield(EEG, 'urevent') && isstruct(EEG.urevent))));
+    parser.addRequired('edata', @(x) (isempty(x) || ...
+        (isstruct(edata) && isfield(edata, 'event') && isstruct(edata.event))));
     parser.addParamValue('Fields', {'type'}, @(x) (iscellstr(x)));
     parser.addParamValue('PreservePrefix', false, ...
         @(x) validateattributes(x, {'logical'}, {}));
-    parser.parse(EEG, varargin{:});
-    p = parser.Results;
-    
-    % Make sure EEG structure has .etc and .etc.tags fields
-    if ~isfield(EEG, 'etc') || ~isfield(EEG.etc, 'tags')
-        EEG.etc.tags = '';
-    elseif ~isstruct(EEG.etc)
-        EEG.etc = struct('other', EEG.etc, 'tags', '');
-    end
-    
-    % Make sure EEG structure has .etc.tags.xml
-    if ~isfield(EEG.etc.tags, 'xml')
-        EEG.etc.tags.xml= '';
-    end
-    
-    % Make sure EEG structure has .etc.tags.type fields
-    for k = 1:length(p.Fields)
-      if ~isfield(EEG.etc.tags, p.Fields{k})
-        EEG.etc.tags.(p.Fields{k}) =  ''; 
+    parser.parse(edata, varargin{:});
+    p = parser.Results;    
+  
+    % If edata.etc.tags exists, then extract tag information
+    xml = '';
+    fields = {};
+    if isfield(edata, 'etc') && isstruct(edata.etc) && ...
+            isfield(edata.etc, 'tags') && isstruct(edata.etc.tags)
+      if isfield(edata.etc.tags, 'xml')
+           xml = edata.etc.tags.xml;
       end
+      fields = fieldnames(edata.etc.tags);
     end
-    
-    % Extract existing tags from the structure
-    xml = EEG.etc.tags.xml;
-    events = EEG.etc.tags.(p.FieldName);
-    eTags = eventTags(xml, events, 'PreservePrefix', p.PreservePrefix);
-      
-    % Now find events 
-    if ~isfield(EEG.event, p.FieldName)
-        return;
+    dTags = dataTags(xml, 'PreservePrefix', p.PreservePrefix);
+    for k = 1:length(fields)
+          if strcmpi('xml', fields{k})
+              continue;
+          end;
+         event = eventTags.json2Events(edata.etc.tags.(fields{k}));
+         dTags.addEvent(fields{k}, event, 'Merge');
     end
-    try
-       types =  unique(cellfun(@num2str, {EEG.event.(p.FieldName)}, ...
-           'UniformOutput', false)); 
-       if isfield(EEG, 'urevent')
-          typesURE =  unique(cellfun(@num2str, {EEG.urevent.(p.FieldName)},...
-            'UniformOutput', false));
-          types = union(types, typesURE);
-       end
-    catch ME %#ok<NASGU>
-        return;
+ 
+    efields = fieldnames(edata.event);
+    if isfield(edata, 'urevent') && isstruct(edata.urevent)
+        efields = union(efields, fieldnames(edata.urevent)); 
     end
-    if isempty(types)
-        return;
-    end
-
-    % Add events that aren't tagged
-    events = struct('code', types, 'label', types, ...
-                    'description', '', 'tags', '');
-    for k = 1:length(events)
-        eTags.addEvent(events(k), 'Merge');
+    efields = setdiff(efields, {'latency'; 'urevent'});
+    for k = 1:length(efields)
+        tValues = getutypes(edata.event, efields{k});
+        if isfield(edata, 'urevent') 
+            tValues = union(tValues, getutypes(edata.urevent, efields{k}));
+        end
+        events = eventTags.text2Events(tValues);
+        dTags.addEvents(efields{k}, events, 'Merge');
     end
 end %findtags

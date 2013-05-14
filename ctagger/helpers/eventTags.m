@@ -77,7 +77,7 @@
 % eTagged =
 %
 %     field: 'type'
-%     hedXML: ''
+%     xml:    ''
 %     events: [1x2 struct]
 %
 % The events field is either empty of contains a structure array:

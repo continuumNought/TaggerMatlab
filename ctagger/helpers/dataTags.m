@@ -18,9 +18,6 @@
 %
 %   'PreservePrefix'   logical - if false (default) tags with matching
 %                      prefixes are merged to be the longest
-%   'UseJson'          logical - if true (default) the inString is in
-%                      Json format, otherwise in semicolon separated
-%                      format.
 %
 % addTags mergeOptions:
 %    'Merge'          If an event with that key is not part of this
@@ -160,7 +157,7 @@ classdef dataTags < hgsetget
             
             % Does this type exist?
             if ~obj.TypeMap.isKey(type)
-                eTag = eventTags(obj.xml, '');
+                eTag = eventTags(obj.Xml, '');
             else
                 eTag = obj.TypeMap(type);
             end
@@ -170,19 +167,26 @@ classdef dataTags < hgsetget
             obj.TypeMap(type) = eTag;
         end % addEvent
         
+        function existsCount = addEvents(obj, type, events, updateType)
+            % Include event (a structure) in this eventTags object based on updateType
+            existsCount = 0;
+            for k = 1:length(events)
+                existsCount = existsCount + ...
+                    obj.addEvent(type, events(k), updateType);
+            end
+        end % addEvents
+        
         function event = getEvent(obj, type, key)
             % Return the event structure corresponding to specified key
+            event = '';
             if obj.TypeMap.isKey(type)
-                events = obj.TypeMap(type);
-                event = events.getEvent(key);
-            else
-                event = '';
+                event = obj.TypeMap(type).getEvent(key);
             end
         end % getEvent
         
         function events = getEvents(obj, type)
             % Return the events as a cell array of structures
-            if obj.typeMap.isKey(type)
+            if obj.TypeMap.isKey(type)
                 events = obj.TypeMap(type);
             else
                 events = '';
@@ -216,15 +220,17 @@ classdef dataTags < hgsetget
         
         function thisStruct = getStruct(obj)
             % Return this object as a structure array
-            thisStruct = struct('xml', obj.Xml, 'events', '');
-            types = obj.TypeMap.getKeys();
+            thisStruct = struct('xml', obj.Xml, 'map', '');
+            types = obj.TypeMap.keys();
             if isempty(types)
                 return;
             end
-            events = struct('type', types, 'events', '');
+            events = struct('field', types, 'events', '');
             for k = 1:length(types)
-                type = events(k).type;
+                eTags = obj.TypeMap(types{k});
+                events(k).events = eTags.getEventStruct();
             end
+            thisStruct.map = events;
         end % getStruct
         
         function thisText = getText(obj)
@@ -250,7 +256,7 @@ classdef dataTags < hgsetget
         end % mergeEvents
         
         function mergeXml(obj, xmlMerge)
-            % Merge the hedXML string with obj.HedXML if valid
+            % Merge the xml string with obj.HedXML if valid
             if isempty(xmlMerge)
                 return;
             end
@@ -263,11 +269,11 @@ classdef dataTags < hgsetget
             end
             obj.Xml = char(edu.utsa.tagger.database.XMLGenerator.mergeXML( ...
                 obj.Xml, xmlMerge));
-        end % mergeHED
+        end % mergeXml
         
         function reset(obj, xmlString, eStruct)
-            % Reset this object based on hedString and event structure
-            obj.TagMap = containers.Map('KeyType', 'char', 'ValueType', 'any');
+            % Reset this object based on xmlString and event structure
+            obj.TypeMap = containers.Map('KeyType', 'char', 'ValueType', 'any');
             obj.Xml = fileread(eventTags.DefaultXml);
             obj.XmlSchema = fileread(eventTags.DefaultSchema);
             obj.mergeXml(xmlString);
@@ -288,17 +294,26 @@ classdef dataTags < hgsetget
             end
         end % getXml
         
-        function parseParameters(obj, xmlString,varargin)
+        function parseParameters(obj, xmlString, varargin)
             % Parse parameters provided by user in constructor
-            parser = eventTags.getParser();
+            parser = dataTags.getParser();
             parser.parse(xmlString, varargin{:})
             pdata = parser.Results;
-            obj.Field = pdata.Field;
             obj.PreservePrefix = pdata.PreservePrefix;
             obj.reset(pdata.XmlString, '')
         end % parseParameters
         
     end % private methods
+    
+    methods (Static = true)
+       function parser = getParser()
+            % Create a parser for blockedData
+            parser = inputParser;
+            parser.addRequired('XmlString', @(x) (isempty(x) || ischar(x)));
+            parser.addParamValue('PreservePrefix', false, ...
+                @(x) validateattributes(x, {'logical'}, {}));
+        end % getParser
+    end % static methods
     
 end %dataTags
 
