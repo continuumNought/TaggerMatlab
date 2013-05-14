@@ -15,16 +15,16 @@ function eTags = tagevents(eTags, varargin)
     eTags = p.ETags;
     eTags.mergeEventTags(p.BaseTags, p.UpdateType);
     if p.UseGUI
-        hed = char(eTags.getHedXML());              
+        xml = char(eTags.getXml());              
         tEvents = char(eTags.getJsonEvents());
         if p.Synchronize
-            taggedList = edu.utsa.tagger.controller.Controller.showDialog( ...
-                           hed, tEvents, true);
+            taggedList = edu.utsa.tagger.Controller.showDialog( ...
+                  xml, tEvents, true, 0, 'Type title', 3, false);
             tags = char(taggedList(1, :));
             events = char(taggedList(2, :));
         else
-            ctrl = javaObjectEDT('edu.utsa.tagger.controller.Controller', ...
-                           hed, tEvents, true);
+            ctrl = javaObjectEDT('edu.utsa.tagger.Controller', ...
+                           xml, tEvents, true, 0, 'Tagger1', 3, false);
             notified = ctrl.getNotified();
             while (~notified)
                 pause(5);

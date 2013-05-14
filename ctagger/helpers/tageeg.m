@@ -16,11 +16,9 @@
 %
 % |[eTags, fPaths] = tageeg(EEG, 'key1', 'value1', ...)| specifies 
 % optional name/value parameter pairs:
-%   'BaseTagsFile'   A file containing an eventTags object to be used
+%   'BaseTagsFile'   A file containing an dataTags object to be used
 %                    for initial tag information. The default is an 
-%                    eventTags object with the default HED XML and no tags.
-%   'Match'          A string with event matching criteria:
-%                    'code' (default), 'label', or 'both'         
+%                    dataTags object with the default xml and no tags.     
 %   'OnlyType'       If true (default), only tag based on unique event types
 %                    and not on the other fields of EEG.event and
 %                    EEG.urevent.
@@ -98,9 +96,7 @@ function [EEG, eTags] = tageeg(EEG, varargin)
         isfield(EEG, 'urevent') || isstruct(EEG.urevent) && ...
         isfield(EEG.urevent, 'type')));
     parser.addParamValue('BaseTagsFile', '', ...
-        @(x)(isempty(x) || (ischar(x))));
-    parser.addParamValue('Match', 'code', ...
-        @(x) any(validatestring(lower(x), {'code', 'label', 'both'})));
+        @(x)(isempty(x) || (ischar(x))))
     parser.addParamValue('OnlyType', true, @islogical);
     parser.addParamValue('PreservePrefix', false, @islogical);
     parser.addParamValue('Synchronize', true, @islogical);
@@ -114,8 +110,7 @@ function [EEG, eTags] = tageeg(EEG, varargin)
     p = parser.Results;
     
     % Get the existing tags for the EEG
-    eTags = findtags(p.EEG, 'Match', p.Match, ...
-            'PreservePrefix', p.PreservePrefix);
+    eTags = findtags(p.EEG, 'PreservePrefix', p.PreservePrefix);
     baseTags = eventTags.loadTagFile(p.BaseTagsFile);
     eTags = tagevents(eTags, 'BaseTags', baseTags, ...
             'UpdateType', p.UpdateType, 'UseGUI', p.UseGUI, ...

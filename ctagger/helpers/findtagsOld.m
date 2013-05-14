@@ -1,23 +1,33 @@
 % findtags
-% Create a dataTags object for the existing tags in an EEG structure
+% Create an eventTags object for the existing tags in an EEG structure
 %
 % Usage:
 %   >>  eTags = findtags(EEG)
 %   >>  eTags = findtags(EEG, 'key1', 'value1', ...)
 %
 % Description:
-% dTags = findtags(EEG) extracts a dataTags object representing the
+% eTags = findtags(EEG) extracts an eventTags object representing the
 % events and their tags for the EEG structure.
 %
 % eTags = findtags(EEG, 'key1', 'value1', ...) specifies optional name/value
 % parameter pairs:
-%
-%   'Fields'         A cell array containing the field names to extract
-%                    tags for.
+%   'Match'          Specifies the event matching criteria:
+%                    'code' (default), 'label', or 'both' (see notes).
+%   'OnlyType'       If true (default), tag only based on the type field of
+%                    EEG.event and EEG.urevent, ignoring other fields
+%                    of these structures.
 %   'PreservePrefix' If false (default), tags of the same event type that
 %                    share prefixes are combined and only the most specific
 %                    is retained (e.g., /a/b/c and /a/b become just
 %                    /a/b/c). If true, then all unique tags are retained.
+%
+% Notes:
+% The |match| parameter determines whether two events match. There are
+% three possible strategies:  
+% 
+% * |code| - (the default) events match if their codes match
+% * |label| - events match if their labels match
+% * |both| - events match if both their labels and codes match
 %
 % See also: tageeg, tagevents, and eventTags
 %
@@ -49,9 +59,14 @@ function [eTags] = findtags(EEG, varargin)
     % Parse the input arguments
     parser = inputParser;
     parser.addRequired('EEG', @(x) (isempty(x) || ...
-        (isstruct(EEG) && isfield(EEG, 'event') && isstruct(EEG.event) && ...
-        isfield(EEG, 'urevent') && isstruct(EEG.urevent))));
-    parser.addParamValue('Fields', {'type'}, @(x) (iscellstr(x)));
+        isstruct(EEG) || isfield(EEG, 'event') || ...
+        isstruct(EEG.event) || isfield(EEG.event, 'type') || ...
+        isfield(EEG, 'urevent') || isstruct(EEG.urevent) && ...
+        isfield(EEG.urevent, 'type')));
+    parser.addParamValue('FieldName', 'type', ...
+        @(x) validateattributes(x, {'char'}, {}));
+    parser.addParamValue('Match', 'code', ...
+        @(x) any(validatestring(lower(x), {'code', 'label', 'both'})));  
     parser.addParamValue('PreservePrefix', false, ...
         @(x) validateattributes(x, {'logical'}, {}));
     parser.parse(EEG, varargin{:});
@@ -64,22 +79,20 @@ function [eTags] = findtags(EEG, varargin)
         EEG.etc = struct('other', EEG.etc, 'tags', '');
     end
     
-    % Make sure EEG structure has .etc.tags.xml
-    if ~isfield(EEG.etc.tags, 'xml')
-        EEG.etc.tags.xml= '';
+    % Make sure EEG structure has .etc.tags.hed 
+    if ~isfield(EEG.etc.tags, 'hed')
+        EEG.etc.tags.hed = '';
     end
     
     % Make sure EEG structure has .etc.tags.type fields
-    for k = 1:length(p.Fields)
-      if ~isfield(EEG.etc.tags, p.Fields{k})
-        EEG.etc.tags.(p.Fields{k}) =  ''; 
-      end
+    if ~isfield(EEG.etc.tags, p.FieldName)
+        EEG.etc.tags.(p.FieldName) =  ''; 
     end
     
     % Extract existing tags from the structure
-    xml = EEG.etc.tags.xml;
+    hed = EEG.etc.tags.hed;
     events = EEG.etc.tags.(p.FieldName);
-    eTags = eventTags(xml, events, 'PreservePrefix', p.PreservePrefix);
+    eTags = eventTags(hed, events, 'PreservePrefix', p.PreservePrefix);
       
     % Now find events 
     if ~isfield(EEG.event, p.FieldName)
