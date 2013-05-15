@@ -16,11 +16,10 @@
 %
 % |[eTags, fPaths] = tageeg(EEG, 'key1', 'value1', ...)| specifies 
 % optional name/value parameter pairs:
-%   'BaseTagsFile'   A file containing an dataTags object to be used
+%   'BaseTagsFile'   A file containing a dataTags object to be used
 %                    for initial tag information. The default is an 
 %                    dataTags object with the default xml and no tags.     
-%   'OnlyType'       If true (default), only tag based on unique event types
-%                    and not on the other fields of EEG.event and
+%   'Types'          A cell array of  EEG.event and
 %                    EEG.urevent.
 %   'PreservePrefix' If false (default), tags of the same event type that
 %                    share prefixes are combined and only the most specific

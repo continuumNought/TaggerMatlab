@@ -2,18 +2,19 @@
 % Create a dataTags object for the existing tags in a data structure
 %
 % Usage:
-%   >>  eTags = findtags(edata)
-%   >>  eTags = findtags(edata, 'key1', 'value1', ...)
+%   >>  dTags = findtags(edata)
+%   >>  dTags = findtags(edata, 'key1', 'value1', ...)
 %
 % Description:
 % dTags = findtags(edata) extracts a dataTags object representing the
 % events and their tags for the structure.
 %
-% eTags = findtags(edata, 'key1', 'value1', ...) specifies optional name/value
+% dTags = findtags(edata, 'key1', 'value1', ...) specifies optional name/value
 % parameter pairs:
 %
 %   'Fields'         A cell array containing the field names to extract
 %                    tags for.
+%   'SkipFields'     A cell array containing the field names to skip
 %   'PreservePrefix' If false (default), tags of the same event type that
 %                    share prefixes are combined and only the most specific
 %                    is retained (e.g., /a/b/c and /a/b become just
@@ -21,14 +22,14 @@
 %
 %
 % Notes:
-%   The edata structure should have its events encoded as a structure
+%   The ddata structure should have its events encoded as a structure
 %   array edata.events. The findtags will also examinate a edata.urevents
 %   structure array if it exists. 
 %
 %   Tags are assumed to be stored in the edata.etc structure as follows:
 %
 %    edata.etc.tags.xml
-%    edata.etc.tags.type
+%    edata.etc.tags.map
 %       ...
 %
 % See also: tageeg, tagevents, and eventTags
@@ -62,7 +63,9 @@ function [dTags] = findtags(edata, varargin)
     parser = inputParser;
     parser.addRequired('edata', @(x) (isempty(x) || ...
         (isstruct(edata) && isfield(edata, 'event') && isstruct(edata.event))));
-    parser.addParamValue('Fields', {'type'}, @(x) (iscellstr(x)));
+    parser.addParamValue('Fields', {}, @(x) (iscellstr(x)));
+    parser.addParamValue('SkipFields', {'latency', 'epoch', 'urevent'}, ...
+         @(x) (iscellstr(x)));
     parser.addParamValue('PreservePrefix', false, ...
         @(x) validateattributes(x, {'logical'}, {}));
     parser.parse(edata, varargin{:});
@@ -76,22 +79,27 @@ function [dTags] = findtags(edata, varargin)
       if isfield(edata.etc.tags, 'xml')
            xml = edata.etc.tags.xml;
       end
-      fields = fieldnames(edata.etc.tags);
+      if isfield(edata.etc.tags, 'map') && isfield(edata.etc.tags.map, 'field')
+         fields = {edata.etc.tags.map.field};
+      end
     end
     dTags = dataTags(xml, 'PreservePrefix', p.PreservePrefix);
+    if ~isempty(p.Fields)
+        fields = intersect(p.Fields, fields);
+    end
     for k = 1:length(fields)
-          if strcmpi('xml', fields{k})
-              continue;
-          end;
-         event = eventTags.json2Events(edata.etc.tags.(fields{k}));
-         dTags.addEvent(fields{k}, event, 'Merge');
+         events = eventTags.json2Events(edata.etc.tags.map(k).events);
+         dTags.addEvents(fields{k}, events, 'Merge');
     end
  
     efields = fieldnames(edata.event);
     if isfield(edata, 'urevent') && isstruct(edata.urevent)
         efields = union(efields, fieldnames(edata.urevent)); 
     end
-    efields = setdiff(efields, {'latency'; 'urevent'});
+    efields = setdiff(efields, p.SkipFields);
+    if ~isempty(p.Fields)
+        efields = intersect(p.Fields, efields);
+    end
     for k = 1:length(efields)
         tValues = getutypes(edata.event, efields{k});
         if isfield(edata, 'urevent') 
