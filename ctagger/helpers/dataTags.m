@@ -157,7 +157,7 @@ classdef dataTags < hgsetget
             
             % Does this type exist?
             if ~obj.TypeMap.isKey(type)
-                eTag = eventTags(obj.Xml, '');
+                eTag = eventTags(obj.Xml, '', 'Field', type);
             else
                 eTag = obj.TypeMap(type);
             end
@@ -175,6 +175,18 @@ classdef dataTags < hgsetget
                     obj.addEvent(type, events(k), updateType);
             end
         end % addEvents
+        
+       function existsCount = addEventTags(obj, eData, updateType)
+            % Include event (a structure) in this eventTags object based on updateType
+            existsCount = 0;
+            type = eData.getField();
+            if ~obj.TypeMap.isKey(type)
+                eTag = eventTags(obj.Xml, '', 'Field', type);
+            else
+                eTag = obj.TypeMap(type);
+            end
+            eTag.merge(eData, updateType);
+        end % addEventData
         
         function event = getEvent(obj, type, key)
             % Return the event structure corresponding to specified key
@@ -198,11 +210,10 @@ classdef dataTags < hgsetget
             eTags = obj.TypeMap.values;
         end % getEventTags
         
-        function xml = getXml(obj)
-            % Return a string containing the xml
-            xml = obj.Xml;
-        end % getXML
-        
+        function fields = getFields(obj)
+            fields = obj.TypeMap.keys();
+        end % getFields
+            
         function jString = getJson(obj)
             % Return a JSON string version of the eventTags object
             jString = savejson('', obj.getStruct());
@@ -233,27 +244,38 @@ classdef dataTags < hgsetget
             thisStruct.map = events;
         end % getStruct
         
-        function thisText = getText(obj)
-            % Return this object as semi-colon separated text
-            thisText = [obj.Field ';' obj.Xml ';' obj.getTextEvents()];
-        end % getText
-        
-        function eventsText = getTextEvents(obj)
-            % Return events of this object as semi-colon separated text
-            eventsText  = eventTags.events2Text(obj.TagMap.values);
-        end % getTextEvents
-        
-        function mergeEventTags(obj, eTags, updateType)
-            % Combine the eTags eventTags object info with this one
-            if isempty(eTags)
+%         function thisText = getText(obj)
+%             % Return this object as semi-colon separated text
+%             thisText = [obj.Field ';' obj.Xml ';' obj.getTextEvents()];
+%         end % getText
+%         
+%         function eventsText = getTextEvents(obj)
+%             % Return events of this object as semi-colon separated text
+%             eventsText  = eventTags.events2Text(obj.TagMap.values);
+%         end % getTextEvents
+
+        function xml = getXml(obj)
+            % Return a string containing the xml
+            xml = obj.Xml;
+        end % getXml
+          
+        function merge(obj, dTags, updateType)
+            % Combine the dTags dataTags object info with this one
+            if isempty(dTags)
                 return;
             end
-            obj.mergeXml(eTags.Xml);
-            events = eTags.getEvents();
+            obj.mergeXml(dTags.getXml);
+            events = dTags.getEventTags();
             for k = 1:length(events)
-                obj.addEvent(events{k}, updateType);
+                type = events{k}.getField();
+                if ~obj.TypeMap.isKey(type)
+                    obj.TypeMap(type) = eventTags(obj.Xml, '', 'Field', type);
+                end
+                eTags = obj.TypeMap(type);
+                eTags.merge(events{k}, updateType)
+                obj.TypeMap(type) = eTags;
             end
-        end % mergeEvents
+        end % merge
         
         function mergeXml(obj, xmlMerge)
             % Merge the xml string with obj.HedXML if valid
@@ -313,6 +335,34 @@ classdef dataTags < hgsetget
             parser.addParamValue('PreservePrefix', false, ...
                 @(x) validateattributes(x, {'logical'}, {}));
         end % getParser
+        
+        function baseTags = loadTagFile(tagsFile)
+            % Load a dataTags object from tagsFile
+            baseTags = '';
+            try
+                t = load(tagsFile);
+                tFields = fieldnames(t);
+                for k = 1:length(tFields);
+                    nextField = t.(tFields{k});
+                    if isa(nextField, 'dataTags')
+                        baseTags = nextField;
+                        return;
+                    end
+                end
+            catch ME         %#ok<NASGU>
+            end
+        end % loadTagFile
+        
+        function successful = saveTagFile(tagsFile, tagsObject) %#ok<INUSD>
+            % Save the tagsObject variable in the tagsFile file
+            successful = true;
+            try
+                save(tagsFile, inputname(2));
+            catch ME         %#ok<NASGU>
+                successful = false;
+            end
+        end % saveTagFile
+        
     end % static methods
     
 end %dataTags

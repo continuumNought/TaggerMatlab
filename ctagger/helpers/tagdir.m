@@ -2,8 +2,8 @@
 % Allows a user to tag an entire tree directory of similar EEG .set files.
 %
 % Usage:
-%   >>  [eTags, fPaths] = tagdir(inDir)
-%   >>  [eTags, fPaths] = tagdir(inDir, 'key1', 'value1', ...)
+%   >>  [dTags, fPaths] = tagdir(inDir)
+%   >>  [dTags, fPaths] = tagdir(inDir, 'key1', 'value1', ...)
 %
 %% Description
 % [eTags, fPaths] = tagdir(inDir)extracts a consolidated eventTags object 
@@ -24,13 +24,11 @@
 %
 % [eTags, fPaths] = tagdir(EEG, 'key1', 'value1', ...) specifies 
 % optional name/value parameter pairs:
-%   'BaseTagsFile'   A file containing an eventTags object to be used
+%   'BaseTagsFile'   A file containing a dataTags object to be used
 %                    for initial tag information. The default is an 
 %                    eventTags object with the default HED XML and no tags.
 %   'DoSubDirs'      If true the entire inDir directory tree is searched.
-%                    If false, only the inDir directory is searched.
-%   'Match'          A string with event matching criteria:
-%                    'code' (default), 'label', or 'both'         
+%                    If false, only the inDir directory is searched.  
 %   'OnlyType'       If true (default), only tag based on unique event types
 %                    and not on the other fields of EEG.event and
 %                    EEG.urevent.
@@ -43,7 +41,7 @@
 %                    is closed. A value of false is used when this function
 %                    is being called as a menu item from another GUI.
 %   'TagFileName'    Name containing the name of the file in which to
-%                    save the consolidated eventTags object for future use.
+%                    save the consolidated dataTags object for future use.
 %   'UpdateType'     Indicates how tags are merged with initial tags if the
 %                    tagging information is to be rewritten to the EEG
 %                    files. The options are: 'merge', 'replace', 
@@ -99,7 +97,7 @@
 % $Revision: 1.0 21-Apr-2013 09:25:25 krobbins $
 % $Initial version $
 %
-function [eTags, fPaths] = tagdir(inDir, varargin)
+function [dTags, fPaths] = tagdir(inDir, varargin)
     % Parse the input arguments
     parser = inputParser;
     parser.addRequired('InDir', @(x) (~isempty(x) && ischar(x)));
@@ -107,8 +105,6 @@ function [eTags, fPaths] = tagdir(inDir, varargin)
         @(x)(isempty(x) || (ischar(x) && exist(x, 'file') && ...
             ~isempty(eventTags.loadTagsFile(x)))));
     parser.addParamValue('DoSubDirs', true, @islogical);
-    parser.addParamValue('Match', 'code', ...
-        @(x) any(validatestring(lower(x), {'code', 'label', 'both'})));
     parser.addParamValue('OnlyType', true, @islogical);
     parser.addParamValue('PreservePrefix', false, @islogical);
     parser.addParamValue('Synchronize', true, @islogical);
@@ -129,26 +125,29 @@ function [eTags, fPaths] = tagdir(inDir, varargin)
     end
     
     % Consolidate all of the tags from the input directory and base
-    eTags = eventTags('', '', 'Match', p.Match, 'PreservePrefix', ...
-                      p.PreservePrefix);
+    if p.OnlyType
+        types = {'type'};
+    else
+        types = {};
+    end
+    dTags = dataTags('', 'PreservePrefix',  p.PreservePrefix);
     for k = 1:length(fPaths) % Assemble the list
         eegTemp = pop_loadset(fPaths{k});
-        eTagsNew = findtags(eegTemp, 'Match', p.Match, ...
-                   'PreservePrefix', p.PreservePrefix);
-        eTags.mergeEventTags(eTagsNew, 'Merge');
+        dTagsNew = findtags(eegTemp, 'Fields', types, ...
+                            'PreservePrefix', p.PreservePrefix);
+        dTags.merge(dTagsNew, 'Merge');
     end
-    baseTags = eventTags.loadTagFile(p.BaseTagsFile);
-    eTags = tagevents(eTags, 'BaseTags', baseTags, ...
+    baseTags = dataTags.loadTagFile(p.BaseTagsFile);
+    dTags = tagevents(dTags, 'BaseTags', baseTags, ...
         'UpdateType', p.UpdateType, 'UseGUI', p.UseGUI, ...
         'Synchronize', p.Synchronize);
 
     % Save the tags file for next step
-    if ~isempty(p.TagFileName) && ...
-        ~eventTags.saveTagFile(p.TagFileName, 'eTags')
+    if ~isempty(p.TagFileName) && ~dataTags.saveTagFile(p.TagFileName, 'dTags')
         bName = tempname;
         warning('tagdir:invalidFile', ...
-            ['Couldn''t save eventTags to ' p.TagFileName]);
-        eventTags.saveTagFile(bName, 'eTags')
+            ['Couldn''t save dataTags to ' p.TagFileName]);
+        eventTags.saveTagFile(bName, 'dTags')
     else 
         bName = p.TagFileName;
     end
@@ -161,7 +160,7 @@ function [eTags, fPaths] = tagdir(inDir, varargin)
     for k = 1:length(fPaths) % Assemble the list
         teeg = pop_loadset(fPaths{k});
         teeg = tageeg(teeg, 'BaseTagsFile', bName, ...
-              'Match', p.Match, 'PreservePrefix', p.PreservePrefix, ...
+              'PreservePrefix', p.PreservePrefix, ...
               'Synchronize', p.Synchronize, ...
               'UpdateType', p.UpdateType, 'UseGUI', false);
         pop_saveset(teeg, 'filename', fPaths{k});

@@ -16,7 +16,7 @@
 %
 % where the key-value pairs are:
 %
-%   'FieldName'        field name corresponding to these event tags
+%   'Field'            field name corresponding to these event tags
 %   'PreservePrefix'   logical - if false (default) tags with matching
 %                      prefixes are merged to be the longest
 %   'UseJson'          logical - if true (default) the inString is in
@@ -219,11 +219,10 @@ classdef eventTags < hgsetget
             end
         end % getEvents
         
-        function xml = getXml(obj)
-            % Return a string containing the xml
-            xml = obj.Xml;
-        end % getXML
-        
+        function field = getField(obj)
+            field = obj.Field;
+        end % getField
+
         function jString = getJson(obj)
             % Return a JSON string version of the eventTags object
             jString = savejson('', obj.getStruct());
@@ -233,11 +232,6 @@ classdef eventTags < hgsetget
             % Return a JSON string version of the eventTags object
             jString = eventTags.events2Json(obj.TagMap.values);
         end % getJson
-        
-        function match = getMatch(obj)
-            % Return the event match strategy (code, label, or both)
-            match = obj.Match;
-        end % getMatch
         
         function pPrefix = getPreservePrefix(obj)
             % Return the PreservePrefix flag (false means no tag prefix duplication)
@@ -260,12 +254,21 @@ classdef eventTags < hgsetget
             eventsText  = eventTags.events2Text(obj.TagMap.values);
         end % getTextEvents
         
-        function mergeEventTags(obj, eTags, updateType)
+       function xml = getXml(obj)
+            % Return a string containing the xml
+            xml = obj.Xml;
+        end % getXml
+           
+        function merge(obj, eTags, updateType)
             % Combine the eTags eventTags object info with this one
             if isempty(eTags)
                 return;
             end
             obj.mergeXml(eTags.Xml);
+            field = eTags.getField();
+            if ~strcmpi(field, obj.Field)
+                return;
+            end
             events = eTags.getEvents();
             for k = 1:length(events)
                 obj.addEvent(events{k}, updateType);
@@ -433,22 +436,6 @@ classdef eventTags < hgsetget
             end
         end % json2Events
         
-        function baseTags = loadTagFile(tagsFile)
-            % Load an eventTags object from tagsFile
-            baseTags = '';
-            try
-                t = load(tagsFile);
-                tFields = fieldnames(t);
-                for k = 1:length(tFields);
-                    nextField = t.(tFields{k});
-                    if isa(nextField, 'eventTags')
-                        baseTags = nextField;
-                        return;
-                    end
-                end
-            catch ME         %#ok<NASGU>
-            end
-        end % loadTagFile
         
         function [event, valid] = reformatEvent(event)
             % Reformat and check event making sure empty tags are removed
@@ -477,16 +464,7 @@ classdef eventTags < hgsetget
             end
         end % reformatEvent
         
-        function successful = saveTagFile(tagsFile, tagsObject) %#ok<INUSD>
-            % Save the tagsObject variable in the tagsFile file
-            successful = true;
-            try
-                save(tagsFile, inputname(2));
-            catch ME         %#ok<NASGU>
-                successful = false;
-            end
-        end % saveTagFile
-        
+ 
         function [field, xml, events] = split(inString, useJson)
             % Parse inString into xml hed string and events structure 
             field = '';

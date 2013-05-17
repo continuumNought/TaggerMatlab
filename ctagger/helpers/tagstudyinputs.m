@@ -1,11 +1,10 @@
-function [studyFile, baseTagsFile, match, onlyType, preservePrefix, ...
+function [studyFile, baseTagsFile, onlyType, preservePrefix, ...
     saveTagsFile, updateType, useGUI, cancelled] = tagstudyinputs()
 % GUI for input needed for cTagger.tagEEGStudy
 
 % Setup the variables used by the GUI
     baseTagsFile = '';
     cancelled = true;
-    match = 'code';
     onlyType = true;
     preservePrefix = false;
     saveTagsFile = '';
@@ -88,7 +87,7 @@ function [studyFile, baseTagsFile, match, onlyType, preservePrefix, ...
             'EEG study file name', ...
             'Callback', {@studyCtrlCallback});
         tagsCtrl = uicontrol('Parent', fBox, 'style', 'edit', ...
-            'BackgroundColor', 'w', ...
+            'BackgroundColor', 'w', 'HorizontalAlignment', 'Left', ...
             'Tag', 'BaseTagsEdit', 'String', '', ...
             'TooltipString', ...
             'Directory of .set files for visualization', ...
@@ -149,22 +148,13 @@ function [studyFile, baseTagsFile, match, onlyType, preservePrefix, ...
             'Do not consolidate tags that share prefixes', ...
             'Callback', @preservePrefixCallback);
         set(u4, 'Value', get(u4, 'Min'));
-        uPan = uiextras.HBox('Parent', bBox);
-        uicontrol('Parent', uPan, 'Style', 'Text', ...
-            'String', 'Event match method');
-        uicontrol('Parent', uPan, ...
-            'Style', 'PopUp', 'Tag', 'MatchType', 'Value', 1, ...
-            'String', {'Code', 'Label', 'Both'}, 'Enable', 'on', 'Tooltip', ...
-            'What fields to match when detecting the "same" kind of event', ...
-            'Callback', @matchCallback);
-       set(uPan, 'Sizes', [130, 80]);
        set(bBox, 'ColumnSizes', 260, 'RowSizes', [30, 30, 30, 30, 30]);
     end % createOptionsGroup
 
    function createUpdateGroup(parent)
         % Create the button panel on the side of GUI
         panel = uiextras.Panel('Parent', parent, 'Title', ...
-               'EEG tag update options', 'Padding', 5);
+               'Tag update options', 'Padding', 5);
         bBox = uiextras.Grid('Parent', panel, ...
             'Tag', 'UpdateGrid', 'Spacing', 5);
         updateCtrl = uicontrol('Parent', bBox, ...
@@ -216,7 +206,7 @@ function [studyFile, baseTagsFile, match, onlyType, preservePrefix, ...
         end
         dName = uigetdir(startPath, myTitle);  % Get
         if ~isempty(dName) && ischar(dName) && isdir(dName)
-            saveTagsFile = fullfile(dName, 'eTags.mat');
+            saveTagsFile = fullfile(dName, 'dTags.mat');
             set(saveTagsCtrl, 'String', saveTagsFile);         
         end
     end % browseCallback
@@ -225,8 +215,8 @@ function [studyFile, baseTagsFile, match, onlyType, preservePrefix, ...
         % Callback for browse button sets a directory for control
         [tFile, tPath] = uigetfile('*.mat', myTitle);
         tagsFile = fullfile(tPath, tFile);
-        if isempty(eventTags.loadTagFile(tagsFile))
-           warndlg([ tagsFile ' does not contain an eventTags object'], 'modal');
+        if isempty(dataTags.loadTagFile(tagsFile))
+           warndlg([ tagsFile ' does not contain a dataTags object'], 'modal');
         else
             baseTagsFile = tagsFile;
             set(tagsCtrl, 'String', baseTagsFile);
@@ -243,11 +233,6 @@ function [studyFile, baseTagsFile, match, onlyType, preservePrefix, ...
         useGUI = true;
         close(inputFig);
     end % cancelTagsCallback
-
-    function matchCallback(src, eventdata) %#ok<INUSD>
-        validValues = get(src, 'String');
-        match = validValues(get(src, 'Value'));
-    end % matchCallback
 
     function okayCallback(src, eventdata)  %#ok<INUSD>
         % Callback for closing GUI window
@@ -302,4 +287,4 @@ function [studyFile, baseTagsFile, match, onlyType, preservePrefix, ...
         useGUI = get(src, 'Max') == get(src, 'Value');
     end % useGUICallback
            
-end % getTagStudyInputs
+end % tagStudyInputs

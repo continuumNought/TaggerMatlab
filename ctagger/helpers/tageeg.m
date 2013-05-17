@@ -2,11 +2,11 @@
 % Allows a user to tag an EEGLAB EEG structure
 %
 % Usage:
-%   >>  [EEG, eTags] = tageeg(EEG)
-%   >>  [EEG, eTags] = tageeg(EEG, 'key1', 'value1', ...)
+%   >>  [EEG, dTags] = tageeg(EEG)
+%   >>  [EEG, dTags] = tageeg(EEG, 'key1', 'value1', ...)
 %
 %% Description
-% [eTags, fPaths] = tageeg(EEG) creates an eventTags object called eTags
+% [EEG, dTags] = tageeg(EEG) creates an dataTags object called dTags
 % from the specified EEG structure using only the 'type' field of the
 % EEG.event and EEG.urevent structures. After existing event tags are
 % extracted from the EEG structure, the ctagger GUI is launched in
@@ -14,12 +14,12 @@
 % be closed before execution continues. 
 %
 %
-% |[eTags, fPaths] = tageeg(EEG, 'key1', 'value1', ...)| specifies 
+% |[EEG, dTags] = tageeg(EEG, 'key1', 'value1', ...)| specifies 
 % optional name/value parameter pairs:
 %   'BaseTagsFile'   A file containing a dataTags object to be used
 %                    for initial tag information. The default is an 
 %                    dataTags object with the default xml and no tags.     
-%   'Types'          A cell array of  EEG.event and
+%   'Fields'         A cell array of  EEG.event and
 %                    EEG.urevent.
 %   'PreservePrefix' If false (default), tags of the same event type that
 %                    share prefixes are combined and only the most specific
@@ -86,7 +86,7 @@
 % $Revision: 1.0 21-Apr-2013 09:25:25 krobbins $
 % $Initial version $
 %
-function [EEG, eTags] = tageeg(EEG, varargin)
+function [EEG, dTags] = tageeg(EEG, varargin)
     % Parse the input arguments
     parser = inputParser;
     parser.addRequired('EEG', @(x) (isempty(x) || ...
@@ -107,12 +107,19 @@ function [EEG, eTags] = tageeg(EEG, varargin)
     parser.addParamValue('UseGUI', true, @islogical);
     parser.parse(EEG, varargin{:});
     p = parser.Results;
+    if p.OnlyType
+        types = {'type'};
+    else
+        types = {};
+    end
+        
     
     % Get the existing tags for the EEG
-    eTags = findtags(p.EEG, 'PreservePrefix', p.PreservePrefix);
-    baseTags = eventTags.loadTagFile(p.BaseTagsFile);
-    eTags = tagevents(eTags, 'BaseTags', baseTags, ...
+    dTags = findtags(p.EEG, 'PreservePrefix', p.PreservePrefix, ...
+                     'Fields', types);
+    baseTags = dataTags.loadTagFile(p.BaseTagsFile);
+    dTags = tagevents(dTags, 'BaseTags', baseTags, ...
             'UpdateType', p.UpdateType, 'UseGUI', p.UseGUI, ...
             'Synchronize', p.Synchronize);
-    EEG.etc.eventTags = eTags.getJson();    
+    EEG.etc.tags = dTags.getStruct(); 
 end % tageeg

@@ -115,9 +115,9 @@ assertTrue(~isempty(xml1));
 % obj.mergeHedXML(values.HEDXML);
 % assertTrue(strcmp(values.HEDXML, obj.getHedXML));
 
-function testMergeEventTags(values) %#ok<DEFNU>
-% Unit test for eventTags mergeEventTags method
-fprintf('\nUnit tests for mergeEventTags method of eventTags\n');
+function testMerge(values) %#ok<DEFNU>
+% Unit test for eventTags merge method
+fprintf('\nUnit tests for merge method of eventTags\n');
 
 fprintf('It should merge correctly when code match is specified with matches found\n');
 [f1, h1, e1] = eventTags.split([';;' values.eventList1], false);
@@ -126,7 +126,7 @@ assertTrue(isempty(f1));
 assertTrue(isempty(f1a));
 e1 = eventTags(h1, e1);
 b1 = eventTags(h1a, b1);
-e1.mergeEventTags(b1, 'OnlyTags');
+e1.merge(b1, 'OnlyTags');
 eEvents = e1.getEvents();
 assertEqual(length(eEvents), 2);
 event1 = e1.getEvent('Trigger');
@@ -134,21 +134,21 @@ assertTrue(~isempty(event1));
 fprintf('It should correctly merge tags when event codes match\n');
 assertEqual(length(event1.tags), 3);
 fprintf('It should have not merge events when argument is empty\n');
-e1.mergeEventTags('', 'OnlyTags');
+e1.merge('', 'OnlyTags');
 eEvents = e1.getEvents();
 assertEqual(length(eEvents), 2);
-e1.mergeEventTags('', 'Merge');
+e1.merge('', 'Merge');
 eEvents = e1.getEvents();
 assertEqual(length(eEvents), 2);
 fprintf('It should not include extra events if OnlyTags is true\n');
 [f3, h3, b3] = eventTags.split([';;' values.baseList3], false);
 assertTrue(isempty(f3));
 b3 = eventTags(h3, b3);
-e1.mergeEventTags(b3, 'OnlyTags');
+e1.merge(b3, 'OnlyTags');
 eEvents = e1.getEvents();
 assertEqual(length(eEvents), 2);
 fprintf('It should include extra events if OnlyTags is false\n');
-e1.mergeEventTags(b3, 'Merge');
+e1.merge(b3, 'Merge');
 eEvents = e1.getEvents();
 assertEqual(length(eEvents), 3);
 
@@ -156,7 +156,7 @@ fprintf('It should work when PreservePrefix is true\n');
 [f2, h2, e2] = eventTags.split([';;' values.eventList1], false);
 assertTrue(isempty(f2));
 eT2 = eventTags(h2, e2, 'PreservePrefix', true);
-eT2.mergeEventTags(b1, 'OnlyTags');
+eT2.merge(b1, 'OnlyTags');
 eEvents = eT2.getEvents();
 assertEqual(length(eEvents), 2);
 event2 = eT2.getEvent('Trigger');
@@ -164,7 +164,23 @@ assertTrue(~isempty(event2));
 fprintf('It should correctly merge tags when event codes match\n');
 assertEqual(length(event2.tags), 4);
 
-
+fprintf('It should not merge the events when fields don''t match\n');
+[f3, h3, e3] = eventTags.split([';;' values.eventList1], false);
+assertTrue(isempty(f3));
+eT3 = eventTags(h3, e3);
+assertEqual(length(eT3.getEvents()), 2);
+assertTrue(strcmpi(eT3.getField(), 'type'));
+[f4, h4, e4] = eventTags.split([';;' values.baseList3], false);
+assertTrue(isempty(f4));
+eT4 = eventTags(h4, e4);
+assertEqual(length(eT4.getEvents()), 2);
+assertTrue(strcmpi(eT4.getField(), 'type'));
+eT3.merge(eT4, 'Merge');
+assertEqual(length(eT3.getEvents()), 3);
+eT3a = eventTags(h3, e3);
+eT4a = eventTags(h4, e4, 'Field', 'balony');
+eT3a.merge(eT4a, 'Merge');
+assertEqual(length(eT3a.getEvents()), 2);
 
 function testGetText(values) %#ok<DEFNU>
 % Unit test for eventTags mergeEventTags method

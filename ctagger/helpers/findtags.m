@@ -12,9 +12,9 @@
 % dTags = findtags(edata, 'key1', 'value1', ...) specifies optional name/value
 % parameter pairs:
 %
+%   'ExcludeFields'  A cell array containing the field names to exclude
 %   'Fields'         A cell array containing the field names to extract
 %                    tags for.
-%   'SkipFields'     A cell array containing the field names to skip
 %   'PreservePrefix' If false (default), tags of the same event type that
 %                    share prefixes are combined and only the most specific
 %                    is retained (e.g., /a/b/c and /a/b become just
@@ -63,9 +63,9 @@ function [dTags] = findtags(edata, varargin)
     parser = inputParser;
     parser.addRequired('edata', @(x) (isempty(x) || ...
         (isstruct(edata) && isfield(edata, 'event') && isstruct(edata.event))));
-    parser.addParamValue('Fields', {}, @(x) (iscellstr(x)));
-    parser.addParamValue('SkipFields', {'latency', 'epoch', 'urevent'}, ...
+        parser.addParamValue('ExcludeFields', {'latency', 'epoch', 'urevent'}, ...
          @(x) (iscellstr(x)));
+    parser.addParamValue('Fields', {}, @(x) (iscellstr(x)));
     parser.addParamValue('PreservePrefix', false, ...
         @(x) validateattributes(x, {'logical'}, {}));
     parser.parse(edata, varargin{:});
@@ -88,15 +88,14 @@ function [dTags] = findtags(edata, varargin)
         fields = intersect(p.Fields, fields);
     end
     for k = 1:length(fields)
-         events = eventTags.json2Events(edata.etc.tags.map(k).events);
-         dTags.addEvents(fields{k}, events, 'Merge');
+         dTags.addEvents(fields{k}, edata.etc.tags.map(k).events, 'Merge');
     end
  
     efields = fieldnames(edata.event);
     if isfield(edata, 'urevent') && isstruct(edata.urevent)
         efields = union(efields, fieldnames(edata.urevent)); 
     end
-    efields = setdiff(efields, p.SkipFields);
+    efields = setdiff(efields, p.ExcludeFields);
     if ~isempty(p.Fields)
         efields = intersect(p.Fields, efields);
     end

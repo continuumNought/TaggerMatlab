@@ -2,11 +2,11 @@
 % Allows a user to tag an EEGLAB study
 %
 % Usage:
-%   >>  [eTags, fPaths] = tagstudy(studyFile)
-%   >>  [eTags, fPaths] = tagstudy(studyFile, 'key1', 'value1', ...)
+%   >>  [dTags, fPaths] = tagstudy(studyFile)
+%   >>  [dTags, fPaths] = tagstudy(studyFile, 'key1', 'value1', ...)
 %
 %% Description
-% [eTags, fPaths] = tagstudy(studyFile)extracts a consolidated eventTags object 
+% [dTags, fPaths] = tagstudy(studyFile)extracts a consolidated eventTags object 
 % from the study and its associated EEGLAB .set files. 
 % First the events and tags from all EEGLAB .set files are extracted and 
 % consolidated into a single eventTags object by merging all of the 
@@ -21,15 +21,13 @@
 % .set files that were affected.
 %
 %
-% [eTags, fPaths] = tagdir(EEG, 'key1', 'value1', ...) specifies 
+% [dTags, fPaths] = tagstudy(EEG, 'key1', 'value1', ...) specifies 
 % optional name/value parameter pairs:
 %   'BaseTagsFile'   A file containing an eventTags object to be used
 %                    for initial tag information. The default is an 
 %                    eventTags object with the default HED XML and no tags.
 %   'DoSubDirs'      If true the entire inDir directory tree is searched.
-%                    If false, only the inDir directory is searched.
-%   'Match'          A string with event matching criteria:
-%                    'code' (default), 'label', or 'both'         
+%                    If false, only the inDir directory is searched.    
 %   'OnlyType'       If true (default), only tag based on unique event types
 %                    and not on the other fields of EEG.event and
 %                    EEG.urevent.
@@ -98,7 +96,7 @@
 % $Revision: 1.0 21-Apr-2013 09:25:25 krobbins $
 % $Initial version $
 %
-function [eTags, fPaths] = tagstudy(studyFile, varargin)
+function [rTags, fPaths] = tagstudy(studyFile, varargin)
     % Tag all of the EEG files in a study
     parser = inputParser;
     parser.addRequired('StudyFile', ...
@@ -121,10 +119,10 @@ function [eTags, fPaths] = tagstudy(studyFile, varargin)
     p = parser.Results;
  
    % Consolidate all of the tags from the study
-    baseTags = eventTags.loadTagFile(p.BaseTagsFile);
+    baseTags = dataTags.loadTagFile(p.BaseTagsFile);
     [s, fPaths] = loadstudy(p.StudyFile);
     if isempty(s)
-       eTags =
+   %   dTags =
     elseif ~isfield(s, 'etc')
         s.etc = struct('eventTags', '');
     elseif ~isstruct(s.etc)

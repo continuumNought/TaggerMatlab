@@ -64,3 +64,22 @@ dTags4 = findtags(EEG3);
 events4 = dTags4.getEventTags();
 assertEqual(length(events4), 2);
 assertTrue(~isempty(dTags4.getXml()));
+
+function testMultipleFields(values)  %#ok<DEFNU>
+% Unit test for findtags
+fprintf('\nUnit tests for findtags with multiple field combinations\n');
+fprintf('It should tag when the epoch field is not excluded\n');
+assertTrue(~isfield(values.EEGEpoch.etc, 'tags'));
+dTags = findtags(values.EEGEpoch, 'ExcludeFields', {'latency', 'urevent'});
+events = dTags.getEventTags();
+assertEqual(length(events), 3);
+e1 = events{1}.getStruct();
+assertTrue(strcmpi(e1.field, 'epoch'));
+assertEqual(length(e1.events), 80);
+e2 = events{2}.getStruct();
+assertTrue(strcmpi(e2.field, 'position'));
+assertEqual(length(e2.events), 2);
+e3 = events{3}.getStruct();
+assertTrue(strcmpi(e3.field, 'type'));
+assertEqual(length(e3.events), 2);
+

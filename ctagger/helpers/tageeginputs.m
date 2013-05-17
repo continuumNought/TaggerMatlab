@@ -1,11 +1,10 @@
-function [baseTagsFile,  match, onlyType, preservePrefix, ...
+function [baseTagsFile,  onlyType, preservePrefix, ...
     saveTagsFile, updateType, useGUI, cancelled] = tageeginputs()
 % GUI for input needed for cTagger.tagEEGDir
 
 % Setup the variables used by the GUI
     baseTagsFile = '';
     cancelled = true;
-    match = 'code';
     onlyType = true;
     preservePrefix = false;
     saveTagsFile = '';
@@ -81,7 +80,7 @@ function [baseTagsFile,  match, onlyType, preservePrefix, ...
             'Style','text', 'String', 'Save tags', ...
             'HorizontalAlignment', 'Right');
         tagsCtrl = uicontrol('Parent', fBox, 'style', 'edit', ...
-            'BackgroundColor', 'w', ...
+            'BackgroundColor', 'w', 'HorizontalAlignment', 'Left', ...
             'Tag', 'BaseTagsEdit', 'String', '', ...
             'TooltipString', ...
             'Directory of .set files for visualization', ...
@@ -130,22 +129,13 @@ function [baseTagsFile,  match, onlyType, preservePrefix, ...
             'Callback', @preservePrefixCallback);
         set(u3, 'Value', get(u3, 'Min'));
         uiextras.Empty('Parent', bBox);
-        uPan = uiextras.HBox('Parent', bBox);
-        uicontrol('Parent', uPan, 'Style', 'Text', ...
-            'String', 'Event match method');
-        uicontrol('Parent', uPan, ...
-            'Style', 'PopUp', 'Tag', 'MatchType', 'Value', 1, ...
-            'String', {'Code', 'Label', 'Both'}, 'Enable', 'on', 'Tooltip', ...
-            'What fields to match when detecting the "same" kind of event', ...
-            'Callback', @matchCallback);
-            set(uPan, 'Sizes', [130, 80]);
        set(bBox, 'ColumnSizes', 250, 'RowSizes', [30, 30, 30, 30, 30]);
     end % createButtonPanel
 
    function createUpdateGroup(parent)
         % Create the button panel on the side of GUI
         panel = uiextras.Panel('Parent', parent, 'Title', ...
-               'EEG tag update options', 'Padding', 5);
+               'Tag update options', 'Padding', 5);
         bBox = uiextras.Grid('Parent', panel, ...
             'Tag', 'UpdateGrid', 'Spacing', 5);
         updateCtrl = uicontrol('Parent', bBox, ...
@@ -187,7 +177,7 @@ function [baseTagsFile,  match, onlyType, preservePrefix, ...
         end
         dName = uigetdir(startPath, myTitle);  % Get
         if ~isempty(dName) && ischar(dName) && isdir(dName)
-            saveTagsFile = fullfile(dName, 'eTags.mat');
+            saveTagsFile = fullfile(dName, 'dTags.mat');
             set(saveTagsCtrl, 'String', saveTagsFile);         
         end
     end % browseCallback
@@ -196,8 +186,8 @@ function [baseTagsFile,  match, onlyType, preservePrefix, ...
         % Callback for browse button sets a directory for control
         [tFile, tPath] = uigetfile('*.mat', myTitle);
         tagsFile = fullfile(tPath, tFile);
-        if isempty(eventTags.loadTagFile(tagsFile))
-           warndlg([ tagsFile ' does not contain an eventTags object'], 'modal');
+        if isempty(dataTags.loadTagFile(tagsFile))
+           warndlg([ tagsFile ' does not contain a dataTags object'], 'modal');
         else
             baseTagsFile = tagsFile;
             set(tagsCtrl, 'String', baseTagsFile);
@@ -212,11 +202,6 @@ function [baseTagsFile,  match, onlyType, preservePrefix, ...
         useGUI = true;
         close(inputFig);
     end % browseTagsCallback
-
-    function matchCallback(src, eventdata) %#ok<INUSD>
-        validValues = get(src, 'String');
-        match = validValues(get(src, 'Value'));
-    end % matchCallback
 
     function okayCallback(src, eventdata)  %#ok<INUSD>
         % Callback for closing GUI window
@@ -240,8 +225,8 @@ function [baseTagsFile,  match, onlyType, preservePrefix, ...
     function tagsCtrlCallback(hObject, eventdata, tagsCtrl) %#ok<INUSD>
         % Callback for user directly editing directory control textbox
         tagsFile = get(hObject, 'String');
-        if isempty(eventTags.loadTagFile(tagsFile))           
-           warndlg([ tagsFile ' does not contain an eventTags object'], 'modal');
+        if isempty(dataTags.loadTagFile(tagsFile))           
+           warndlg([ tagsFile ' does not contain an dataTags object'], 'modal');
            set(hObject, 'String', baseTagsFile);
         else
             baseTagsFile = tagsFile;

@@ -58,9 +58,7 @@ assertTrue(strcmpi(field1, 'type'));
 obj1 = dataTags(xml1);
 assertTrue(isvalid(obj1));
 fprintf('It should have the right number of events\n');
-for k = 1:length(events1)
-    obj1.addEvent(field1, events1(k), 'Merge');
-end
+obj1.addEvents(field1, events1, 'Merge');
 events = obj1.getEventTags();
 assertEqual(length(events), 1);
 fprintf('It should create a valid object for a valid text string\n');
@@ -123,4 +121,13 @@ assertTrue(~isempty(dStruct1.xml));
 assertTrue(isempty(dStruct1.map));
 
 
-
+function testMerge(values) %#ok<DEFNU>
+% Unit test for dataTags merge method
+fprintf('\nUnit tests for dataTags addEventData\n');
+fprintf('It merge a valid dataTags object\n');
+dTags = dataTags('');
+dTags1 = findtags(values.EEGEpoch);
+assertEqual(length(dTags1.getEventTags()), 2);
+assertEqual(length(dTags.getEventTags()), 0);
+dTags.merge(dTags1, 'Merge');
+assertEqual(length(dTags.getEventTags()), 2);
