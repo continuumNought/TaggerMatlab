@@ -67,7 +67,7 @@ function [inDir, baseTagsFile, dbCredsFile, doSubDirs, onlyType, ...
         createButtonPanel(mainVBox);
         
         set(mainHBox, 'Sizes', [20, 150, 20, -1, 20]);
-        set(mainVBox, 'Sizes', [10, 120, 200,  -1,  35]);
+        set(mainVBox, 'Sizes', [10, 150, 200,  -1,  40]);
         drawnow
     end % createLayout
 
@@ -109,7 +109,7 @@ function [inDir, baseTagsFile, dbCredsFile, doSubDirs, onlyType, ...
             'Tag', 'DBCreds', 'String', '', ...
             'TooltipString', ...
             'Complete path for database credentials file', ...
-            'Callback', {@browseDbCredsCtrlCallback});
+            'Callback', {@dbCredsCtrlCallback});
         uicontrol('Parent', fBox, ...
             'string', 'Browse', ...
             'style', 'pushbutton', 'TooltipString', ...
@@ -129,9 +129,9 @@ function [inDir, baseTagsFile, dbCredsFile, doSubDirs, onlyType, ...
         uicontrol('Parent', fBox, ...
             'string', 'Browse', 'style', 'pushbutton', ...
             'TooltipString', 'Press to find your local database credentials file', ...
-            'Callback', {@browseDBCredsCallback, dbCredsCtrl, ...
+            'Callback', {@browseDbCredsCallback, dbCredsCtrl, ...
             'Browse for base tags'});
-        set(fBox, 'ColumnSizes', [80, -1, 100], 'RowSizes', [30, 30, 30]);
+        set(fBox, 'ColumnSizes', [80, -1, 100], 'RowSizes', [30, 30, 30, 30]);
     end
 
     function createOptionsGroup(parent)
@@ -148,7 +148,7 @@ function [inDir, baseTagsFile, dbCredsFile, doSubDirs, onlyType, ...
         set(u1, 'Value', get(u1, 'Max'));
         u2 = uicontrol('Parent', bBox, ...
             'Style', 'CheckBox', 'Tag', 'DoSubDirsCB', ...
-            'String', 'Save tags to data files', 'Enable', 'on', 'Tooltip', ...
+            'String', 'Look in subdirectories', 'Enable', 'on', 'Tooltip', ...
             'Traverse all subdirectories to process .set files', ...
             'Callback', @doSubDirsCallback);
         set(u2, 'Value', get(u2, 'Max'));
@@ -215,21 +215,14 @@ function [inDir, baseTagsFile, dbCredsFile, doSubDirs, onlyType, ...
             set(dirCtrl, 'String', dName);
             inDir = dName;
         end
-    end % browseCallback
+    end % browseDirCallback
 
-    function browseDirCallback(src, eventdata, dirCtrl, myTitle) %#ok<INUSL>
+    function browseDbCredsCallback(src, eventdata, dbCredsCtrl, myTitle) %#ok<INUSL>
         % Callback for browse button sets a directory for control
-        startPath = get(dirCtrl, 'String');
-        if isempty(startPath) || ~ischar(startPath) || ~isdir(startPath)
-            startPath = pwd;
-        end
-        dName = uigetdir(startPath, myTitle);  % Get
-        if ~isempty(dName) && ischar(dName) && isdir(dName)
-            set(dirCtrl, 'String', dName);
-            inDir = dName;
-        end
-    end % browseDir Callback
-browseDbCredsCtrlCallback
+        [tFile, tPath] = uigetfile('*.mat', myTitle);
+        dbCredsFile = fullfile(tPath, tFile);
+        set(dbCredsCtrl, 'String', fullfile(tPath, tFile));
+    end % browseDbCredsCtrl Callback
 
     function browseSaveTagsCallback(src, eventdata, saveTagsCtrl, myTitle) %#ok<INUSL>
         % Callback for browse button sets a directory for control
@@ -260,14 +253,22 @@ browseDbCredsCtrlCallback
         % Callback for browse button sets a directory for control
         baseTagsFile = '';
         cancelled = true;
-        dbcredsFile = '';
+        dbCredsFile = '';
         doSubDirs = true;
         inDir = '';
         updateCtrl = '';
         updateType = 'OnlyTags';
         useGUI = true;
         close(inputFig);
-    end % browseTagsCallback
+    end % cancelCallback
+
+    function dbCredsCtrlCallback(hObject, eventdata, tagsCtrl) %#ok<INUSD>
+        % Callback for user directly editing directory control textbox
+        dbCredsFile = get(hObject, 'String');
+        if ~exist(dbCredsFile, 'file')          
+           warndlg([ dbCredsFile ' does not contain a dataTags object'], 'modal');
+        end
+    end % dbCredsCtrlCallback
 
     function dirCtrlCallback(hObject, eventdata) %#ok<INUSD>
         % Callback for user directly editing directory control textbox

@@ -22,7 +22,7 @@
 % be empty.
 %
 %
-% [eTags, fPaths] = tagdir(EEG, 'key1', 'value1', ...) specifies 
+% [eTags, fPaths] = tagdir(eData, 'key1', 'value1', ...) specifies 
 % optional name/value parameter pairs:
 %   'BaseTagsFile'   A file containing a dataTags object to be used
 %                    for initial tag information. The default is an 
@@ -40,6 +40,8 @@
 %                    no other MATLAB commands can be issued until this GUI
 %                    is closed. A value of false is used when this function
 %                    is being called as a menu item from another GUI.
+%   'RewriteTags'    Rewrite tags back to the data files after tag map
+%                    has been created.
 %   'TagFileName'    Name containing the name of the file in which to
 %                    save the consolidated dataTags object for future use.
 %   'UpdateType'     Indicates how tags are merged with initial tags if the
