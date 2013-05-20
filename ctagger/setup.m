@@ -1,5 +1,4 @@
-%%
-%EEGLABPATH = 'F:\Research\NeuroErgonomics\eeglab11_0_0_0b';
+%% Wet up the path to EEGLAB. Comment this section out if not using EEGLAB
 EEGLABPATH = 'G:\CommunityTags\TaggerMatlab\eeglab11_0_4_3b';
 wPath = which('eeglab.m');
 if isempty(wPath) && isdir(EEGLABPATH)
@@ -8,7 +7,7 @@ if isempty(wPath) && isdir(EEGLABPATH)
 elseif isempty(wPath)
     warning('setup:NoEEGLAB', ...
         ['Edit setup.m so that EEGLABPath is the full pathname ' ...
-         'of directory containing EEGLAB if you want to use EEG']);
+         'of directory containing EEGLAB if you want to use EEGLAB']);
 end
 %% Set up the paths
 % Run from ctagger directory or have ctagger directory in your path

@@ -186,8 +186,8 @@ function [baseTagsFile,  onlyType, preservePrefix, ...
         % Callback for browse button sets a directory for control
         [tFile, tPath] = uigetfile('*.mat', myTitle);
         tagsFile = fullfile(tPath, tFile);
-        if isempty(dataTags.loadTagFile(tagsFile))
-           warndlg([ tagsFile ' does not contain a dataTags object'], 'modal');
+        if isempty(typeMap.loadTagFile(tagsFile))
+           warndlg([ tagsFile ' does not contain a typeMap object'], 'modal');
         else
             baseTagsFile = tagsFile;
             set(tagsCtrl, 'String', baseTagsFile);
@@ -225,8 +225,8 @@ function [baseTagsFile,  onlyType, preservePrefix, ...
     function tagsCtrlCallback(hObject, eventdata, tagsCtrl) %#ok<INUSD>
         % Callback for user directly editing directory control textbox
         tagsFile = get(hObject, 'String');
-        if isempty(dataTags.loadTagFile(tagsFile))           
-           warndlg([ tagsFile ' does not contain an dataTags object'], 'modal');
+        if isempty(typeMap.loadTagFile(tagsFile))           
+           warndlg([ tagsFile ' does not contain an typeMap object'], 'modal');
            set(hObject, 'String', baseTagsFile);
         else
             baseTagsFile = tagsFile;

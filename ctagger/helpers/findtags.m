@@ -1,12 +1,12 @@
 % findtags
-% Create a dataTags object for the existing tags in a data structure
+% Create a typeMap object for the existing tags in a data structure
 %
 % Usage:
 %   >>  dTags = findtags(edata)
 %   >>  dTags = findtags(edata, 'key1', 'value1', ...)
 %
 % Description:
-% dTags = findtags(edata) extracts a dataTags object representing the
+% dTags = findtags(edata) extracts a typeMap object representing the
 % events and their tags for the structure.
 %
 % dTags = findtags(edata, 'key1', 'value1', ...) specifies optional name/value
@@ -32,7 +32,7 @@
 %    edata.etc.tags.map
 %       ...
 %
-% See also: tageeg, tagevents, and eventTags
+% See also: tageeg, tagevents, and tagMap
 %
 
 %1234567890123456789012345678901234567890123456789012345678901234567890
@@ -83,7 +83,7 @@ function [dTags] = findtags(edata, varargin)
          fields = {edata.etc.tags.map.field};
       end
     end
-    dTags = dataTags(xml, 'PreservePrefix', p.PreservePrefix);
+    dTags = typeMap(xml, 'PreservePrefix', p.PreservePrefix);
     if ~isempty(p.Fields)
         fields = intersect(p.Fields, fields);
     end
@@ -104,7 +104,7 @@ function [dTags] = findtags(edata, varargin)
         if isfield(edata, 'urevent') 
             tValues = union(tValues, getutypes(edata.urevent, efields{k}));
         end
-        events = eventTags.text2Events(tValues);
+        events = tagMap.text2Events(tValues);
         dTags.addEvents(efields{k}, events, 'Merge');
     end
 end %findtags

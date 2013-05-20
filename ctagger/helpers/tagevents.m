@@ -1,9 +1,9 @@
 function dTags = tagevents(dTags, varargin)
     % Tag this and produce a new tag structure
     parser = inputParser;
-    parser.addRequired('DTags', @(x) (~isempty(x) && isa(x, 'dataTags')));
+    parser.addRequired('DTags', @(x) (~isempty(x) && isa(x, 'typeMap')));
     parser.addParamValue('BaseTags', '', ...
-        @(x)(isempty(x) || isa(x, 'dataTags')));
+        @(x)(isempty(x) || isa(x, 'typeMap')));
     parser.addParamValue('Synchronize', true, @islogical);
     parser.addParamValue('UpdateType', 'Merge', ...
           @(x) any(validatestring(lower(x), ...

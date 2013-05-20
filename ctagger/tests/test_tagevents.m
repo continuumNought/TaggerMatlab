@@ -44,9 +44,9 @@ function teardown(values) %#ok<INUSD,DEFNU>
 function testValid(values)  %#ok<DEFNU>
 % Unit test for tagevents
 fprintf('\nUnit tests for tagevents\n');
-[f1, h1, e1] = eventTags.split(values.eJSON1, true);
+[f1, h1, e1] = tagMap.split(values.eJSON1, true);
 assertTrue(strcmpi(f1, 'type'));
-dTagsBase = dataTags(h1);
+dTagsBase = typeMap(h1);
 dTagsBase.addEvents(f1, e1, 'Merge');
 fprintf('It should produce the same values with basic tags and no changes\n');
 dTagsNew1 = tagevents(dTagsBase, 'UseGui', false);
@@ -61,9 +61,9 @@ events2 = dTagsNew2.getEventTags();
 assertEqual(length(events2), 1);
 assertEqual(length(events1{1}.getEvents()), 3);
 fprintf('It should work when more events are added\n');
-[fMore, hMore, eMore] = eventTags.split(['type;;' values.moreEvents],  false);
+[fMore, hMore, eMore] = tagMap.split(['type;;' values.moreEvents],  false);
 assertTrue(isempty(hMore));
-dTagsMore = dataTags(hMore);
+dTagsMore = typeMap(hMore);
 dTagsMore.addEvents(fMore, eMore, 'Merge');
 eventsM = dTagsMore.getEventTags();
 eventsMore = eventsM{1}.getEvents();
@@ -72,28 +72,28 @@ dTagsNew3 = tagevents(dTagsNew1, 'BaseTags', dTagsMore, 'UseGui', false);
 events3a = dTagsNew3.getEventTags();
 events3 = events3a{1}.getEvents();
 assertEqual(length(events3), 5);
-[f4, h4, e4] = eventTags.split('type;; code 1, event 1, /a/b/c, /def', false);
-dTagsNew4 = dataTags(h4);
+[f4, h4, e4] = tagMap.split('type;; code 1, event 1, /a/b/c, /def', false);
+dTagsNew4 = typeMap(h4);
 dTagsNew4.addEvents(f4, e4, 'Merge');
 events4a = dTagsNew4.getEventTags();
 events4 = events4a{1}.getEvents();
 assertEqual(length(events4), 1);
-e5 = eventTags.json2Events(['[{"label":"code 1",' ...
+e5 = tagMap.json2Events(['[{"label":"code 1",' ...
        '"description":"event 1", "tags": ["/light/stimulus"]}]']);
-eTagsNew5 = eventTags('', e5, 'Field', 'type');
-dTags5 = dataTags('');
+eTagsNew5 = tagMap('', e5, 'Field', 'type');
+dTags5 = typeMap('');
 dTags5.addEventTags(eTagsNew5, 'Merge');
-assertTrue(isa(eTagsNew5, 'eventTags'));
+assertTrue(isa(eTagsNew5, 'tagMap'));
 dTagsNew6 = tagevents(dTagsNew4, 'BaseTags', dTags5, ...
     'UpdateType', 'OnlyTags', 'UseGui', false);
-assertTrue(isa(dTagsNew6, 'dataTags'));
+assertTrue(isa(dTagsNew6, 'typeMap'));
 
 function testValidSyncOn(values)  %#ok<DEFNU>
 % Unit test for cTagger tagevents static method 
 fprintf('\nUnit tests for tagevents with synchronization on\n');
-[f1, h1, e1] = eventTags.split(values.eJSON1, true);
+[f1, h1, e1] = tagMap.split(values.eJSON1, true);
 assertTrue(strcmpi('type', f1));
-dTagsBase = dataTags(h1);
+dTagsBase = typeMap(h1);
 dTagsBase.addEvents(f1, e1, 'Merge');
 fprintf('It should produce the same values with basic tags and no changes\n');
 dTagsNew1 = tagevents(dTagsBase, 'UseGui', false, 'Synchronize', true);
@@ -108,9 +108,9 @@ events2 = dTagsNew2.getEventTags();
 events2a = events2{1}.getEvents();
 assertEqual(length(events2a), 3);
 fprintf('It should work when more events are added\n');
-[fMore, hMore, eMore] = eventTags.split(['type;;' values.moreEvents],  false);
+[fMore, hMore, eMore] = tagMap.split(['type;;' values.moreEvents],  false);
 assertTrue(isempty(hMore));
-dTagsMore = dataTags(hMore);
+dTagsMore = typeMap(hMore);
 dTagsMore.addEvents(fMore, eMore, 'Merge');
 eventsMore = dTagsMore.getEventTags();
 assertEqual(length(eventsMore{1}.getEvents()), 2);
@@ -118,8 +118,8 @@ dTagsNew3 = tagevents(dTagsNew1, 'BaseTags', dTagsMore, 'UseGui', true, ...
     'Synchronize', true);
 events3 = dTagsNew3.getEventTags();
 assertEqual(length(events3{1}.getEvents()), 5);
-[f4, h4, e4] = eventTags.split('type;;code 1, event 1, /a/b/c, /def', false);
-dTagsNew4 = dataTags(h4);
+[f4, h4, e4] = tagMap.split('type;;code 1, event 1, /a/b/c, /def', false);
+dTagsNew4 = typeMap(h4);
 dTagsNew4.addEvents(f4, e4, 'Merge');
 events4 = dTagsNew4.getEventTags();
 assertEqual(length(events4{1}.getEvents()), 1);
@@ -127,9 +127,9 @@ assertEqual(length(events4{1}.getEvents()), 1);
 function testValidSyncOff(values)  %#ok<DEFNU>
 % Unit test for cTagger tagevents static method 
 fprintf('\nUnit tests for tagevents with synchronization off\n');
-[f1, h1, e1] = eventTags.split(values.eJSON1, true);
+[f1, h1, e1] = tagMap.split(values.eJSON1, true);
 assertTrue(strcmpi(f1, 'type'));
-dTagsBase = dataTags(h1);
+dTagsBase = typeMap(h1);
 dTagsBase.addEvents(f1, e1, 'Merge');
 fprintf('It should produce the same values with basic tags and no changes\n');
 dTagsNew1 = tagevents(dTagsBase, 'UseGui', false, 'Synchronize', false);

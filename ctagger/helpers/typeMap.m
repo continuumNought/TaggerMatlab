@@ -1,17 +1,17 @@
-% dataTags    object encapsulating xml tags and type-eventTags association
+% typeMap    object encapsulating xml tags and type-tagMap association
 %
 % Usage:
-%   >>  dTags = dataTags(xmlString)
-%   >>  dTags = dataTags(xmlString, 'key1', 'value1', ...)
+%   >>  dTags = typeMap(xmlString)
+%   >>  dTags = typeMap(xmlString, 'key1', 'value1', ...)
 %
 % Description:
-% dTags = dataTags(xmlString) creates an object representing the 
+% dTags = typeMap(xmlString) creates an object representing the 
 %    tag hierarchy for community tagging. The object knows how to merge and
 %    can produce output in either JSON or semicolon separated
 %    text format. The xmlString is an XML string with the tag hierarchy
 %    and events is a structure array that holds the events and tags.
 %
-% dTags = dataTags(xmlString, 'key1', 'value1', ...)
+% dTags = typeMap(xmlString, 'key1', 'value1', ...)
 %
 %
 % where the key-value pairs are:
@@ -86,11 +86,11 @@
 %
 % Class documentation:
 % Execute the following in the MATLAB command window to view the class
-% documentation for eventTags:
+% documentation for tagMap:
 %
-%    doc eventTags
+%    doc tagMap
 %
-% See also: findtags, tageeg, tagdir, tagstudy, dataTags
+% See also: findtags, tageeg, tagdir, tagstudy, typeMap
 %
 
 %1234567890123456789012345678901234567890123456789012345678901234567890
@@ -111,12 +111,12 @@
 % along with this program; if not, write to the Free Software
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 %
-% $Log: eventTags.m,v $
+% $Log: tagMap.m,v $
 % $Revision: 1.00 15-Feb-2013 08:03:48 krobbins $
 % $Initial version $
 %
 
-classdef dataTags < hgsetget
+classdef typeMap < hgsetget
     properties (Constant = true)
         DefaultXml = 'HEDSpecification1.3.xml';
         DefaultSchema = 'HEDSchema.xsd';
@@ -130,19 +130,19 @@ classdef dataTags < hgsetget
     end % private properties
     
     methods
-        function obj = dataTags(xmlString, varargin)
+        function obj = typeMap(xmlString, varargin)
             % Constructor parses parameters and sets up initial data
             if isempty(varargin)
                 obj.parseParameters(xmlString);
             else
                 obj.parseParameters(xmlString, varargin{:});
             end
-        end % eventTags constructor
+        end % tagMap constructor
         
         function eventExists = addEvent(obj, type, event, updateType)
-            % Include event (a structure) in this eventTags object based on updateType
+            % Include event (a structure) in this tagMap object based on updateType
             eventExists = false;
-            if ~eventTags.validateEvent(event)
+            if ~tagMap.validateEvent(event)
                 warning('addTags:invalid', ...
                     ['Could not add tags - event is not structure with' ...
                     ' label, description and tag fields']);
@@ -157,18 +157,18 @@ classdef dataTags < hgsetget
             
             % Does this type exist?
             if ~obj.TypeMap.isKey(type)
-                eTag = eventTags(obj.Xml, '', 'Field', type);
+                eTag = tagMap(obj.Xml, '', 'Field', type);
             else
                 eTag = obj.TypeMap(type);
             end
 
-            % Add the event to the dataTags
+            % Add the event to the typeMap
             eTag.addEvent(event, updateType);
             obj.TypeMap(type) = eTag;
         end % addEvent
         
         function existsCount = addEvents(obj, type, events, updateType)
-            % Include event (a structure) in this eventTags object based on updateType
+            % Include event (a structure) in this tagMap object based on updateType
             existsCount = 0;
             for k = 1:length(events)
                 existsCount = existsCount + ...
@@ -177,11 +177,11 @@ classdef dataTags < hgsetget
         end % addEvents
         
        function existsCount = addEventTags(obj, eData, updateType)
-            % Include event (a structure) in this eventTags object based on updateType
+            % Include event (a structure) in this tagMap object based on updateType
             existsCount = 0;
             type = eData.getField();
             if ~obj.TypeMap.isKey(type)
-                eTag = eventTags(obj.Xml, '', 'Field', type);
+                eTag = tagMap(obj.Xml, '', 'Field', type);
             else
                 eTag = obj.TypeMap(type);
             end
@@ -215,13 +215,13 @@ classdef dataTags < hgsetget
         end % getFields
             
         function jString = getJson(obj)
-            % Return a JSON string version of the eventTags object
+            % Return a JSON string version of the tagMap object
             jString = savejson('', obj.getStruct());
         end % getJson
         
         function jString = getJsonEvents(obj)
-            % Return a JSON string version of the eventTags object
-            jString = eventTags.events2Json(obj.TagMap.values);
+            % Return a JSON string version of the tagMap object
+            jString = tagMap.events2Json(obj.TagMap.values);
         end % getJson
         
         function pPrefix = getPreservePrefix(obj)
@@ -251,7 +251,7 @@ classdef dataTags < hgsetget
 %         
 %         function eventsText = getTextEvents(obj)
 %             % Return events of this object as semi-colon separated text
-%             eventsText  = eventTags.events2Text(obj.TagMap.values);
+%             eventsText  = tagMap.events2Text(obj.TagMap.values);
 %         end % getTextEvents
 
         function xml = getXml(obj)
@@ -260,7 +260,7 @@ classdef dataTags < hgsetget
         end % getXml
           
         function merge(obj, dTags, updateType)
-            % Combine the dTags dataTags object info with this one
+            % Combine the dTags typeMap object info with this one
             if isempty(dTags)
                 return;
             end
@@ -269,7 +269,7 @@ classdef dataTags < hgsetget
             for k = 1:length(events)
                 type = events{k}.getField();
                 if ~obj.TypeMap.isKey(type)
-                    obj.TypeMap(type) = eventTags(obj.Xml, '', 'Field', type);
+                    obj.TypeMap(type) = tagMap(obj.Xml, '', 'Field', type);
                 end
                 eTags = obj.TypeMap(type);
                 eTags.merge(events{k}, updateType)
@@ -283,9 +283,9 @@ classdef dataTags < hgsetget
                 return;
             end
             try
-               eventTags.validateXml(obj.XmlSchema, xmlMerge);
+               tagMap.validateXml(obj.XmlSchema, xmlMerge);
             catch ex
-                warning('eventTags:mergeXml', ['Could not merge XML ' ...
+                warning('tagMap:mergeXml', ['Could not merge XML ' ...
                      ' [' ex.message ']']);
                 return;
             end
@@ -296,8 +296,8 @@ classdef dataTags < hgsetget
         function reset(obj, xmlString, eStruct)
             % Reset this object based on xmlString and event structure
             obj.TypeMap = containers.Map('KeyType', 'char', 'ValueType', 'any');
-            obj.Xml = fileread(eventTags.DefaultXml);
-            obj.XmlSchema = fileread(eventTags.DefaultSchema);
+            obj.Xml = fileread(tagMap.DefaultXml);
+            obj.XmlSchema = fileread(tagMap.DefaultSchema);
             obj.mergeXml(xmlString);
             for k = 1:length(eStruct)
                 obj.addEvent(eStruct(k), 'Merge');
@@ -310,15 +310,15 @@ classdef dataTags < hgsetget
         
         function xml = getXmlFile(xmlFile)
             % Merge the specified hedfile with the default
-            xml = fileread(eventTags.DefaultXml);
+            xml = fileread(tagMap.DefaultXml);
             if nargin == 1 && ~isempty(xmlFile)
-                xml = eventTags.mergeHed(xml, fileread(xmlFile));
+                xml = tagMap.mergeHed(xml, fileread(xmlFile));
             end
         end % getXml
         
         function parseParameters(obj, xmlString, varargin)
             % Parse parameters provided by user in constructor
-            parser = dataTags.getParser();
+            parser = typeMap.getParser();
             parser.parse(xmlString, varargin{:})
             pdata = parser.Results;
             obj.PreservePrefix = pdata.PreservePrefix;
@@ -337,14 +337,14 @@ classdef dataTags < hgsetget
         end % getParser
         
         function baseTags = loadTagFile(tagsFile)
-            % Load a dataTags object from tagsFile
+            % Load a typeMap object from tagsFile
             baseTags = '';
             try
                 t = load(tagsFile);
                 tFields = fieldnames(t);
                 for k = 1:length(tFields);
                     nextField = t.(tFields{k});
-                    if isa(nextField, 'dataTags')
+                    if isa(nextField, 'typeMap')
                         baseTags = nextField;
                         return;
                     end
@@ -365,5 +365,5 @@ classdef dataTags < hgsetget
         
     end % static methods
     
-end %dataTags
+end %typeMap
 

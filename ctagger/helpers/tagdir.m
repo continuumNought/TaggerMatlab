@@ -2,31 +2,31 @@
 % Allows a user to tag an entire tree directory of similar EEG .set files.
 %
 % Usage:
-%   >>  [dTags, fPaths] = tagdir(inDir)
-%   >>  [dTags, fPaths] = tagdir(inDir, 'key1', 'value1', ...)
+%   >>  [tMap, fPaths] = tagdir(inDir)
+%   >>  [tMap, fPaths] = tagdir(inDir, 'key1', 'value1', ...)
 %
 %% Description
-% [eTags, fPaths] = tagdir(inDir)extracts a consolidated eventTags object 
+% [eTags, fPaths] = tagdir(inDir)extracts a consolidated tagMap object 
 % from the EEGLAB .set files in the directory tree inDir.
 %
 % First the events and tags from all EEGLAB .set files are extracted and 
-% consolidated into a single eventTags object by merging all of the 
-% existing tags. A Then the ctagger GUI is displayed so that users can
+% consolidated into a single typeMap object by merging all of the 
+% existing tags. Then the ctagger GUI is displayed so that users can
 % edit/modify the tags. The GUI is launched in synchronous mode, meaning 
 % that it behaves like a modal dialog and must be closed before execution 
 % continues. Finally the tags for each EEG file are updated.
 %
-% The final, consolidated and edited eventTags object is returned in eTags,
+% The final, consolidated and edited typeMap object is returned in tMap,
 % and fPaths is a cell array containing the full path names of all of the
-% .set files that were affected. If fPaths is empty, then eTags will also
+% matched files that were affected. If fPaths is empty, then tMap will also
 % be empty.
 %
 %
 % [eTags, fPaths] = tagdir(eData, 'key1', 'value1', ...) specifies 
 % optional name/value parameter pairs:
-%   'BaseTagsFile'   A file containing a dataTags object to be used
+%   'BaseTagsFile'   A file containing a typeMap object to be used
 %                    for initial tag information. The default is an 
-%                    eventTags object with the default HED XML and no tags.
+%                    tagMap object with the default HED XML and no tags.
 %   'DoSubDirs'      If true the entire inDir directory tree is searched.
 %                    If false, only the inDir directory is searched.  
 %   'OnlyType'       If true (default), only tag based on unique event types
@@ -43,7 +43,7 @@
 %   'RewriteTags'    Rewrite tags back to the data files after tag map
 %                    has been created.
 %   'TagFileName'    Name containing the name of the file in which to
-%                    save the consolidated dataTags object for future use.
+%                    save the consolidated typeMap object for future use.
 %   'UpdateType'     Indicates how tags are merged with initial tags if the
 %                    tagging information is to be rewritten to the EEG
 %                    files. The options are: 'merge', 'replace', 
@@ -99,13 +99,13 @@
 % $Revision: 1.0 21-Apr-2013 09:25:25 krobbins $
 % $Initial version $
 %
-function [dTags, fPaths] = tagdir(inDir, varargin)
+function [tMap, fPaths] = tagdir(inDir, varargin)
     % Parse the input arguments
     parser = inputParser;
     parser.addRequired('InDir', @(x) (~isempty(x) && ischar(x)));
     parser.addParamValue('BaseTagsFile', '', ...
         @(x)(isempty(x) || (ischar(x) && exist(x, 'file') && ...
-            ~isempty(eventTags.loadTagsFile(x)))));
+            ~isempty(tagMap.loatMapFile(x)))));
     parser.addParamValue('DoSubDirs', true, @islogical);
     parser.addParamValue('OnlyType', true, @islogical);
     parser.addParamValue('PreservePrefix', false, @islogical);
@@ -132,24 +132,24 @@ function [dTags, fPaths] = tagdir(inDir, varargin)
     else
         types = {};
     end
-    dTags = dataTags('', 'PreservePrefix',  p.PreservePrefix);
+    tMap = typeMap('', 'PreservePrefix',  p.PreservePrefix);
     for k = 1:length(fPaths) % Assemble the list
         eegTemp = pop_loadset(fPaths{k});
-        dTagsNew = findtags(eegTemp, 'Fields', types, ...
+        tMapNew = findtags(eegTemp, 'Fields', types, ...
                             'PreservePrefix', p.PreservePrefix);
-        dTags.merge(dTagsNew, 'Merge');
+        tMap.merge(tMapNew, 'Merge');
     end
-    baseTags = dataTags.loadTagFile(p.BaseTagsFile);
-    dTags = tagevents(dTags, 'BaseTags', baseTags, ...
+    baseTags = typeMap.loadTagFile(p.BaseTagsFile);
+    tMap = tagevents(tMap, 'BaseTags', baseTags, ...
         'UpdateType', p.UpdateType, 'UseGUI', p.UseGUI, ...
         'Synchronize', p.Synchronize);
 
     % Save the tags file for next step
-    if ~isempty(p.TagFileName) && ~dataTags.saveTagFile(p.TagFileName, 'dTags')
+    if ~isempty(p.TagFileName) && ~typeMap.saveTagFile(p.TagFileName, 'tMap')
         bName = tempname;
         warning('tagdir:invalidFile', ...
-            ['Couldn''t save dataTags to ' p.TagFileName]);
-        eventTags.saveTagFile(bName, 'dTags')
+            ['Couldn''t save typeMap to ' p.TagFileName]);
+        tagMap.saveTagFile(bName, 'tMap')
     else 
         bName = p.TagFileName;
     end

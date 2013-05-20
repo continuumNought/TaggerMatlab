@@ -96,7 +96,7 @@ function [inDir, baseTagsFile, dbCredsFile, doSubDirs, onlyType, ...
             'BackgroundColor', 'w', 'HorizontalAlignment', 'Left', ...
             'Tag', 'BaseTagsEdit', 'String', '', ...
             'TooltipString', ...
-            'Previously saved dataTags object for initialization', ...
+            'Previously saved typeMap object for initialization', ...
             'Callback', {@tagsCtrlCallback});
         saveTagsCtrl = uicontrol('Parent', fBox, 'Style', 'edit', ...
             'BackgroundColor', 'w', 'HorizontalAlignment', 'Left', ...
@@ -241,8 +241,8 @@ function [inDir, baseTagsFile, dbCredsFile, doSubDirs, onlyType, ...
         % Callback for browse button sets a directory for control
         [tFile, tPath] = uigetfile('*.mat', myTitle);
         tagsFile = fullfile(tPath, tFile);
-%         if isempty(dataTags.loadTagFile(tagsFile))
-%            warndlg([ tagsFile ' does not contain an dataTags object'], 'modal');
+%         if isempty(typeMap.loadTagFile(tagsFile))
+%            warndlg([ tagsFile ' does not contain an typeMap object'], 'modal');
 %         else
             baseTagsFile = tagsFile;
             set(tagsCtrl, 'String', baseTagsFile);
@@ -266,7 +266,7 @@ function [inDir, baseTagsFile, dbCredsFile, doSubDirs, onlyType, ...
         % Callback for user directly editing directory control textbox
         dbCredsFile = get(hObject, 'String');
         if ~exist(dbCredsFile, 'file')          
-           warndlg([ dbCredsFile ' does not contain a dataTags object'], 'modal');
+           warndlg([ dbCredsFile ' does not contain a typeMap object'], 'modal');
         end
     end % dbCredsCtrlCallback
 
@@ -306,8 +306,8 @@ function [inDir, baseTagsFile, dbCredsFile, doSubDirs, onlyType, ...
     function tagsCtrlCallback(hObject, eventdata, tagsCtrl) %#ok<INUSD>
         % Callback for user directly editing directory control textbox
         tagsFile = get(hObject, 'String');
-        if isempty(dataTags.loadTagFile(tagsFile))           
-           warndlg([ tagsFile ' does not contain a dataTags object'], 'modal');
+        if isempty(typeMap.loadTagFile(tagsFile))           
+           warndlg([ tagsFile ' does not contain a typeMap object'], 'modal');
            set(hObject, 'String', baseTagsFile);
         else
             baseTagsFile = tagsFile;

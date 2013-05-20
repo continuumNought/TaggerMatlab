@@ -6,7 +6,7 @@
 %   >>  [EEG, dTags] = tageeg(EEG, 'key1', 'value1', ...)
 %
 %% Description
-% [EEG, dTags] = tageeg(EEG) creates an dataTags object called dTags
+% [EEG, dTags] = tageeg(EEG) creates an typeMap object called dTags
 % from the specified EEG structure using only the 'type' field of the
 % EEG.event and EEG.urevent structures. After existing event tags are
 % extracted from the EEG structure, the ctagger GUI is launched in
@@ -16,9 +16,9 @@
 %
 % |[EEG, dTags] = tageeg(EEG, 'key1', 'value1', ...)| specifies 
 % optional name/value parameter pairs:
-%   'BaseTagsFile'   A file containing a dataTags object to be used
+%   'BaseTagsFile'   A file containing a typeMap object to be used
 %                    for initial tag information. The default is an 
-%                    dataTags object with the default xml and no tags.     
+%                    typeMap object with the default xml and no tags.     
 %   'Fields'         A cell array of  EEG.event and
 %                    EEG.urevent.
 %   'PreservePrefix' If false (default), tags of the same event type that
@@ -30,7 +30,7 @@
 %                    is closed. A value of false is used when this function
 %                    is being called as a menu item from another GUI.
 %   'TagFileName'    Name containing the name of the file in which to
-%                    save the consolidated eventTags object for future use.
+%                    save the consolidated tagMap object for future use.
 %   'UpdateType'     Indicates how tags are merged with initial tags. The
 %                    options are: 'merge', 'replace', 'onlytags' (default),
 %                    'update' or 'none' as decribed below.
@@ -117,7 +117,7 @@ function [EEG, dTags] = tageeg(EEG, varargin)
     % Get the existing tags for the EEG
     dTags = findtags(p.EEG, 'PreservePrefix', p.PreservePrefix, ...
                      'Fields', types);
-    baseTags = dataTags.loadTagFile(p.BaseTagsFile);
+    baseTags = typeMap.loadTagFile(p.BaseTagsFile);
     dTags = tagevents(dTags, 'BaseTags', baseTags, ...
             'UpdateType', p.UpdateType, 'UseGUI', p.UseGUI, ...
             'Synchronize', p.Synchronize);

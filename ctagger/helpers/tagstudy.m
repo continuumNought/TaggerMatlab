@@ -6,26 +6,26 @@
 %   >>  [dTags, fPaths] = tagstudy(studyFile, 'key1', 'value1', ...)
 %
 %% Description
-% [dTags, fPaths] = tagstudy(studyFile)extracts a consolidated eventTags object 
+% [dTags, fPaths] = tagstudy(studyFile)extracts a consolidated tagMap object 
 % from the study and its associated EEGLAB .set files. 
 % First the events and tags from all EEGLAB .set files are extracted and 
-% consolidated into a single eventTags object by merging all of the 
+% consolidated into a single tagMap object by merging all of the 
 % existing tags. Then any tags from the study itself are extracted.
 % The ctagger GUI is then displayed so that users can
 % edit/modify the tags. The GUI is launched in synchronous mode, meaning 
 % that it behaves like a modal dialog and must be closed before execution 
 % continues. Finally the tags for each EEG file are updated.
 %
-% The final, consolidated and edited eventTags object is returned in eTags
+% The final, consolidated and edited tagMap object is returned in eTags
 % and fPaths is a cell array containing the full path names of all of the
 % .set files that were affected.
 %
 %
 % [dTags, fPaths] = tagstudy(EEG, 'key1', 'value1', ...) specifies 
 % optional name/value parameter pairs:
-%   'BaseTagsFile'   A file containing an eventTags object to be used
+%   'BaseTagsFile'   A file containing an tagMap object to be used
 %                    for initial tag information. The default is an 
-%                    eventTags object with the default HED XML and no tags.
+%                    tagMap object with the default HED XML and no tags.
 %   'DoSubDirs'      If true the entire inDir directory tree is searched.
 %                    If false, only the inDir directory is searched.    
 %   'OnlyType'       If true (default), only tag based on unique event types
@@ -40,7 +40,7 @@
 %                    is closed. A value of false is used when this function
 %                    is being called as a menu item from another GUI.
 %   'TagFileName'    Name containing the name of the file in which to
-%                    save the consolidated eventTags object for future use.
+%                    save the consolidated tagMap object for future use.
 %   'UpdateType'     Indicates how tags are merged with initial tags if the
 %                    tagging information is to be rewritten to the EEG
 %                    files. The options are: 'merge', 'replace', 
@@ -103,7 +103,7 @@ function [rTags, fPaths] = tagstudy(studyFile, varargin)
         @(x) (~isempty(x) && exist(studyFile, 'file')));
     parser.addParamValue('BaseTagsFile', '', ...
         @(x)(isempty(x) || (ischar(x) && exist(x, 'file') && ...
-            ~isempty(eventTags.loadTagsFile(x)))));
+            ~isempty(tagMap.loadTagsFile(x)))));
     parser.addParamValue('Match', 'code', ...
         @(x) any(validatestring(lower(x), {'code', 'label', 'both'})));
     parser.addParamValue('OnlyType', true, @islogical);
@@ -119,19 +119,19 @@ function [rTags, fPaths] = tagstudy(studyFile, varargin)
     p = parser.Results;
  
    % Consolidate all of the tags from the study
-    baseTags = dataTags.loadTagFile(p.BaseTagsFile);
+    baseTags = typeMap.loadTagFile(p.BaseTagsFile);
     [s, fPaths] = loadstudy(p.StudyFile);
     if isempty(s)
    %   dTags =
     elseif ~isfield(s, 'etc')
-        s.etc = struct('eventTags', '');
+        s.etc = struct('tagMap', '');
     elseif ~isstruct(s.etc)
-        s.etc = struct('other', s.etc, 'eventTags', '');
-    elseif ~isfield(s.etc, 'eventTags')
-        s.etc.eventTags = '';
+        s.etc = struct('other', s.etc, 'tagMap', '');
+    elseif ~isfield(s.etc, 'tagMap')
+        s.etc.tagMap = '';
     end
-    [hed, events] = eventTags.split(s.etc.eventTags, true);
-    eTags = eventTags(hed, events, 'Match', p.Match, 'PreservePrefix', ...
+    [hed, events] = tagMap.split(s.etc.tagMap, true);
+    eTags = tagMap(hed, events, 'Match', p.Match, 'PreservePrefix', ...
                       p.PreservePrefix);
     
     % Merge the tags for the study
@@ -141,18 +141,18 @@ function [rTags, fPaths] = tagstudy(studyFile, varargin)
                    'PreservePrefix', p.PreservePrefix);
         eTags.mergeEventTags(eTagsNew, 'Merge');
     end
-    baseTags = eventTags.loadTagFile(p.BaseTagsFile);
+    baseTags = tagMap.loadTagFile(p.BaseTagsFile);
     eTags = tagevents(eTags, 'BaseTags', baseTags, ...
         'UpdateType', p.UpdateType, 'UseGUI', p.UseGUI, ...
         'Synchronize', p.Synchronize);
   
     % Save the tags file for next step
     if ~isempty(p.TagFileName) || ...
-        ~eventTags.saveTagFile(p.TagFileName, 'eTags')
+        ~tagMap.saveTagFile(p.TagFileName, 'eTags')
         bName = tempname;
         warning('tagstudy:invalidFile', ...
-            ['Couldn''t save eventTags to ' p.TagFileName]);
-        eventTags.saveTagFile(bName, 'eTags')
+            ['Couldn''t save tagMap to ' p.TagFileName]);
+        tagMap.saveTagFile(bName, 'eTags')
     else 
         bName = p.TagFileName;
     end
@@ -172,7 +172,7 @@ function [rTags, fPaths] = tagstudy(studyFile, varargin)
     end
      
     function [s, fNames] = loadstudy(studyFile)
-        % Set baseTags if tagsFile contains an eventTags object
+        % Set baseTags if tagsFile contains an tagMap object
         try
             t = load('-mat', studyFile);
             tFields = fieldnames(t);
@@ -187,7 +187,7 @@ function [rTags, fPaths] = tagstudy(studyFile, varargin)
     end % loadstudy
 
     function fNames = getstudyfiles(study, sPath)
-        % Set baseTags if tagsFile contains an eventTags object
+        % Set baseTags if tagsFile contains an tagMap object
         datasets = {study.datasetinfo.filename};
         paths = {study.datasetinfo.filepath};
         validPaths = true(size(paths));
