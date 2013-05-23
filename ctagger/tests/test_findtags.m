@@ -2,27 +2,22 @@ function test_suite = test_findtags%#ok<STOUT>
 initTestSuite;
 
 function values = setup %#ok<DEFNU>
-  values = '';
-codes = {'1', '2', '3'};
-types = {'RT', 'Trigger', 'Missed'};
-eStruct = struct('hedXML', '', 'events', 'def');
-tags = {'/Time-Locked Event/Stimulus/Visual/Shape/Ellipse/Circle', ...
-        '/Time-Locked Event/Stimulus/Visual/Fixation Point', ...
-        '/Time-Locked Event/Stimulus/Visual/Uniform Color/Black'};
-sE = struct('code', codes, 'label', types, 'description', types, 'tags', '');
-sE(1).tags = tags;
-eStruct.events = sE;
-eJSON1 = savejson('', eStruct);
-values.eStruct1 = eStruct;
-values.eJSON1 = eJSON1;
+typeValues = ['RT,User response,' ...
+        '/Time-Locked Event/Stimulus/Visual/Shape/Ellipse/Circle,' ...
+        '/Time-Locked Event/Stimulus/Visual/Uniform Color/Black;' ...
+        'Trigger,User stimulus,,;Missed,User failed to respond,'];
+codeValues = ['1,User response,' ...
+        '/Time-Locked Event/Stimulus/Visual/Shape/Ellipse/Circle,' ...
+        '/Time-Locked Event/Stimulus/Visual/Uniform Color/Black;' ...
+        '2,User stimulus,,;3,User failed to respond,'];
+% Read in the HED schema
+latestHed = 'HEDSpecification1.3.xml';
+values.data.etc.tags.xml = fileread(latestHed);
+values.data.etc.tags.map.type = typeValues;
+values.data.etc.tags.map.code = codeValues;
+values.data.etc.tags.map.group = codeValues;
 load EEGEpoch.mat;
 values.EEGEpoch = EEGEpoch;
-values.TestDirectories = 'H:\TagTestDirectories';
-values.moreEvents = 'e5, e5 label, e5 description, /a/b/c; e6,e61,e6 des';
-values.Attn = 'AttentionShiftSet';
-values.BCI2000 = 'BCI2000Set';
-values.EEGLAB = 'EEGLABSet';
-values.Shooter = 'ShooterSet';
 
 function teardown(values) %#ok<INUSD,DEFNU>
 % Function executed after each test
@@ -30,12 +25,17 @@ function teardown(values) %#ok<INUSD,DEFNU>
 function testValidValues(values)  %#ok<DEFNU>
 % Unit test for findtags
 fprintf('\nUnit tests for findtags\n');
-fprintf('It should tag an EEG structure that hasn''t been tagged\n');
+fprintf('It should return a tag map for an EEG structure that hasn''t been tagged\n');
 assertTrue(~isfield(values.EEGEpoch.etc, 'tags'));
 dTags = findtags(values.EEGEpoch);
 events = dTags.getEventTags();
 assertEqual(length(events), 2);
 assertTrue(~isempty(dTags.getXml()));
+fields = dTags.getFields();
+assertEqual(length(fields), 2);
+assertTrue(strcmpi(fields{1}, 'position'));
+assertTrue(strcmpi(fields{2}, 'type'));
+
 fprintf('It should work if EEG doesn''t have .etc field\n');
 EEG1 = values.EEGEpoch;
 EEG1 = rmfield(EEG1, 'etc');
@@ -58,12 +58,18 @@ events3 = dTags3.getEventTags();
 assertEqual(length(events3), 2);
 assertTrue(~isempty(dTags3.getXml()));
 fprintf('It should work if the EEG has already been tagged\n');
-json1 = dTags1.getJson();
-EEG3.etc.eventHedTags = json1;
-dTags4 = findtags(EEG3);
+dTags4 = findtags(values.data);
 events4 = dTags4.getEventTags();
-assertEqual(length(events4), 2);
+assertEqual(length(events4), 3);
 assertTrue(~isempty(dTags4.getXml()));
+fields4 = dTags4.getFields();
+assertEqual(length(fields4), 3);
+assertTrue(strcmpi(fields4{1}, 'code'));
+assertTrue(strcmpi(fields4{2}, 'group'));
+assertTrue(strcmpi(fields4{3}, 'type'));
+
+
+
 
 function testMultipleFields(values)  %#ok<DEFNU>
 % Unit test for findtags

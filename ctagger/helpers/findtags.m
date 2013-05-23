@@ -2,14 +2,14 @@
 % Create a typeMap object for the existing tags in a data structure
 %
 % Usage:
-%   >>  dTags = findtags(edata)
-%   >>  dTags = findtags(edata, 'key1', 'value1', ...)
+%   >>  tMap = findtags(edata)
+%   >>  tMap = findtags(edata, 'key1', 'value1', ...)
 %
 % Description:
-% dTags = findtags(edata) extracts a typeMap object representing the
+% tMap = findtags(edata) extracts a typeMap object representing the
 % events and their tags for the structure.
 %
-% dTags = findtags(edata, 'key1', 'value1', ...) specifies optional name/value
+% tMap = findtags(edata, 'key1', 'value1', ...) specifies optional name/value
 % parameter pairs:
 %
 %   'ExcludeFields'  A cell array containing the field names to exclude
@@ -58,40 +58,46 @@
 % $Initial version $
 %
 
-function [dTags] = findtags(edata, varargin)
+function [tMap] = findtags(edata, varargin)
     % Parse the input arguments
     parser = inputParser;
-    parser.addRequired('edata', @(x) (isempty(x) || ...
-        (isstruct(edata) && isfield(edata, 'event') && isstruct(edata.event))));
-        parser.addParamValue('ExcludeFields', {'latency', 'epoch', 'urevent'}, ...
+    parser.addRequired('edata', @(x) (isempty(x) || isstruct(x)));
+        parser.addParamValue('ExcludeFields', ...
+            {'latency', 'epoch', 'urevent', 'hedtags', 'typetags'}, ...
          @(x) (iscellstr(x)));
     parser.addParamValue('Fields', {}, @(x) (iscellstr(x)));
     parser.addParamValue('PreservePrefix', false, ...
         @(x) validateattributes(x, {'logical'}, {}));
     parser.parse(edata, varargin{:});
-    p = parser.Results;    
+    p = parser.Results;  
+    edata = p.edata;
   
     % If edata.etc.tags exists, then extract tag information
     xml = '';
-    fields = {};
+    tfields = {};
     if isfield(edata, 'etc') && isstruct(edata.etc) && ...
             isfield(edata.etc, 'tags') && isstruct(edata.etc.tags)
       if isfield(edata.etc.tags, 'xml')
            xml = edata.etc.tags.xml;
       end
-      if isfield(edata.etc.tags, 'map') && isfield(edata.etc.tags.map, 'field')
-         fields = {edata.etc.tags.map.field};
+      if isfield(edata.etc.tags, 'map') 
+         tfields = fieldnames(edata.etc.tags.map);
       end
     end
-    dTags = typeMap(xml, 'PreservePrefix', p.PreservePrefix);
+    tMap = typeMap(xml, 'PreservePrefix', p.PreservePrefix);
     if ~isempty(p.Fields)
-        fields = intersect(p.Fields, fields);
+        tfields = intersect(p.Fields, tfields);
     end
-    for k = 1:length(fields)
-         dTags.addEvents(fields{k}, edata.etc.tags.map(k).events, 'Merge');
+    for k = 1:length(tfields)
+        eString = edata.etc.tags.map.(tfields{k})
+        eStruct = tagMap.text2Events(eString)
+        tMap.addEvents(tfields{k}, eStruct, 'Merge');
     end
- 
-    efields = fieldnames(edata.event);
+    
+    efields = '';
+    if isfield(edata, 'event') && isstruct(edata.urevent)
+       efields = fieldnames(edata.event);
+    end
     if isfield(edata, 'urevent') && isstruct(edata.urevent)
         efields = union(efields, fieldnames(edata.urevent)); 
     end
@@ -105,6 +111,6 @@ function [dTags] = findtags(edata, varargin)
             tValues = union(tValues, getutypes(edata.urevent, efields{k}));
         end
         events = tagMap.text2Events(tValues);
-        dTags.addEvents(efields{k}, events, 'Merge');
+        tMap.addEvents(efields{k}, events, 'Merge');
     end
 end %findtags

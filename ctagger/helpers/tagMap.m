@@ -19,9 +19,6 @@
 %   'Field'            field name corresponding to these event tags
 %   'PreservePrefix'   logical - if false (default) tags with matching
 %                      prefixes are merged to be the longest
-%   'UseJson'          logical - if true (default) the inString is in
-%                      Json format, otherwise in semicolon separated
-%                      format.
 %
 % addTags mergeOptions:
 %    'Merge'          If an event with that key is not part of this
@@ -246,7 +243,7 @@ classdef tagMap < hgsetget
         
         function thisText = getText(obj)
             % Return this object as semi-colon separated text
-            thisText = [obj.Field ';' obj.Xml ';' obj.getTextEvents()];
+            thisText = [obj.Xml ';' obj.Field ';'  obj.getTextEvents()];
         end % getText
         
         function eventsText = getTextEvents(obj)
@@ -384,10 +381,15 @@ classdef tagMap < hgsetget
         end % events2Json
         
         function eText = events2Text(events)
-            % Convert an event structure array to semi-colon separated string
+            % Convert an event structure array or cell array to semi-colon separated string
             if isempty(events)
                 eText = '';
-            else
+            elseif isstruct(events)
+                eText = tagMap.event2Text(events(1));
+                for k = 2:length(events)
+                    eText = [eText ';' tagMap.event2Text(events(k))]; %#ok<AGROW>
+                end
+            elseif iscell(events)
                 eText = tagMap.event2Text(events{1});
                 for k = 2:length(events)
                     eText = [eText ';' tagMap.event2Text(events{k})]; %#ok<AGROW>
@@ -417,6 +419,14 @@ classdef tagMap < hgsetget
             end
             try
                 theStruct = loadjson(json);
+                % Adjust so tags are cellstrs
+                for k = 1:length(theStruct.events)
+                    if isempty(theStruct.events(k).tags)
+                        continue;
+                    end   
+                    theStruct.events(k).tags = ...
+                                      cellstr(theStruct.events(k).tags)';
+                end
             catch ME
                 if ~ischar(json)
                     warning('json2mat:InvalidJSON', ['not string' ME.message]);
@@ -465,7 +475,7 @@ classdef tagMap < hgsetget
         end % reformatEvent
         
  
-        function [field, xml, events] = split(inString, useJson)
+        function [xml, field, events] = split(inString, useJson)
             % Parse inString into xml hed string and events structure 
             field = '';
             xml = '';
@@ -497,7 +507,11 @@ classdef tagMap < hgsetget
             if length(splitEvent) < 3
                 return;
             end
-            theStruct.tags = splitEvent(3:end);
+            tags = strtrim(splitEvent(3:end));
+            theStruct.tags = tags(~cellfun(@isempty, tags));
+            if isempty(theStruct.tags)  %Clean up
+                theStruct.tags = '';
+            end
         end %text2Event
         
         function eStruct = text2Events(events)
@@ -505,23 +519,37 @@ classdef tagMap < hgsetget
             if length(events) < 1
                 eStruct = '';
             else  
-                for k = length(events):-1: 1
-                    eStruct(k)= tagMap.text2Event(events{k});
+                splitEvents = regexpi(events, ';', 'split');
+                eStruct(length(splitEvents)) = ...
+                    struct('label', '', 'description', '', 'tags', '');
+                for k = 1:length(splitEvents)
+                    eStruct(k)= tagMap.text2Event(splitEvents{k});
                 end
             end
         end % text2Events
         
         function theStruct = text2Mat(eString)
             % Convert semicolon-separated specification to struct 
-            theStruct = struct('field', '', 'xml', '', 'events', '');
+            theStruct = struct('xml', '', 'field', '', 'events', '');
             eString = strtrim(eString);
             if isempty(eString)
                 return;
             end
-            eParsed = regexpi(eString, ';', 'split');
-            theStruct.field = eParsed{1};
-            theStruct.xml = eParsed{2};
-            theStruct.events = tagMap.text2Events(eParsed(3:end));
+            [eStart, eParsed] = regexpi(eString, ';', 'start', 'split');
+            if isempty(eParsed)
+                return;
+            end
+            nEvents = length(eParsed);
+            theStruct.xml = strtrim(eParsed{1});
+            if nEvents < 2
+                return;
+            end
+            theStruct.field = strtrim(eParsed{2});
+            if nEvents < 3
+                return;
+            end
+            eventString = eString(eStart(2)+ 1:end);
+            theStruct.events = tagMap.text2Events(eventString);
         end % text2mat
 
         function valid = validateEvent(event)
