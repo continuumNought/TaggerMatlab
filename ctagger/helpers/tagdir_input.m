@@ -1,6 +1,6 @@
 function [inDir, baseTagsFile, dbCredsFile, doSubDirs, onlyType, ...
     preservePrefix, updateType, saveTagsFile, useGUI, cancelled] =  ...
-    tagdirinputs()
+    tagdir_input()
 % GUI for input needed to create inputs for tagdir function
 
 % Setup the variables used by the GUI
@@ -327,4 +327,4 @@ function [inDir, baseTagsFile, dbCredsFile, doSubDirs, onlyType, ...
         useGUI = get(src, 'Max') == get(src, 'Value');
     end % useGUICallback
            
-end % tagdirinputs
+end % tagdir_input
