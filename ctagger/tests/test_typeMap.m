@@ -42,8 +42,8 @@ values.EEGEpoch = EEGEpoch;
 load EEGShoot.mat;
 values.EEGShoot = EEGShoot;
 values.noTagsFile = 'EEGEpoch.mat';
-values.oneTagsFile = 'etags.mat';
-values.otherTagsFile = 'eTagsOther.mat';
+values.oneTagsFile = 'dtags.mat';
+
 
 function teardown(values) %#ok<INUSD,DEFNU>
 % Function executed after each test
@@ -55,7 +55,7 @@ function testValid(values) %#ok<DEFNU>
 fprintf('\nUnit tests for typeMap valid JSON constructor\n');
 
 fprintf('It should create a valid typeMap object for a valid JSON events string\n');
-[field1, xml1, events1] = tagMap.split(values.eJSON1, true);
+[xml1, field1,  events1] = tagMap.split(values.eJSON1, true);
 assertTrue(strcmpi(field1, 'type'));
 obj1 = typeMap(xml1);
 assertTrue(isvalid(obj1));
@@ -65,7 +65,7 @@ events = obj1.getEventTags();
 assertEqual(length(events), 1);
 fprintf('It should create a valid object for a valid text string\n');
 testString = ['type;' values.eStruct1.xml ';' values.eventList1];
-[field2, xml2, events2] = tagMap.split(testString, false);
+[xml2, field2, events2] = tagMap.split(testString, false);
 assertTrue(strcmpi(field2, 'type'));
 obj2 = typeMap(xml2);
 assertTrue(isvalid(obj2));
@@ -128,6 +128,7 @@ function testMerge(values) %#ok<DEFNU>
 fprintf('\nUnit tests for typeMap addEventData\n');
 fprintf('It merge a valid typeMap object\n');
 dTags = typeMap('');
+
 dTags1 = findtags(values.EEGEpoch);
 assertEqual(length(dTags1.getEventTags()), 2);
 assertEqual(length(dTags.getEventTags()), 0);
@@ -139,9 +140,9 @@ fprintf('\nUnit tests for loadTagsFile static method of typeMap\n');
 fprintf('It should return an empty value when file contains no typeMap\n');
 bT1 = typeMap.loadTagFile(values.noTagsFile);
 assertTrue(isempty(bT1));
-fprintf('It should return an tagMap object when only one variable in file\n');
+fprintf('It should return an typeMap object when only one variable in file\n');
 bT2 = typeMap.loadTagFile(values.oneTagsFile);
-assertTrue(isa(bT2, 'tagMap'));
+assertTrue(isa(bT2, 'typeMap'));
 fprintf('It should return an tagMap object when it is not first variable in file\n');
 bT3 = typeMap.loadTagFile(values.otherTagsFile);
 assertTrue(isa(bT3, 'tagMap'));

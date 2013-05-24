@@ -139,22 +139,8 @@ classdef typeMap < hgsetget
             end
         end % tagMap constructor
         
-        function eventExists = addEvent(obj, type, event, updateType)
+        function addEvent(obj, type, event, updateType)
             % Include event (a structure) in this tagMap object based on updateType
-            eventExists = false;
-            if ~tagMap.validateEvent(event)
-                warning('addTags:invalid', ...
-                    ['Could not add tags - event is not structure with' ...
-                    ' label, description and tag fields']);
-                return;
-            elseif sum(strcmpi(updateType, ...
-                    {'OnlyTags', 'Update', 'Replace', 'Merge', 'None'})) == 0
-                warning('addTags:invalidType', ...
-                    ['updateType must be one of OnlyTags, Update, Replace, ' ...
-                     'Merge, or None']);
-                return;
-            end
-            
             % Does this type exist?
             if ~obj.TypeMap.isKey(type)
                 eTag = tagMap(obj.Xml, '', 'Field', type);
@@ -167,12 +153,10 @@ classdef typeMap < hgsetget
             obj.TypeMap(type) = eTag;
         end % addEvent
         
-        function existsCount = addEvents(obj, type, events, updateType)
+        function addEvents(obj, type, events, updateType)
             % Include event (a structure) in this tagMap object based on updateType
-            existsCount = 0;
             for k = 1:length(events)
-                existsCount = existsCount + ...
-                    obj.addEvent(type, events(k), updateType);
+                obj.addEvent(type, events(k), updateType);
             end
         end % addEvents
         

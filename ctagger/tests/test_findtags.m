@@ -25,6 +25,15 @@ function teardown(values) %#ok<INUSD,DEFNU>
 function testValidValues(values)  %#ok<DEFNU>
 % Unit test for findtags
 fprintf('\nUnit tests for findtags\n');
+fprintf('It should tag a data set that has a map but no events\n');
+dTags = findtags(values.data);
+assertTrue(isa(dTags, 'typeMap'));
+fields = dTags.getFields();
+assertEqual(length(fields), 3);
+for k = 1:length(fields)
+    assertTrue(isa(dTags.getEvents(fields{k}), 'tagMap'));
+end
+
 fprintf('It should return a tag map for an EEG structure that hasn''t been tagged\n');
 assertTrue(~isfield(values.EEGEpoch.etc, 'tags'));
 dTags = findtags(values.EEGEpoch);
