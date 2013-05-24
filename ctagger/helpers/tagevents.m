@@ -18,7 +18,7 @@ function dTags = tagevents(dTags, varargin)
         return;
     end
     xml = char(dTags.getXml()); 
-    tags = dTags.getEventTags();
+    tags = dTags.getTagMaps();
     for k = 1:length(tags)
         eTags = tags{k};
         eTitle = [eTags.getField() ' field tagging'];
@@ -39,6 +39,6 @@ function dTags = tagevents(dTags, varargin)
             tags = char(ctrl.getHedString());
             events = char(ctrl.getEventString(true));  
         end
-        eTags.reset(strtrim(tags), eventTags.json2Events(strtrim(events)));
+        eTags.reset(strtrim(tags), tagMap.json2Events(strtrim(events)));
     end
 end % tagevents     

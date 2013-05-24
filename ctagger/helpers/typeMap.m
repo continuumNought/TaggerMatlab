@@ -189,10 +189,10 @@ classdef typeMap < hgsetget
             end;
         end % getEvents
         
-        function eTags = getEventTags(obj)
-            % Returns all of the eventTag objects as a cell array
-            eTags = obj.TypeMap.values;
-        end % getEventTags
+        function tMaps = getTagMaps(obj)
+            % Returns all of the tagMap objects as a cell array
+            tMaps = obj.TypeMap.values;
+        end % getTagMaps
         
         function fields = getFields(obj)
             fields = obj.TypeMap.keys();
@@ -249,7 +249,7 @@ classdef typeMap < hgsetget
                 return;
             end
             obj.mergeXml(dTags.getXml);
-            events = dTags.getEventTags();
+            events = dTags.getTagMaps();
             for k = 1:length(events)
                 type = events{k}.getField();
                 if ~obj.TypeMap.isKey(type)
