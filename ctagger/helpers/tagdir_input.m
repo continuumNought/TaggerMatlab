@@ -65,9 +65,9 @@ function [inDir, baseTagsFile, dbCredsFile, doSubDirs, onlyType, ...
         uiextras.Empty('Parent', mainHBox);
         uiextras.Empty('Parent', mainVBox);
         createButtonPanel(mainVBox);
-        
-        set(mainHBox, 'Sizes', [20, 150, 20, -1, 20]);
-        set(mainVBox, 'Sizes', [10, 150, 200,  -1,  40]);
+        uiextras.Empty('Parent', mainVBox);
+        set(mainHBox, 'Sizes', [20, 150, 10, -1, 10]);
+        set(mainVBox, 'Sizes', [10, 150, 200,  -1,  40, 10]);
         drawnow
     end % createLayout
 
@@ -209,7 +209,7 @@ function [inDir, baseTagsFile, dbCredsFile, doSubDirs, onlyType, ...
         [tFile, tPath] = uigetfile('*.mat', myTitle);
         dbCredsFile = fullfile(tPath, tFile);
         set(dbCredsCtrl, 'String', fullfile(tPath, tFile));
-    end % browseDbCredsCtrl Callback
+    end % browseDbCredsCtrlCallback
 
     function browseDirCallback(src, eventdata, dirCtrl, myTitle) %#ok<INUSL>
         % Callback for browse button sets a directory for control

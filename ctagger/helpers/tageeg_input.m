@@ -277,4 +277,4 @@ function [baseTagsFile,  dbCredsFile, onlyType, preservePrefix, ...
         useGUI = get(src, 'Max') == get(src, 'Value');
     end % useGUICallback
            
-end % tageeginputs
+end % tageeg_input

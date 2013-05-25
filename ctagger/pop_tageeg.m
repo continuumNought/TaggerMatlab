@@ -6,8 +6,8 @@
 % [EEGOUT, com] = pop_tageeg(EEG) takes an input EEGLAB EEG structure,
 % brings up a GUI to enter parameters for tageeg, and calls
 % tageeg to extracts the EEG structure's tags, if any. The tageeg
-% function then brings up the ctagger GUI to allow users to modify the
-% tags.
+% function may optionally connect to a community tag database and bring up
+% the ctagger GUI so that users can adjust the tags.
 %
 % Notes:
 %  -  pop_tageeg() is meant to be used as the callback under the 
@@ -58,8 +58,8 @@ function [EEG, com] = pop_tageeg(EEG)
     end;
 
     % Get the tagger input parameters
-    [baseTagsFile, onlyType,  preservePrefix, ...
-          saveTagsFile, updateType, useGUI, cancelled] = tageeginputs();     
+    [baseTagsFile,  dbCredsFile, onlyType,  preservePrefix, ...
+          saveTagsFile, updateType, useGUI, cancelled] = tageeg_input();     
     if cancelled
         return;
     end

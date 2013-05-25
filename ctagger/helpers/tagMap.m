@@ -187,6 +187,20 @@ classdef tagMap < hgsetget
             obj.TagMap(key) = oldEvent;
         end % addEvent
         
+        function newMap = clone(obj)
+            newMap = tagMap(obj.Xml, '');
+            newMap.Field = obj.Field;
+            newMap.PreservePrefix = obj.PreservePrefix;
+            newMap.Xml = obj.Xml;
+            newMap.XmlSchema = obj.XmlSchema;
+            values = obj.TagMap.values;
+            tMap = containers.Map('KeyType', 'char', 'ValueType', 'any');          
+            for k = 1:length(values)
+                tMap(values{k}.label) = values{k};
+            end
+            newMap.TagMap = tMap;
+        end %clone        
+        
         function event = getEvent(obj, key)
             % Return the event structure corresponding to specified key
             if obj.TagMap.isKey(key)
@@ -214,7 +228,7 @@ classdef tagMap < hgsetget
                 end
             end
         end % getEvents
-        
+ 
         function field = getField(obj)
             field = obj.Field;
         end % getField
@@ -228,6 +242,12 @@ classdef tagMap < hgsetget
             % Return a JSON string version of the tagMap object
             jString = tagMap.events2Json(obj.TagMap.values);
         end % getJson
+        
+               
+        function eLabels = getLabels(obj)
+            % Return the unique event values of this type
+            eLabels = obj.TagMap.keys();
+        end % getLabels
         
         function pPrefix = getPreservePrefix(obj)
             % Return the PreservePrefix flag (false means no tag prefix duplication)
@@ -285,7 +305,9 @@ classdef tagMap < hgsetget
             end
             obj.Xml = char(edu.utsa.tagger.database.XMLGenerator.mergeXML( ...
                 obj.Xml, xmlMerge));
-        end % mergeHED
+        end % mergeXml
+        
+
         
         function reset(obj, xmlString, eStruct)
             % Reset this object based on hedString and event structure
@@ -297,6 +319,11 @@ classdef tagMap < hgsetget
                 obj.addEvent(eStruct(k), 'Merge');
             end
         end % reset
+        
+        function setMap(obj, field, tMap)
+            % Set the map associated with field to tMap
+            obj.TagMap(field) = tMap;
+        end % setMap
         
     end % public methods
     

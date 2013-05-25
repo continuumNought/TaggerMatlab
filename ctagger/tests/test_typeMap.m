@@ -62,7 +62,7 @@ obj1 = typeMap(xml1);
 assertTrue(isvalid(obj1));
 fprintf('It should have the right number of events\n');
 obj1.addEvents(field1, events1, 'Merge');
-events = obj1.getTagMaps();
+events = obj1.getMaps();
 assertEqual(length(events), 1);
 fprintf('It should create a valid object for a valid text string\n');
 testString = [values.eStruct1.xml ';type;'  values.eventList1];
@@ -74,7 +74,7 @@ fprintf('It should have the right number of events when there is one field\n');
 for k = 1:length(events2)
     obj2.addEvent(field2, events2(k), 'Merge');
 end
-events = obj2.getTagMaps();
+events = obj2.getMaps();
 assertEqual(length(events), 1);
 fprintf('It should produce right structure when one field\n');
 dStruct = obj2.getStruct();
@@ -88,12 +88,12 @@ fprintf('It should have the right number of events with multiple fields\n');
 for k = 1:length(events2)
     obj2.addEvent('banana', events2(k), 'Merge');
 end
-events = obj2.getTagMaps();
+events = obj2.getMaps();
 assertEqual(length(events), 2);
 for k = 1:length(events2)
     obj2.addEvent('grapes', events2(k), 'Merge');
 end
-events = obj2.getTagMaps();
+events = obj2.getMaps();
 assertEqual(length(events), 3);
 dStruct = obj2.getStruct();
 assertTrue(isfield(dStruct, 'xml'));
@@ -131,10 +131,10 @@ fprintf('It merge a valid typeMap object\n');
 dTags = typeMap('');
 
 dTags1 = findtags(values.EEGEpoch);
-assertEqual(length(dTags1.getTagMaps()), 2);
-assertEqual(length(dTags.getTagMaps()), 0);
+assertEqual(length(dTags1.getMaps()), 2);
+assertEqual(length(dTags.getMaps()), 0);
 dTags.merge(dTags1, 'Merge');
-assertEqual(length(dTags.getTagMaps()), 2);
+assertEqual(length(dTags.getMaps()), 2);
 
 function testLoadTagsFile(values) %#ok<DEFNU>
 fprintf('\nUnit tests for loadTagsFile static method of typeMap\n');
@@ -147,3 +147,19 @@ assertTrue(isa(bT2, 'typeMap'));
 fprintf('It should return an tagMap object when it is not first variable in file\n');
 bT3 = typeMap.loadTagFile(values.otherTagsFile);
 assertTrue(isa(bT3, 'typeMap'));
+
+function testClone(values) %#ok<DEFNU>
+fprintf('\nUnit tests for clone method of tagMap\n');
+fprintf('It should correctly clone a tagMap object\n');
+[xml1, field1, events1] = tagMap.split(values.eJSON1, true);
+obj1 = tagMap(xml1, events1);
+assertTrue(strcmpi (field1, obj1.getField()));
+
+obj2 = obj1.clone();
+assertTrue(isa(obj2, 'tagMap'));
+fprintf('The fields of the two objects should agree\n');
+assertTrue(strcmpi(obj1.getField(), obj2.getField()));
+keys1 = obj1.getLabels();
+keys2 = obj2.getLabels();
+fprintf('The two objects should have the same number of labels\n');
+assertEqual(length(keys1), length(keys2));

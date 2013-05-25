@@ -328,6 +328,21 @@ assertEqual(length(eStruct3(1).tags), 2);
 assertEqual(length(eStruct3(2).tags), 0);
 assertEqual(length(eStruct3(3).tags), 0);
 
-function testText2Mat(values) %#ok<DEFNU>
+function testText2Mat(values) %#ok<INUSD,DEFNU>
 fprintf('\nUnit tests for text2Events static method of tagMap\n');
 fprintf('It should work if the string is empty\n');
+
+function testClone(values) %#ok<DEFNU>
+fprintf('\nUnit tests for clone method of tagMap\n');
+fprintf('It should correctly clone a tagMap object\n');
+[xml1, field1, events1] = tagMap.split(values.eJSON1, true);
+obj1 = tagMap(xml1, events1);
+assertTrue(strcmpi (field1, obj1.getField()));
+obj2 = obj1.clone();
+assertTrue(isa(obj2, 'tagMap'));
+fprintf('The fields of the two objects should agree\n');
+assertTrue(strcmpi(obj1.getField(), obj2.getField()));
+keys1 = obj1.getLabels();
+keys2 = obj2.getLabels();
+fprintf('The two objects should have the same number of labels\n');
+assertEqual(length(keys1), length(keys2));

@@ -160,9 +160,8 @@ classdef typeMap < hgsetget
             end
         end % addEvents
         
-       function existsCount = addEventTags(obj, eData, updateType)
-            % Include event (a structure) in this tagMap object based on updateType
-            existsCount = 0;
+       function addTagMap(obj, eData, updateType)
+            % Include information of the eData tagMap object based on updateType
             type = eData.getField();
             if ~obj.TypeMap.isKey(type)
                 eTag = tagMap(obj.Xml, '', 'Field', type);
@@ -170,7 +169,21 @@ classdef typeMap < hgsetget
                 eTag = obj.TypeMap(type);
             end
             eTag.merge(eData, updateType);
-        end % addEventData
+        end % addTagMap
+        
+       function newMap = clone(obj)
+            newMap = typeMap(obj.Xml);
+            newMap.PreservePrefix = obj.PreservePrefix;
+            newMap.Xml = obj.Xml;
+            newMap.XmlSchema = obj.XmlSchema;
+            newMap.Xml = obj.Xml;
+            values = obj.TypeMap.values;
+            tMap = containers.Map('KeyType', 'char', 'ValueType', 'any');          
+            for k = 1:length(values)
+                tMap(values{k}.getField()) = values{k};
+            end
+            newMap.TypeMap = tMap;
+        end %clone        
         
         function event = getEvent(obj, type, key)
             % Return the event structure corresponding to specified key
@@ -189,10 +202,19 @@ classdef typeMap < hgsetget
             end;
         end % getEvents
         
-        function tMaps = getTagMaps(obj)
+        function tMap = getMap(obj, field)
+            % Return the tagMap object associated with field or empty
+            if ~obj.TypeMap.isKey(field)
+                tMap = '';
+            else
+                tMap = obj.TypeMap(field);
+            end
+        end % getMap
+        
+        function tMaps = getMaps(obj)
             % Returns all of the tagMap objects as a cell array
             tMaps = obj.TypeMap.values;
-        end % getTagMaps
+        end % getMaps
         
         function fields = getFields(obj)
             fields = obj.TypeMap.keys();
@@ -249,7 +271,7 @@ classdef typeMap < hgsetget
                 return;
             end
             obj.mergeXml(dTags.getXml);
-            events = dTags.getTagMaps();
+            events = dTags.getMaps();
             for k = 1:length(events)
                 type = events{k}.getField();
                 if ~obj.TypeMap.isKey(type)
@@ -287,6 +309,11 @@ classdef typeMap < hgsetget
                 obj.addEvent(eStruct(k), 'Merge');
             end
         end % reset
+        
+        function setMap(obj, field, tMap)
+            % Set the map associated with field to tMap
+            obj.TagMap(field) = tMap;
+        end % setMap
         
     end % public methods
     
