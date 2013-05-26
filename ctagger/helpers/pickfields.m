@@ -12,15 +12,24 @@
 % user does not wish to include in the tagging at all. These field names
 % are usually removed.
 
-function [skipped, excluded] = pickfields(fMap)
+function excluded = pickfields(fMap, varargin)
     % Check the input arguments for validity
     parser = inputParser;
     parser.addRequired('fMap', @(x) (~isempty(x) && isa(x, 'fieldMap')));
-    parser.parse(fMap);
-    
-    skipped = {};
+    parser.addParamValue('SelectOption',  'select', ...
+        @(x) any(validatestring(lower(x), {'none', 'select', 'type'})));
+    parser.parse(fMap, varargin{:});
+    selectOption = parser.Results.SelectOption;
     excluded = {};
+    if strcmpi(selectOption, 'none')
+        return;
+    end
+    
     fields = fMap.getFields();
+    if strcmpi(selectOption, 'type')
+       excluded = setdiff(fields, 'type');
+       fields = intersect(fields, 'type');
+    end
     if isempty(fields)
         return;
     end
@@ -34,12 +43,9 @@ function [skipped, excluded] = pickfields(fMap)
             labels = tMap.getLabels();
         end
         retValue = tagdlg(fields{k}, labels);
-        if strcmpi(retValue, 'Skip')
-            skipped = [skipped fields{k}]; %#ok<AGROW>
-        elseif strcmpi(retValue, 'Exclude')
+        if strcmpi(retValue, 'Exclude')
             excluded = [excluded fields{k}]; %#ok<AGROW>
         elseif strcmpi(retValue, 'Cancel')
-            skipped = {};
             excluded = {};
             return;
         end

@@ -3,7 +3,7 @@ initTestSuite;
 
 function test_valid()  %#ok<DEFNU>
 % % Unit test for cTagger tagEEGDIR static method 
-validValues = {'Tag', 'Skip', 'Exclude', 'Cancel'};
+validValues = {'Tag', 'Exclude', 'Cancel'};
 fprintf('\nUnit tests for tagdlg require user intervention\n');
 
 fprintf('It should work for 1 value\n');

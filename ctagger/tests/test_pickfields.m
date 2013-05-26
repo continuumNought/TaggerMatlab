@@ -29,21 +29,29 @@ fprintf('\nUnit tests for pickfields\n');
 fprintf('These tests require user intervention\n');
 fprintf('It should return an empty map when input map is empty\n');
 inMap = fieldMap(values.xml);
-[skip1, exclude1] = pickfields(inMap);
-assertTrue(isempty(skip1));
+exclude1 = pickfields(inMap);
 assertTrue(isempty(exclude1));
 
 s1 = tagMap.text2Events(values.type);
 inMap.addEvents('type', s1, 'Merge');
 fprintf('It should work when there is only a type field\n');
-[skip2, exclude2] = pickfields(inMap);
-fprintf('...skip has %d values and exclude has %d values \n', ...
-    length(skip2), length(exclude2));
+exclude2 = pickfields(inMap);
+fprintf('...exclude has %d values \n', length(exclude2));
 
 fprintf('It should work when there are multiple fields\n');
 s2 = tagMap.text2Events(values.code);
 inMap.addEvents('code', s2, 'Merge');
 inMap.addEvents('group', s2, 'Merge');
-[skip3, exclude3] = pickfields(inMap);
-fprintf('...skip has %d values and exclude has %d values \n', ...
-    length(skip3), length(exclude3));
+exclude3 = pickfields(inMap);
+fprintf('...exclude has %d values \n', length(exclude3));
+
+fprintf('It should work when only the type is selected\n');
+exclude4 = pickfields(inMap, 'SelectOption', 'type');
+fprintf('...exclude has %d values \n',  length(exclude4));
+assertTrue(length(intersect(exclude4, {'group', 'code'})) >= 2);
+
+fprintf('It should not show a Gui when the SelectOption is none\n');
+exclude5 = pickfields(inMap, 'SelectOption', 'none');
+fprintf('...exclude has %d values \n', length(exclude5));
+assertTrue(isempty(exclude5));
+

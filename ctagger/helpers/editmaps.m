@@ -1,4 +1,4 @@
-% tagevents
+% editmaps
 % Allow user to selectively edit the tags.
 %
 % Usage:
@@ -6,14 +6,14 @@
 %   >>  [tMap, fPaths] = tagdir(inDir, 'key1', 'value1', ...)
 %
 %% Description
-% [eTags, fPaths] = tagdir(inDir)extracts a consolidated tagMap object 
+% [eTags, fPaths] = tagdir(inDir)extracts a consolidated tagMap object
 % from the EEGLAB .set files in the directory tree inDir.
 %
-% First the events and tags from all EEGLAB .set files are extracted and 
-% consolidated into a single typeMap object by merging all of the 
+% First the events and tags from all EEGLAB .set files are extracted and
+% consolidated into a single typeMap object by merging all of the
 % existing tags. Then the ctagger GUI is displayed so that users can
-% edit/modify the tags. The GUI is launched in synchronous mode, meaning 
-% that it behaves like a modal dialog and must be closed before execution 
+% edit/modify the tags. The GUI is launched in synchronous mode, meaning
+% that it behaves like a modal dialog and must be closed before execution
 % continues. Finally the tags for each EEG file are updated.
 %
 % The final, consolidated and edited typeMap object is returned in tMap,
@@ -22,17 +22,17 @@
 % be empty.
 %
 %
-% [eTags, fPaths] = tagdir(eData, 'key1', 'value1', ...) specifies 
+% [eTags, fPaths] = tagdir(eData, 'key1', 'value1', ...) specifies
 % optional name/value parameter pairs:
 %   'BaseTagsFile'   A file containing a typeMap object to be used
-%                    for initial tag information. The default is an 
+%                    for initial tag information. The default is an
 %                    tagMap object with the default HED XML and no tags.
 %   'DoSubDirs'      If true the entire inDir directory tree is searched.
-%                    If false, only the inDir directory is searched.  
+%                    If false, only the inDir directory is searched.
 %   'SelectFields'   If 'type', then only tags based on the
 %                    event type field are considered. The 'select' option
-%                    causes a series of selection GUIs to be displayed. 
-%                    The 'none' option (default) causes no selection to be done.
+%                    (the default) causes a series of selection GUIs to be displayed.
+%                    The 'none' option causes no selection to be done.
 %   'PreservePrefix' If false (default), tags of the same event type that
 %                    share prefixes are combined and only the most specific
 %                    is retained (e.g., /a/b/c and /a/b become just
@@ -47,95 +47,68 @@
 %                    save the consolidated typeMap object for future use.
 %   'UpdateType'     Indicates how tags are merged with initial tags if the
 %                    tagging information is to be rewritten to the EEG
-%                    files. The options are: 'merge', 'replace', 
+%                    files. The options are: 'merge', 'replace',
 %                    'onlytags' (default), 'update' or 'none'.
 %   'UseGui'         If true (default), the ctagger GUI is displayed after
 %                    initialization.
 
-function fMap = tagevents(fMap, varargin)
-    % Check the input arguments for validity
+function [fMap, excludeList] = editmaps(fMap, varargin)
+
+    % Check the input arguments for validity and initialize
     parser = inputParser;
     parser.addRequired('InMap', @(x) (~isempty(x) && isa(x, 'fieldMap')));
-    parser.addParamValue('SelectFields',  'none', ...
-          @(x) any(validatestring(lower(x), {'none', 'select', 'type'})));
+    parser.addParamValue('SelectOption',  'select', ...
+        @(x) any(validatestring(lower(x), {'none', 'select', 'type'})));
     parser.addParamValue('Synchronize', true, @islogical);
     parser.addParamValue('UseGui', true, @islogical);
-    parser.parse(inMap, varargin{:});
-    selectFields = parser.Results.SelectFields;
-    synchronize = parser.Results.Synchronize;
+    parser.parse(fMap, varargin{:});
+    selectOption = parser.Results.SelectOption;
+    syncThis = parser.Results.Synchronize;
     useGui = parser.Results.UseGui;
     
-    % Create fMap either by copying or by selecting each field
-    if ~selectFields
-        fMap = inMap.clone();
-    else
-        selectMap();   % Pick the fields to be tagged
+    % Get the list of fields
+    excludeList = pickfields(fMap, 'SelectOption', selectOption);
+
+    % Remove the excluded fields
+    for k = 1:length(excludeList)
+        fMap.removeMap(excludeList{k});
     end
     
-    function selectMap()
-    xml = char(inMap.getXml()); 
-    fields = inMap.getFields();
-    fieldind = 1:length(fields);
-    typefield = strcmpi(fields, 'type');
-    if 
-    fMap = fieldMap(xml);  % Create the return map
-    if sum(typefield) >= 1  &&  tagNext('type') == 0% First tag the type field
+    if ~useGui
         return;
     end
-    restFields = fieldind(~typefield);
-    for k = restFields
-        if tagNext(fields{restFields(k)}) == 0
-            return;
-        end
-    end
-    end
-    
-    function contFlg = selectField(field)
-        % Tag the values associated with field
-        contFlg = 1;
-        fieldMap = inMap.getMap(field);
-        if isempty(fieldMap)
-            labels = {' '};
-        else
-            labels = fieldMap.getLabels();
-        end
-        retValue = typedlg(field, labels);
-        if strcmpi(retValue, 'Skip') || ...
-            (strcmpi(retValue, 'Tag') && ~useGui) %Add the tagmap with no change
-            fMap.putTagMap(field, fieldMap(field));
-            return;
-        elseif strcmpi(retValue, 'Remove') % Don't use this one
-            return;
-        elseif strcmpi(retValue, 'Cancel') % Roll back and quit
-            fMap = inMap.clone();
-            contFlg = 0;
-            return;
-        elseif strcmpi(retValue, 'Quit') % Quit at this point
-            contFlg = 0;
-            return;
-        end
- 
-    end % tagNext
 
-    function editTags(field)
-       % Proceed with tagging
+    % Edit the tags
+    fields = fMap.getFields();
+    for k = 1:length(fields)
+        editmap(fields{k});
+    end
+
+    function editmap(field)
+        % Proceed with tagging
         eTitle = ['Tagging ' field ' values'];
-        tEvents = char(fieldMap.getJsonEvents());
-        if synchronize
+        tMap = fMap.getMap(field);
+        xml = fMap.getXml();
+        if isempty(tMap)
+            return;
+        end
+        tEvents = char(tMap.getJsonEvents());
+        if syncThis
             taggedList = edu.utsa.tagger.Controller.showDialog( ...
-                  xml, tEvents, true, 0, eTitle, 3, false);
+                xml, tEvents, true, 0, eTitle, 3, false);
             tags = char(taggedList(1, :));
             events = char(taggedList(2, :));
         else
             ctrl = javaObjectEDT('edu.utsa.tagger.Controller', ...
-                           xml, tEvents, true, 0, eTitle, 3, false);
+                xml, tEvents, true, 0, eTitle, 3, false);
             notified = ctrl.getNotified();
             while (~notified)
                 pause(5);
                 notified = ctrl.getNotified();
             end
             tags = char(ctrl.getHedString());
-            events = char(ctrl.getEventString(true));  
+            events = char(ctrl.getEventString(true));
         end                       %----TODO merge XML
-        eTags.reset(strtrim(tags), tagMap.json2Events(strtrim(events)));
-end % tagevents     
+        tMap.reset(strtrim(tags), tagMap.json2Events(strtrim(events)));
+    end % editmap
+end
