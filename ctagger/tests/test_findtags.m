@@ -27,7 +27,7 @@ function testValidValues(values)  %#ok<DEFNU>
 fprintf('\nUnit tests for findtags\n');
 fprintf('It should tag a data set that has a map but no events\n');
 dTags = findtags(values.data);
-assertTrue(isa(dTags, 'typeMap'));
+assertTrue(isa(dTags, 'fieldMap'));
 fields = dTags.getFields();
 assertEqual(length(fields), 3);
 for k = 1:length(fields)

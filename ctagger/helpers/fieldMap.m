@@ -1,17 +1,17 @@
-% typeMap    object encapsulating xml tags and type-tagMap association
+% fieldMap    object encapsulating xml tags and type-tagMap association
 %
 % Usage:
-%   >>  dTags = typeMap(xmlString)
-%   >>  dTags = typeMap(xmlString, 'key1', 'value1', ...)
+%   >>  dTags = fieldMap(xmlString)
+%   >>  dTags = fieldMap(xmlString, 'key1', 'value1', ...)
 %
 % Description:
-% dTags = typeMap(xmlString) creates an object representing the 
+% dTags = fieldMap(xmlString) creates an object representing the 
 %    tag hierarchy for community tagging. The object knows how to merge and
 %    can produce output in either JSON or semicolon separated
 %    text format. The xmlString is an XML string with the tag hierarchy
 %    and events is a structure array that holds the events and tags.
 %
-% dTags = typeMap(xmlString, 'key1', 'value1', ...)
+% dTags = fieldMap(xmlString, 'key1', 'value1', ...)
 %
 %
 % where the key-value pairs are:
@@ -90,7 +90,7 @@
 %
 %    doc tagMap
 %
-% See also: findtags, tageeg, tagdir, tagstudy, typeMap
+% See also: findtags, tageeg, tagdir, tagstudy, fieldMap
 %
 
 %1234567890123456789012345678901234567890123456789012345678901234567890
@@ -116,7 +116,7 @@
 % $Initial version $
 %
 
-classdef typeMap < hgsetget
+classdef fieldMap < hgsetget
     properties (Constant = true)
         DefaultXml = 'HEDSpecification1.3.xml';
         DefaultSchema = 'HEDSchema.xsd';
@@ -130,7 +130,7 @@ classdef typeMap < hgsetget
     end % private properties
     
     methods
-        function obj = typeMap(xmlString, varargin)
+        function obj = fieldMap(xmlString, varargin)
             % Constructor parses parameters and sets up initial data
             if isempty(varargin)
                 obj.parseParameters(xmlString);
@@ -148,7 +148,7 @@ classdef typeMap < hgsetget
                 eTag = obj.TypeMap(type);
             end
 
-            % Add the event to the typeMap
+            % Add the event to the fieldMap
             eTag.addEvent(event, updateType);
             obj.TypeMap(type) = eTag;
         end % addEvent
@@ -172,7 +172,7 @@ classdef typeMap < hgsetget
         end % addTagMap
         
        function newMap = clone(obj)
-            newMap = typeMap(obj.Xml);
+            newMap = fieldMap(obj.Xml);
             newMap.PreservePrefix = obj.PreservePrefix;
             newMap.Xml = obj.Xml;
             newMap.XmlSchema = obj.XmlSchema;
@@ -266,7 +266,7 @@ classdef typeMap < hgsetget
         end % getXml
           
         function merge(obj, dTags, updateType)
-            % Combine the dTags typeMap object info with this one
+            % Combine the dTags fieldMap object info with this one
             if isempty(dTags)
                 return;
             end
@@ -329,7 +329,7 @@ classdef typeMap < hgsetget
         
         function parseParameters(obj, xmlString, varargin)
             % Parse parameters provided by user in constructor
-            parser = typeMap.getParser();
+            parser = fieldMap.getParser();
             parser.parse(xmlString, varargin{:})
             pdata = parser.Results;
             obj.PreservePrefix = pdata.PreservePrefix;
@@ -347,22 +347,22 @@ classdef typeMap < hgsetget
                 @(x) validateattributes(x, {'logical'}, {}));
         end % getParser
         
-        function baseTags = loadTagFile(tagsFile)
-            % Load a typeMap object from tagsFile
+        function baseTags = loadFieldMap(tagsFile)
+            % Load a fieldMap object from tagsFile
             baseTags = '';
             try
                 t = load(tagsFile);
                 tFields = fieldnames(t);
                 for k = 1:length(tFields);
                     nextField = t.(tFields{k});
-                    if isa(nextField, 'typeMap')
+                    if isa(nextField, 'fieldMap')
                         baseTags = nextField;
                         return;
                     end
                 end
             catch ME         %#ok<NASGU>
             end
-        end % loadTagFile
+        end % loadFieldMap
         
         function successful = saveTagFile(tagsFile, tagsObject) %#ok<INUSD>
             % Save the tagsObject variable in the tagsFile file
@@ -376,5 +376,5 @@ classdef typeMap < hgsetget
         
     end % static methods
     
-end %typeMap
+end %fieldMap
 

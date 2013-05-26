@@ -1,12 +1,12 @@
 % findtags
-% Create a typeMap object for the existing tags in a data structure
+% Create a fieldMap object for the existing tags in a data structure
 %
 % Usage:
 %   >>  tMap = findtags(edata)
 %   >>  tMap = findtags(edata, 'key1', 'value1', ...)
 %
 % Description:
-% tMap = findtags(edata) extracts a typeMap object representing the
+% tMap = findtags(edata) extracts a fieldMap object representing the
 % events and their tags for the structure.
 %
 % tMap = findtags(edata, 'key1', 'value1', ...) specifies optional name/value
@@ -84,7 +84,7 @@ function [tMap] = findtags(edata, varargin)
          tfields = fieldnames(edata.etc.tags.map);
       end
     end
-    tMap = typeMap(xml, 'PreservePrefix', p.PreservePrefix);
+    tMap = fieldMap(xml, 'PreservePrefix', p.PreservePrefix);
     if ~isempty(p.Fields)
         tfields = intersect(p.Fields, tfields);
     end

@@ -1,4 +1,4 @@
-function test_suite = test_typeMap %#ok<STOUT>
+function test_suite = test_fieldMap %#ok<STOUT>
 initTestSuite;
 
 function values = setup %#ok<DEFNU>
@@ -52,13 +52,13 @@ function teardown(values) %#ok<INUSD,DEFNU>
 
 
 function testValid(values) %#ok<DEFNU>
-% Unit test for typeMap constructor valid JSON
-fprintf('\nUnit tests for typeMap valid JSON constructor\n');
+% Unit test for fieldMap constructor valid JSON
+fprintf('\nUnit tests for fieldMap valid JSON constructor\n');
 
-fprintf('It should create a valid typeMap object for a valid JSON events string\n');
+fprintf('It should create a valid fieldMap object for a valid JSON events string\n');
 [xml1, field1,  events1] = tagMap.split(values.eJSON1, true);
 assertTrue(strcmpi(field1, 'type'));
-obj1 = typeMap(xml1);
+obj1 = fieldMap(xml1);
 assertTrue(isvalid(obj1));
 fprintf('It should have the right number of events\n');
 obj1.addEvents(field1, events1, 'Merge');
@@ -68,7 +68,7 @@ fprintf('It should create a valid object for a valid text string\n');
 testString = [values.eStruct1.xml ';type;'  values.eventList1];
 [xml2, field2, events2] = tagMap.split(testString, false);
 assertTrue(strcmpi(field2, 'type'));
-obj2 = typeMap(xml2);
+obj2 = fieldMap(xml2);
 assertTrue(isvalid(obj2));
 fprintf('It should have the right number of events when there is one field\n');
 for k = 1:length(events2)
@@ -105,15 +105,15 @@ assertTrue(isfield(p(1), 'events'));
 assertEqual(length(p(1).events), 2);
 
 function testEmptyOrInvalid(values) %#ok<INUSD,DEFNU>
-% Unit test for typeMap constructor empty or invalid
-fprintf('\nUnit tests for typeMap empty\n');
+% Unit test for fieldMap constructor empty or invalid
+fprintf('\nUnit tests for fieldMap empty\n');
 
 fprintf('It should throw  are no arguments\n');
-f = @() typeMap();
+f = @() fieldMap();
 assertAltExceptionThrown(f, {'MATLAB:inputArgUndefined', 'MATLAB:minrhs'});
 
 fprintf('It should output a warning if an empty string is used ---WARNING\n');
-obj1 = typeMap('');
+obj1 = fieldMap('');
 assertTrue(isvalid(obj1));
 fprintf('---the resulting structure should have the right fields\n');
 dStruct1 = obj1.getStruct();
@@ -125,10 +125,10 @@ assertTrue(isempty(dStruct1.map));
 
 
 function testMerge(values) %#ok<DEFNU>
-% Unit test for typeMap merge method
-fprintf('\nUnit tests for typeMap merge\n');
-fprintf('It merge a valid typeMap object\n');
-dTags = typeMap('');
+% Unit test for fieldMap merge method
+fprintf('\nUnit tests for fieldMap merge\n');
+fprintf('It merge a valid fieldMap object\n');
+dTags = fieldMap('');
 
 dTags1 = findtags(values.EEGEpoch);
 assertEqual(length(dTags1.getMaps()), 2);
@@ -137,16 +137,16 @@ dTags.merge(dTags1, 'Merge');
 assertEqual(length(dTags.getMaps()), 2);
 
 function testLoadTagsFile(values) %#ok<DEFNU>
-fprintf('\nUnit tests for loadTagsFile static method of typeMap\n');
-fprintf('It should return an empty value when file contains no typeMap\n');
-bT1 = typeMap.loadTagFile(values.noTagsFile);
+fprintf('\nUnit tests for loadTagsFile static method of fieldMap\n');
+fprintf('It should return an empty value when file contains no fieldMap\n');
+bT1 = fieldMap.loadFieldMap(values.noTagsFile);
 assertTrue(isempty(bT1));
-fprintf('It should return an typeMap object when only one variable in file\n');
-bT2 = typeMap.loadTagFile(values.oneTagsFile);
-assertTrue(isa(bT2, 'typeMap'));
-fprintf('It should return an tagMap object when it is not first variable in file\n');
-bT3 = typeMap.loadTagFile(values.otherTagsFile);
-assertTrue(isa(bT3, 'typeMap'));
+fprintf('It should return an fieldMap object when only one variable in file\n');
+bT2 = fieldMap.loadFieldMap(values.oneTagsFile);
+assertTrue(isa(bT2, 'fieldMap'));
+fprintf('It should return an fieldMap object when it is not first variable in file\n');
+bT3 = fieldMap.loadFieldMap(values.otherTagsFile);
+assertTrue(isa(bT3, 'fieldMap'));
 
 function testClone(values) %#ok<DEFNU>
 fprintf('\nUnit tests for clone method of tagMap\n');
