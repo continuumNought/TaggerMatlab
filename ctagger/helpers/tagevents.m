@@ -1,5 +1,5 @@
 % tagevents
-% Allows a user to tag an entire tree directory of similar EEG .set files.
+% Allow user to selectively edit the tags.
 %
 % Usage:
 %   >>  [tMap, fPaths] = tagdir(inDir)
@@ -29,9 +29,10 @@
 %                    tagMap object with the default HED XML and no tags.
 %   'DoSubDirs'      If true the entire inDir directory tree is searched.
 %                    If false, only the inDir directory is searched.  
-%   'OnlyType'       If true (default), only tag based on unique event types
-%                    and not on the other fields of EEG.event and
-%                    EEG.urevent.
+%   'SelectFields'   If 'type', then only tags based on the
+%                    event type field are considered. The 'select' option
+%                    causes a series of selection GUIs to be displayed. 
+%                    The 'none' option (default) causes no selection to be done.
 %   'PreservePrefix' If false (default), tags of the same event type that
 %                    share prefixes are combined and only the most specific
 %                    is retained (e.g., /a/b/c and /a/b become just
@@ -51,15 +52,12 @@
 %   'UseGui'         If true (default), the ctagger GUI is displayed after
 %                    initialization.
 
-function fMap = tagevents(inMap, varargin)
-% Produce a new fieldMap based on fields user wishes to tag
-    %
-    %
-    %
+function fMap = tagevents(fMap, varargin)
     % Check the input arguments for validity
     parser = inputParser;
     parser.addRequired('InMap', @(x) (~isempty(x) && isa(x, 'fieldMap')));
-    parser.addParamValue('SelectFields', true, @islogical);
+    parser.addParamValue('SelectFields',  'none', ...
+          @(x) any(validatestring(lower(x), {'none', 'select', 'type'})));
     parser.addParamValue('Synchronize', true, @islogical);
     parser.addParamValue('UseGui', true, @islogical);
     parser.parse(inMap, varargin{:});
