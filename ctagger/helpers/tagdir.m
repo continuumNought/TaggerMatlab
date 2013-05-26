@@ -48,7 +48,7 @@
 %                    tagging information is to be rewritten to the EEG
 %                    files. The options are: 'merge', 'replace', 
 %                    'onlytags' (default), 'update' or 'none'.
-%   'UseGUI'         If true (default), the ctagger GUI is displayed after
+%   'UseGui'         If true (default), the ctagger GUI is displayed after
 %                    initialization.
 %
 % Description of update options:

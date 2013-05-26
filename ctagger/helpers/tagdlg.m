@@ -1,17 +1,21 @@
-function response = typedlg(fieldname, fieldValues)
+function response = tagdlg(fieldname, fieldValues)
 % GUI for input needed to create inputs for tagdir function
 
 % Setup the variables used by the GUI
-    response = 'Quit';
+    response = 'Cancel';
     maxLines = 10;
-    theTitle = ['Do you want to tag the ' fieldname ' field?'];
-    if isempty(fieldname) 
-        return;
-    end
-    numFields = min(maxLines, length(fieldValues));
-    displayFields = fieldValues(1:numFields);
-    if length(fieldValues) > maxLines
-        displayFields{maxLines} = '. . . etc . . .';
+    theTitle = ['How do you want to handle the ' fieldname ' field?'];
+    numFields = 1;
+    if isempty(fieldValues)
+        displayFields = ' ';
+    elseif ischar(fieldValues)
+        displayFields = fieldValues;
+    elseif iscellstr(fieldValues)
+        numFields = min(maxLines, length(fieldValues));
+        displayFields = fieldValues(1:numFields);
+        if length(fieldValues) > maxLines
+            displayFields{maxLines} = '. . . etc . . .';
+        end
     end
     inputFig = figure( ...
         'MenuBar', 'none', ...
@@ -40,42 +44,37 @@ function response = typedlg(fieldname, fieldValues)
         uicontrol('Parent', buttons, ...
             'Style', 'pushbutton', 'Tag', 'SkipButton', ...
             'String', 'Skip', 'Enable', 'on', 'Tooltip', ...
-            ['Don''t edit tag values associated with ' fieldname], ...
+            ['Don''t edit tag values associated with field ' fieldname], ...
             'Callback', {@buttonCallback, 'Skip'});
        uicontrol('Parent', buttons, ...
             'Style', 'pushbutton', 'Tag', 'RemoveButton', ...
-            'String', 'Remove', 'Enable', 'on', 'Tooltip', ...
-            ['Remove ' fieldname ' from tagging'], ...
-            'Callback', {@buttonCallback, 'Remove'});
+            'String', 'Exclude', 'Enable', 'on', 'Tooltip', ...
+            ['Exclude field ' fieldname ' from tagging'], ...
+            'Callback', {@buttonCallback, 'Exclude'});
         uicontrol('Parent', buttons, ...
             'Style', 'pushbutton', 'Tag', 'CancelButton', ...
             'String', 'Cancel', 'Enable', 'on', 'Tooltip', ...
-            'Cancel the directory tagging with no changes to original', ...
+            'Cancel with no changes', ...
             'Callback', {@buttonCallback, 'Cancel'});
-         uicontrol('Parent', buttons, ...
-            'Style', 'pushbutton', 'Tag', 'QuitButton', ...
-            'String', 'Quit', 'Enable', 'on', 'Tooltip', ...
-            'Quit tagging but preserve tags done so far', ...
-            'Callback', {@buttonCallback, 'Quit'});
         uiextras.Empty('Parent', buttons);
-        set(buttons, 'RowSizes', 30, 'ColumnSizes', [-1 100 100 100 100 100 -1]);
+        set(buttons, 'RowSizes', 30, 'ColumnSizes', [-1 100 100 100 100 -1]);
     end % createButtonPanel
 
     function createLayout(parent)
         % Create the layout for the GUI but do not display
         mainVBox = uiextras.VBox('Parent', parent, ...
-            'Tag', 'MainVBox',  'Spacing', 5, 'Padding', 5, 'Units', 'Pixels');
+            'Tag', 'MainVBox',  'Spacing', 5, 'Padding', 5);
 
         uiextras.Empty('Parent', mainVBox);
         panel = uiextras.Panel('Parent', mainVBox, 'Title', ...
-               ['The ' fieldname ' field has values:'], 'Padding', 20);
+               ['The ' fieldname ' field has values:'], 'Padding', 10);
         uicontrol('Parent', panel, ...
             'Style','text', 'String', displayFields, ...
             'HorizontalAlignment', 'Left');
         uiextras.Empty('Parent', mainVBox);
         createButtonPanel(mainVBox);
         uiextras.Empty('Parent', mainVBox);
-        set(mainVBox, 'Sizes', [10, 20*numFields,  -1, 40, 10]);
+        set(mainVBox, 'Sizes', [10, 20+30*numFields,  -1, 40, 10]);
         drawnow
     end % createLayout
 
@@ -85,4 +84,4 @@ function response = typedlg(fieldname, fieldValues)
         close(inputFig);
     end % buttonCtrlCallback
 
-end % typedlg
+end % tagdlg

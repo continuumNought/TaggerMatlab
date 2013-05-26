@@ -299,6 +299,13 @@ classdef fieldMap < hgsetget
                 obj.Xml, xmlMerge));
         end % mergeXml
         
+        function removeMap(obj, fieldSet)
+            % Remove the fields specified by fieldSet from the fieldMap
+            if ~isempty(fieldSet)
+                obj.TypeMap,remove(fieldSet);
+            end
+        end % removeMap
+        
         function reset(obj, xmlString, eStruct)
             % Reset this object based on xmlString and event structure
             obj.TypeMap = containers.Map('KeyType', 'char', 'ValueType', 'any');
@@ -309,6 +316,8 @@ classdef fieldMap < hgsetget
                 obj.addEvent(eStruct(k), 'Merge');
             end
         end % reset
+        
+
         
         function setMap(obj, field, tMap)
             % Set the map associated with field to tMap
