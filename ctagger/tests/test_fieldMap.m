@@ -2,7 +2,6 @@ function test_suite = test_fieldMap %#ok<STOUT>
 initTestSuite;
 
 function values = setup %#ok<DEFNU>
-fields = {'type', 'type', 'parameter'}; 
 types = {'RT', 'Trigger', 'Missed'};
 eStruct = struct('field', 'type', 'xml', 'abc', 'events', 'def');
 tags = {'/Time-Locked Event/Stimulus/Visual/Shape/Ellipse/Circle', ...
@@ -129,15 +128,18 @@ function testMerge(values) %#ok<DEFNU>
 fprintf('\nUnit tests for fieldMap merge\n');
 fprintf('It merge a valid fieldMap object\n');
 dTags = fieldMap('');
-
 dTags1 = findtags(values.EEGEpoch);
 assertEqual(length(dTags1.getMaps()), 2);
 assertEqual(length(dTags.getMaps()), 0);
-dTags.merge(dTags1, 'Merge');
+dTags.merge(dTags1, 'Merge', {});
 assertEqual(length(dTags.getMaps()), 2);
+fprintf('It should exclude the appropriate fields\n');
+dTags2 = fieldMap('');
+dTags2.merge(dTags1, 'Merge', {'position'});
+assertEqual(length(dTags2.getMaps()), 1);
 
-function testLoadTagsFile(values) %#ok<DEFNU>
-fprintf('\nUnit tests for loadTagsFile static method of fieldMap\n');
+function testLoadFieldMap(values) %#ok<DEFNU>
+fprintf('\nUnit tests for loadFieldMap static method of fieldMap\n');
 fprintf('It should return an empty value when file contains no fieldMap\n');
 bT1 = fieldMap.loadFieldMap(values.noTagsFile);
 assertTrue(isempty(bT1));
@@ -163,3 +165,12 @@ keys1 = obj1.getLabels();
 keys2 = obj2.getLabels();
 fprintf('The two objects should have the same number of labels\n');
 assertEqual(length(keys1), length(keys2));
+
+function testSaveFieldMap(values) %#ok<DEFNU>
+fprintf('\nUnit tests for saveFieldMap static method of fieldMap\n');
+fprintf('It should save a fieldMap object correctly\n');
+fMap = fieldMap('');
+fName = tempname;
+fieldMap.saveFieldMap(fName, fMap);
+bT2 = fieldMap.loadFieldMap(fName);
+assertTrue(isa(bT2, 'fieldMap'));

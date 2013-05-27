@@ -29,13 +29,14 @@
 %                    tagMap object with the default HED XML and no tags.
 %   'DoSubDirs'      If true the entire inDir directory tree is searched.
 %                    If false, only the inDir directory is searched.  
-%   'OnlyType'       If true (default), only tag based on unique event types
-%                    and not on the other fields of EEG.event and
-%                    EEG.urevent.
 %   'PreservePrefix' If false (default), tags of the same event type that
 %                    share prefixes are combined and only the most specific
 %                    is retained (e.g., /a/b/c and /a/b become just
 %                    /a/b/c). If true, then all unique tags are retained.
+%   'SelectOption'   If 'type', then only tags based on the
+%                    event type field are considered. The 'select' option
+%                    (the default) causes a series of selection GUIs to be displayed.
+%                    The 'none' option causes no selection to be done.
 %   'Synchronize'    If true (default), the ctagger GUI is run synchronously so
 %                    no other MATLAB commands can be issued until this GUI
 %                    is closed. A value of false is used when this function
@@ -53,7 +54,7 @@
 %
 % Description of update options:
 %    'merge'         If an event with that key is not part of this
-%                     object, add it as is.
+%                    object, add it as is.
 %    'replace'       If an event with that key is not part of this
 %                     object, do nothing. Otherwise, if an event with that
 %                     key is part of this object then completely replace 
@@ -103,16 +104,21 @@ function [tMap, fPaths] = tagdir(inDir, varargin)
     % Parse the input arguments
     parser = inputParser;
     parser.addRequired('InDir', @(x) (~isempty(x) && ischar(x)));
-    parser.addParamValue('BaseTagsFile', '', ...
+    parser.addParamValue('BaseMapFile', '', ...
         @(x)(isempty(x) || (ischar(x) && exist(x, 'file') && ...
             ~isempty(tagMap.loatMapFile(x)))));
     parser.addParamValue('DoSubDirs', true, @islogical);
-    parser.addParamValue('OnlyType', true, @islogical);
     parser.addParamValue('PreservePrefix', false, @islogical);
-    parser.addParamValue('Synchronize', true, @islogical);
-    parser.addParamValue('TagFileName', '', ...
+    parser.addParamValue('RewriteOption', 'both', ...
+          @(x) any(validatestring(lower(x), ...
+          {'both', 'etconly', 'none', 'useronly'})));
+    parser.addParamValue('SaveMapName', '', ...
          @(x)(isempty(x) || (ischar(x))));
-    parser.addParamValue('UpdateType', 'onlytags', ...
+   
+    parser.addParamValue('SelectOption',  'select', ...
+        @(x) any(validatestring(lower(x), {'none', 'select', 'type'})));
+    parser.addParamValue('Synchronize', true, @islogical);
+    parser.addParamValue('RewriteOptions', 'onlytags', ...
           @(x) any(validatestring(lower(x), ...
           {'merge', 'replace', 'onlytags', 'update', 'none'})));
     parser.addParamValue('UseGUI', true, @islogical);
@@ -145,13 +151,13 @@ function [tMap, fPaths] = tagdir(inDir, varargin)
         'Synchronize', p.Synchronize);
 
     % Save the tags file for next step
-    if ~isempty(p.TagFileName) && ~typeMap.saveTagFile(p.TagFileName, 'tMap')
+    if ~isempty(p.SaveMapName) && ~fieldMap.saveFieldMap(p.SaveMapName, fMap)
         bName = tempname;
         warning('tagdir:invalidFile', ...
             ['Couldn''t save typeMap to ' p.TagFileName]);
-        tagMap.saveTagFile(bName, 'tMap')
+        fieldMap.SaveMapName(bName, tMap)
     else 
-        bName = p.TagFileName;
+        bName = p.SaveMapName;
     end
  
     if isempty(fPaths) || strcmpi(p.UpdateType, 'none')
@@ -161,7 +167,7 @@ function [tMap, fPaths] = tagdir(inDir, varargin)
     % Rewrite all of the EEG files with updated tag information
     for k = 1:length(fPaths) % Assemble the list
         teeg = pop_loadset(fPaths{k});
-        teeg = tageeg(teeg, 'BaseTagsFile', bName, ...
+        teeg = tageeg(teeg, 'BaseMapFile', bName, ...
               'PreservePrefix', p.PreservePrefix, ...
               'Synchronize', p.Synchronize, ...
               'UpdateType', p.UpdateType, 'UseGUI', false);

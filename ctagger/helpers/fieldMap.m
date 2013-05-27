@@ -265,21 +265,23 @@ classdef fieldMap < hgsetget
             xml = obj.Xml;
         end % getXml
           
-        function merge(obj, dTags, updateType)
-            % Combine the dTags fieldMap object info with this one
-            if isempty(dTags)
+        function merge(obj, fMap, updateType, excludeFields)
+            % Combine fMap fieldMap object with this, excluding certain fields
+            if isempty(fMap)
                 return;
             end
-            obj.mergeXml(dTags.getXml);
-            events = dTags.getMaps();
-            for k = 1:length(events)
-                type = events{k}.getField();
+            obj.mergeXml(fMap.getXml);
+            fields = fMap.getFields();
+            fields = setdiff(fields, excludeFields);
+            for k = 1:length(fields)
+                type = fields{k};
+                tMap = fMap.getMap(type);
                 if ~obj.TypeMap.isKey(type)
                     obj.TypeMap(type) = tagMap(obj.Xml, '', 'Field', type);
                 end
-                eTags = obj.TypeMap(type);
-                eTags.merge(events{k}, updateType)
-                obj.TypeMap(type) = eTags;
+                myMap = obj.TypeMap(type);
+                myMap.merge(tMap, updateType)
+                obj.TypeMap(type) = myMap;
             end
         end % merge
         
@@ -302,7 +304,7 @@ classdef fieldMap < hgsetget
         function removeMap(obj, fieldSet)
             % Remove the fields specified by fieldSet from the fieldMap
             if ~isempty(fieldSet)
-                obj.TypeMap,remove(fieldSet);
+                obj.TypeMap.remove(fieldSet);
             end
         end % removeMap
         
@@ -373,10 +375,11 @@ classdef fieldMap < hgsetget
             end
         end % loadFieldMap
         
-        function successful = saveTagFile(tagsFile, tagsObject) %#ok<INUSD>
+        function successful = saveFieldMap(tagsFile, tagsObject) %#ok<INUSD>
             % Save the tagsObject variable in the tagsFile file
             successful = true;
             try
+                eval([inputname(2) '= tagsObject;']);
                 save(tagsFile, inputname(2));
             catch ME         %#ok<NASGU>
                 successful = false;

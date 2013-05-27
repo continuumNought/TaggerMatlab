@@ -1,5 +1,5 @@
-% editmaps
-% Allow user to selectively edit the tags.
+% selectmaps
+% Allow user to selectively select the fields to be used
 %
 % Usage:
 %   >>  [tMap, fPaths] = tagdir(inDir)
@@ -52,48 +52,57 @@
 %   'UseGui'         If true (default), the ctagger GUI is displayed after
 %                    initialization.
 
-function fMap = editmaps(fMap, varargin)
+function [fMap, excluded] = selectmaps(fMap, varargin)
 
     % Check the input arguments for validity and initialize
     parser = inputParser;
     parser.addRequired('fMap', @(x) (~isempty(x) && isa(x, 'fieldMap')));
-    parser.addParamValue('PreservePrefix', false, @islogical);
-    parser.addParamValue('Synchronize', true, @islogical);
+    parser.addParamValue('Fields', {}, @(x) (iscellstr(x)));
+    parser.addParamValue('SelectOption', true, @islogical);
     parser.parse(fMap, varargin{:});
-    syncThis = parser.Results.Synchronize;
-    preservePrefix = parser.Results.PreservePrefix;  % --- toDO
-    
-    fields = fMap.getFields();
-    for k = 1:length(fields)
-        fprintf('Tagging %s\n', fields{k});
-        editmap(fields{k});
-    end
 
-    function editmap(field)
-        % Proceed with tagging
-        eTitle = ['Tagging ' field ' values'];
-        tMap = fMap.getMap(field);
-        xml = fMap.getXml();
+    % Figure out the fields to be used
+    fields = fMap.getFields();
+    sfields = parser.Results.Fields;
+    if ~isempty(sfields)
+       excluded = setdiff(fields, sfields);
+       fields = intersect(fields, sfields);
+       for k = 1:length(excluded)
+           fMap.removeMap(excluded{k});
+       end
+    else
+        excluded = {};
+    end
+ 
+    if isempty(fields) || ~parser.Results.SelectOption
+        return;
+    end
+    
+    excludeUser = {};
+    % Tag the values associated with field
+    for k = 1:length(fields)
+        tMap = fMap.getMap(fields{k});
         if isempty(tMap)
-            return;
-        end
-        tEvents = char(tMap.getJsonEvents());
-        if syncThis
-            taggedList = edu.utsa.tagger.Controller.showDialog( ...
-                xml, tEvents, true, 0, eTitle, 3, false);
-            tags = char(taggedList(1, :));
-            events = char(taggedList(2, :));
+            labels = {' '};
         else
-            ctrl = javaObjectEDT('edu.utsa.tagger.Controller', ...
-                xml, tEvents, true, 0, eTitle, 3, false);
-            notified = ctrl.getNotified();
-            while (~notified)
-                pause(5);
-                notified = ctrl.getNotified();
-            end
-            tags = char(ctrl.getHedString());
-            events = char(ctrl.getEventString(true));
-        end                       %----TODO merge XML
-        tMap.reset(strtrim(tags), tagMap.json2Events(strtrim(events)));
-    end % editmap
+            labels = tMap.getLabels();
+        end
+        retValue = tagdlg(fields{k}, labels);
+        if strcmpi(retValue, 'Exclude')
+            excludeUser = [excludeUser fields{k}]; %#ok<AGROW>
+        elseif strcmpi(retValue, 'Cancel')
+            excludeUser = {};
+            break;
+        end
+    end
+    
+    if isempty(excludeUser)
+        return;
+    end
+    
+    % Remove the excluded fields
+    for k = 1:length(excludeUser)
+        fMap.removeMap(excludeUser{k});
+    end
+    excluded = union(excluded, excludeUser);
 end

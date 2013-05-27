@@ -62,8 +62,8 @@ function [tMap] = findtags(edata, varargin)
     % Parse the input arguments
     parser = inputParser;
     parser.addRequired('edata', @(x) (isempty(x) || isstruct(x)));
-        parser.addParamValue('ExcludeFields', ...
-            {'latency', 'epoch', 'urevent', 'hedtags', 'typetags'}, ...
+    parser.addParamValue('ExcludeFields', ...
+            {'latency', 'epoch', 'urevent', 'hedtags', 'usertags'}, ...
          @(x) (iscellstr(x)));
     parser.addParamValue('Fields', {}, @(x) (iscellstr(x)));
     parser.addParamValue('PreservePrefix', false, ...
@@ -95,7 +95,7 @@ function [tMap] = findtags(edata, varargin)
     end
     
     efields = '';
-    if isfield(edata, 'event') && isstruct(edata.urevent)
+    if isfield(edata, 'event') && isstruct(edata.event)
        efields = fieldnames(edata.event);
     end
     if isfield(edata, 'urevent') && isstruct(edata.urevent)

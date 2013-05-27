@@ -25,8 +25,6 @@ values.map2.addEvents('type', s1, 'Merge');
 s2 = tagMap.text2Events(values.code);
 values.map2.addEvents('code', s2, 'Merge');
 values.map2.addEvents('group', s2, 'Merge');
-load EEGEpoch.mat;
-values.EEGEpoch = EEGEpoch;
 
 function teardown(values) %#ok<INUSD,DEFNU>
 % Function executed after each test
@@ -35,20 +33,9 @@ function teardown(values) %#ok<INUSD,DEFNU>
 function testValid(values)  %#ok<DEFNU>
 % Unit test for editmaps
   fprintf('\nUnit tests for editmaps\n');
-  fprintf('It should work when not using GUI and no selection\n');
+  fprintf('It should work when and present multiple GUIs\n');
   fMap = values.map1;
-  [fMap, excludeList1] = editmaps(fMap, 'UseGui', false, 'SelectOption', 'none');
-  assertTrue(isempty(excludeList1));
+  fMap1 = editmaps(fMap.clone());
   assertEqual(fMap, values.map1);
   
-  fprintf('It should work when GUI and no selection\n');
-  fMap = values.map1;
-  [fMap, excludeList2] = editmaps(fMap, 'SelectOption', 'none');
-  assertTrue(isempty(excludeList2));
-  assertEqual(fMap, values.map1);
-
-  fprintf('It should work when GUI and selection\n');
-  fMap = values.map1;
-  [fMap, excludeList] = editmaps(fMap);
-  assertTrue(isempty(excludeList));
-  assertEqual(fMap, values.map1);
+ 

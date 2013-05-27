@@ -6,7 +6,7 @@
 %   >>  [EEG, dTags] = tageeg(EEG, 'key1', 'value1', ...)
 %
 %% Description
-% [EEG, dTags] = tageeg(EEG) creates an typeMap object called dTags
+% [EEG, dTags] = tageeg(EEG) creates an fieldMap object called dTags
 % from the specified EEG structure using only the 'type' field of the
 % EEG.event and EEG.urevent structures. After existing event tags are
 % extracted from the EEG structure, the ctagger GUI is launched in
@@ -16,25 +16,29 @@
 %
 % |[EEG, dTags] = tageeg(EEG, 'key1', 'value1', ...)| specifies 
 % optional name/value parameter pairs:
-%   'BaseTagsFile'   A file containing a typeMap object to be used
+%   'BaseMapFile'   A file containing a fieldMap object to be used
 %                    for initial tag information. The default is an 
-%                    typeMap object with the default xml and no tags.     
-%   'Fields'         A cell array of  EEG.event and
-%                    EEG.urevent.
+%                    fieldMap object with the default xml and no tags.     
 %   'PreservePrefix' If false (default), tags of the same event type that
 %                    share prefixes are combined and only the most specific
 %                    is retained (e.g., /a/b/c and /a/b become just
 %                    /a/b/c). If true, then all unique tags are retained.
+%   'RewriteTags'    Rewrite tags back to the data files after tag map
+%                    has been created.
+%   'SelectOption'   If 'type', then only tags based on the
+%                    event type field are considered. The 'select' option
+%                    (the default) causes a series of selection GUIs to be displayed.
+%                    The 'none' option causes no selection to be done.
 %   'Synchronize'    If true (default), the ctagger GUI is run synchronously so
 %                    no other MATLAB commands can be issued until this GUI
 %                    is closed. A value of false is used when this function
 %                    is being called as a menu item from another GUI.
-%   'TagFileName'    Name containing the name of the file in which to
-%                    save the consolidated tagMap object for future use.
+%   'MapFileName'    Name containing the name of the file in which to
+%                    save the consolidated fieldMap object for future use.
 %   'UpdateType'     Indicates how tags are merged with initial tags. The
 %                    options are: 'merge', 'replace', 'onlytags' (default),
 %                    'update' or 'none' as decribed below.
-%   'UseGUI'         If true (default), the ctagger GUI is displayed after
+%   'UseGui'         If true (default), the ctagger GUI is displayed after
 %                    initialization.
 %
 % Description of update options:
@@ -86,40 +90,56 @@
 % $Revision: 1.0 21-Apr-2013 09:25:25 krobbins $
 % $Initial version $
 %
-function [EEG, dTags] = tageeg(EEG, varargin)
+function [EEG, fMap, excluded] = tageeg(EEG, varargin)
     % Parse the input arguments
     parser = inputParser;
-    parser.addRequired('EEG', @(x) (isempty(x) || ...
-        isstruct(EEG) || isfield(EEG, 'event') || ...
-        isstruct(EEG.event) || isfield(EEG.event, 'type') || ...
-        isfield(EEG, 'urevent') || isstruct(EEG.urevent) && ...
-        isfield(EEG.urevent, 'type')));
-    parser.addParamValue('BaseTagsFile', '', ...
+    parser.addRequired('EEG', @(x) (isempty(x) || isstruct(EEG)));
+    parser.addParamValue('BaseMapFile', '', ...
         @(x)(isempty(x) || (ischar(x))))
-    parser.addParamValue('OnlyType', true, @islogical);
+    parser.addParamValue('ExcludeFields', ...
+            {'latency', 'epoch', 'urevent', 'hedtags', 'usertags'}, ...
+            @(x) (iscellstr(x)));
+    parser.addParamValue('Fields', {}, @(x) (iscellstr(x)));
     parser.addParamValue('PreservePrefix', false, @islogical);
-    parser.addParamValue('Synchronize', true, @islogical);
-    parser.addParamValue('TagFileName', '', ...
-         @(x)(isempty(x) || (ischar(x))));
-    parser.addParamValue('UpdateType', 'onlytags', ...
+    parser.addParamValue('RewriteOption', 'both', ...
           @(x) any(validatestring(lower(x), ...
-          {'merge', 'replace', 'onlytags', 'update', 'none'})));
-    parser.addParamValue('UseGUI', true, @islogical);
+          {'both', 'etconly', 'none', 'useronly'})));
+    parser.addParamValue('SaveMapName', '', @(x)(isempty(x) || (ischar(x))));
+      parser.addParamValue('SelectOption', true, @islogical);
+    parser.addParamValue('Synchronize', true, @islogical);
+    parser.addParamValue('UseGui', true, @islogical);
     parser.parse(EEG, varargin{:});
     p = parser.Results;
-    if p.OnlyType
-        types = {'type'};
-    else
-        types = {};
-    end
-        
     
     % Get the existing tags for the EEG
-    dTags = findtags(p.EEG, 'PreservePrefix', p.PreservePrefix, ...
-                     'Fields', types);
-    baseTags = typeMap.loadTagFile(p.BaseTagsFile);
-    dTags = tagevents(dTags, 'BaseTags', baseTags, ...
-            'UpdateType', p.UpdateType, 'UseGUI', p.UseGUI, ...
-            'Synchronize', p.Synchronize);
-    EEG.etc.tags = dTags.getStruct(); 
+    fMap = findtags(p.EEG, 'PreservePrefix', p.PreservePrefix, ...
+        'ExcludeFields', p.ExcludeFields, 'Fields', p.Fields);
+    
+    % Exclude the appropriate tags from baseTags
+    excluded = p.ExcludeFields;
+    baseTags = fieldMap.loadFieldMap(p.BaseMapFile);
+    if ~isempty(baseTags) && ~isempty(p.Fields)
+        excluded = setdiff(baseTags.getFields(), p.Fields);
+    end;        
+    fMap.merge(baseTags, 'Merge', excluded);
+    if p.SelectOption
+       [fMap, exc] = selectmaps(fMap, 'Fields', p.Fields);
+       excluded = union(excluded, exc);
+    end
+    if p.UseGui
+        fMap = editmaps(fMap, 'PreservePrefix', p.PreservePrefix, ...
+             'Synchronize', p.Synchronize);
+    end
+    
+    % Save the fieldmap 
+    if ~isempty(p.SaveMapName) && ~fieldMap.saveFieldMap(p.SaveMapName, fMap)
+        warning('tageeg:invalidFile', ...
+            ['Couldn''t save fieldMap to ' p.SaveMapName]);
+    end   
+    
+    % Now finish writing the tags to the EEG structure
+    EEG = writetags(EEG, fMap, 'ExcludeFields', excluded, ...
+                    'RewriteOption', p.RewriteOption);
+               
+
 end % tageeg
