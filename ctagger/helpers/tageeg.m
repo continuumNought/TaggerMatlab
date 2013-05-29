@@ -103,9 +103,9 @@ function [EEG, fMap, excluded] = tageeg(EEG, varargin)
     parser.addParamValue('PreservePrefix', false, @islogical);
     parser.addParamValue('RewriteOption', 'both', ...
           @(x) any(validatestring(lower(x), ...
-          {'both', 'etconly', 'none', 'useronly'})));
-    parser.addParamValue('SaveMapName', '', @(x)(isempty(x) || (ischar(x))));
-      parser.addParamValue('SelectOption', true, @islogical);
+          {'Both', 'EtcOnly', 'None', 'UserOnly'})));
+    parser.addParamValue('SaveMapFile', '', @(x)(isempty(x) || (ischar(x))));
+    parser.addParamValue('SelectOption', true, @islogical);
     parser.addParamValue('Synchronize', true, @islogical);
     parser.addParamValue('UseGui', true, @islogical);
     parser.parse(EEG, varargin{:});
@@ -132,7 +132,7 @@ function [EEG, fMap, excluded] = tageeg(EEG, varargin)
     end
     
     % Save the fieldmap 
-    if ~isempty(p.SaveMapName) && ~fieldMap.saveFieldMap(p.SaveMapName, fMap)
+    if ~isempty(p.SaveMapFile) && ~fieldMap.saveFieldMap(p.SaveMapFile, fMap)
         warning('tageeg:invalidFile', ...
             ['Couldn''t save fieldMap to ' p.SaveMapName]);
     end   

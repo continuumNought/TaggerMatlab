@@ -71,7 +71,7 @@ function edata = writetags(edata, fMap, varargin)
          @(x) (iscellstr(x)));
     parser.addParamValue('RewriteOption', 'all', ...
           @(x) any(validatestring(lower(x), ...
-          {'both', 'etc', 'none', 'user'})));
+          {'Both', 'EtcOnly', 'None', 'UserOnly'})));
     parser.parse(edata, fMap, varargin{:});
 
     % Prepare the structure
