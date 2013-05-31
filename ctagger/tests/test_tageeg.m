@@ -25,13 +25,14 @@ function teardown(values) %#ok<INUSD,DEFNU>
 
 function testValidValues(values)  %#ok<DEFNU>
 % Unit test for findtags
-fprintf('\nUnit tests for writetags\n');
+fprintf('\nUnit tests for tageeg\n');
 fprintf('It should tag a data set that has a map but no events\n');
 fName = 'temp1.mat';
 x = values.data;
 [y, fMap, excluded] = tageeg(x, 'RewriteOption', 'both', ...
-        'UseGui', false', 'SaveMapName', fName);
+        'UseGui', false', 'SaveMapFile', fName, 'SelectOption', false);
 assertEqual(length(excluded), 5);
+assertTrue(isa(fMap, 'fieldMap'));
 assertTrue(isfield(y.etc, 'tags'));
 assertTrue(isfield(y.etc.tags, 'xml'));
 assertEqual(length(fieldnames(y.etc.tags)), 2);
@@ -39,4 +40,22 @@ assertTrue(isfield(y.etc.tags, 'map'));
 assertEqual(length(fieldnames(y.etc.tags.map)), 2);
 fNew = fieldMap.loadFieldMap(fName);
 assertTrue(isa(fNew, 'fieldMap'));
+delete(fName);
+
+fprintf('It should allow user to select the types to tag\n');
+fprintf('....REQUIRES USER INPUT\n');
+fprintf('PRESS the EXCLUDE BUTTON exactly once otherwise TAG\n');
+fName = 'temp2.mat';
+x = values.data;
+[y, fMap, excluded] = tageeg(x, 'RewriteOption', 'both', ...
+        'UseGui', false', 'SaveMapFile', fName, 'SelectOption', true);
+assertTrue(isa(fMap, 'fieldMap'));
+assertTrue(isfield(y.etc, 'tags'));
+assertTrue(isfield(y.etc.tags, 'xml'));
+assertEqual(length(fieldnames(y.etc.tags)), 2);
+assertTrue(isfield(y.etc.tags, 'map'));
+assertEqual(length(fieldnames(y.etc.tags.map)), 1);
+fNew = fieldMap.loadFieldMap(fName);
+assertTrue(isa(fNew, 'fieldMap'));
+assertEqual(length(excluded), 6);
 delete(fName);
