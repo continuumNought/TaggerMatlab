@@ -30,7 +30,7 @@ fprintf('It should tag a data set that has a map but no events\n');
 fName = 'temp1.mat';
 x = values.data;
 [y, fMap, excluded] = tageeg(x, 'RewriteOption', 'both', ...
-        'UseGui', false', 'SaveMapFile', fName, 'SelectOption', false);
+        'UseGui', false, 'SaveMapFile', fName, 'SelectOption', false);
 assertEqual(length(excluded), 5);
 assertTrue(isa(fMap, 'fieldMap'));
 assertTrue(isfield(y.etc, 'tags'));
@@ -42,13 +42,15 @@ fNew = fieldMap.loadFieldMap(fName);
 assertTrue(isa(fNew, 'fieldMap'));
 delete(fName);
 
+function testSelectTags(values)  %#ok<DEFNU>
+% Unit tests for tag_eeg selecting which fields
 fprintf('It should allow user to select the types to tag\n');
 fprintf('....REQUIRES USER INPUT\n');
 fprintf('PRESS the EXCLUDE BUTTON exactly once otherwise TAG\n');
 fName = 'temp2.mat';
 x = values.data;
 [y, fMap, excluded] = tageeg(x, 'RewriteOption', 'both', ...
-        'UseGui', false', 'SaveMapFile', fName, 'SelectOption', true);
+        'UseGui', false, 'SaveMapFile', fName, 'SelectOption', true);
 assertTrue(isa(fMap, 'fieldMap'));
 assertTrue(isfield(y.etc, 'tags'));
 assertTrue(isfield(y.etc.tags, 'xml'));
@@ -59,3 +61,17 @@ fNew = fieldMap.loadFieldMap(fName);
 assertTrue(isa(fNew, 'fieldMap'));
 assertEqual(length(excluded), 6);
 delete(fName);
+
+function testUseGUI(values)  %#ok<DEFNU>
+fprintf('It should allow user to use the GUI to tag\n');
+fprintf('....REQUIRES USER INPUT\n');
+fprintf('PRESS the SUBMIT button exactly once otherwise TAG\n');
+fName = 'temp2.mat';
+x = values.data;
+[y, fMap, excluded] = tageeg(x, 'RewriteOption', 'both', ...
+        'UseGui', true, 'SaveMapFile', fName, 'SelectOption', false);
+assertTrue(isa(fMap, 'fieldMap'));
+fields = fMap.getFields();
+assertEqual(sum(strcmpi(fields, 'code')), 1);
+assertEqual(sum(strcmpi(fields, 'group')), 1);
+assertEqual(sum(strcmpi(fields, 'type')), 1);

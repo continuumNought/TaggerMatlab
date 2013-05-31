@@ -32,10 +32,18 @@ function teardown(values) %#ok<INUSD,DEFNU>
 
 function testValid(values)  %#ok<DEFNU>
 % Unit test for editmaps
-  fprintf('\nUnit tests for editmaps\n');
-  fprintf('It should work when and present multiple GUIs\n');
-  fMap = values.map1;
-  fMap1 = editmaps(fMap.clone());
-  assertEqual(fMap, values.map1);
+    fprintf('\nUnit tests for editmaps increase indent\n');
+    fprintf('It should work when and present multiple GUIs\n');
+    fMap = values.map1;
+    fMap1 = editmaps(fMap.clone());
+    assertEqual(fMap1, values.map1);
   
  
+  function testNotSynchronized(values)  %#ok<DEFNU>
+% Unit test for editmaps
+  fprintf('\nUnit tests for editmaps not synchronized\n');
+  fprintf('It should work when and present multiple GUIs\n');
+  fMap = values.map1;
+  fMap1 = editmaps(fMap.clone(), 'Synchronize', false);
+  assertEqual(fMap1, values.map1);
+  

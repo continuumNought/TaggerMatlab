@@ -23,18 +23,18 @@ function testShowDialogJText(values)  %#ok<DEFNU>
 fprintf('\nUnit tests for edu.utsa.tagger.controller.Controller.showDialog for text input\n');
 HEDXML = fileread(values.hedfile);
 fprintf('It should work when some events have tags and some don''t\n');
-controller1 = char(edu.utsa.tagger.controller.Controller.showDialog(...
-    HEDXML, values.eventsText, false));
+controller1 = char(edu.utsa.tagger.Controller.showDialog(...
+    HEDXML, values.eventsText));
 newHed1 = strtrim(char(controller1(1, :)));
 newEvents1 = strtrim(char(controller1(2, :)));
 fprintf('The output should work again in showDialog\n');
-controller2 = char(edu.utsa.tagger.controller.Controller.showDialog(...
+controller2 = char(edu.utsa.tagger.Controller.showDialog(...
                       newHed1, newEvents1, false));
 fprintf('The output should not change if cancelled\n');
 newHed2 = strtrim(char(controller2(1, :)));
 newEvents2 = strtrim(char(controller2(2, :)));
 fprintf('----Be sure to press cancel when GUI comes up-----\n');
-controller3 = char(edu.utsa.tagger.controller.Controller.showDialog(...
+controller3 = char(edu.utsa.tagger.Controller.showDialog(...
                       newHed2, newEvents2, false));
 newHed3 = strtrim(char(controller3(1, :)));
 newEvents3 = strtrim(char(controller3(2, :)));
@@ -49,7 +49,7 @@ assertTrue(isempty(newEvents4));
 
 fprintf('It should allow adding events\n');
 fprintf('----Be sure to add and tag at least one event -----\n');
-controller5 = char(edu.utsa.tagger.controller.Controller.showDialog(HEDXML, '', false));
+controller5 = char(edu.utsa.tagger.Controller.showDialog(HEDXML, '', false));
 newEvents5 = strtrim(char(controller5(2, :)));
 assertTrue(~isempty(newEvents5));
 

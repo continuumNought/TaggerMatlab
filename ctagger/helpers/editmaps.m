@@ -61,7 +61,6 @@ function fMap = editmaps(fMap, varargin)
     parser.addParamValue('Synchronize', true, @islogical);
     parser.parse(fMap, varargin{:});
     syncThis = parser.Results.Synchronize;
-    preservePrefix = parser.Results.PreservePrefix;  % --- toDO
     
     fields = fMap.getFields();
     for k = 1:length(fields)
@@ -72,28 +71,60 @@ function fMap = editmaps(fMap, varargin)
     function editmap(field)
         % Proceed with tagging
         eTitle = ['Tagging ' field ' values'];
+        notifiedPrint('---at beginning', false);
         tMap = fMap.getMap(field);
         xml = fMap.getXml();
         if isempty(tMap)
             return;
         end
-        tEvents = char(tMap.getJsonEvents());
+        tEvents = strtrim(char(tMap.getJsonEvents()));
         if syncThis
             taggedList = edu.utsa.tagger.Controller.showDialog( ...
-                xml, tEvents, true, 0, eTitle, 3, false);
-            tags = char(taggedList(1, :));
-            events = char(taggedList(2, :));
+                        xml, tEvents, true, 0, char(eTitle), 3);
+            xml = char(taggedList(1, :));
+            tEvents = strtrim(char(taggedList(2, :)));
         else
-            ctrl = javaObjectEDT('edu.utsa.tagger.Controller', ...
-                xml, tEvents, true, 0, eTitle, 3, false);
-            notified = ctrl.getNotified();
+            javaMethodEDT('createController', 'edu.utsa.tagger.Controller', ...
+                           xml, tEvents, true, 0, eTitle, 3);
+            notified = edu.utsa.tagger.Controller.get().getNotified();
+            notifiedPrint('---before loop', false);
             while (~notified)
                 pause(5);
-                notified = ctrl.getNotified();
+                notified = edu.utsa.tagger.Controller.get().getNotified();
+                notifiedPrint('---loop', notified);
             end
-            tags = char(ctrl.getHedString());
-            events = char(ctrl.getEventString(true));
-        end                       %----TODO merge XML
-        tMap.reset(strtrim(tags), tagMap.json2Events(strtrim(events)));
+            notifiedPrint('---after loop', false);
+            taggedList = edu.utsa.tagger.Controller.getReturnString(true);
+            if ~isempty(taggedList)
+               xml = char(taggedList(1, :));
+               tEvents = strtrim(char(taggedList(2, :)));
+            end
+        end
+        tEvents = tagMap.json2Events(tEvents);
+
+        %----TODO merge XML
+        %------TEMPORARY FIX
+        
+        if isfield(tEvents, 'code')
+            fprintf('----warning editmaps:CodeField --- Removing code field\n');
+            tEvents = rmfield(tEvents, 'code');
+        end
+        if isfield(tEvents, 'paths')
+            fprintf('----warning editmaps:PathField --- Renaming path field to tags field\n');
+            for j = 1:length(tEvents) 
+                tEvents(j).tags = tEvents(j).paths;
+            end
+            tEvents = rmfield(tEvents, 'paths');
+        end
+        tMap.reset(strtrim(xml), tEvents);
     end % editmap
+
+    function s = notifiedPrint(m, notified)
+        if notified
+            s = 'true';
+        else
+            s = 'false';
+        end
+        fprintf(2, '%s: %s\n', m, s);
+    end   
 end
