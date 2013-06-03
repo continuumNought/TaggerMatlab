@@ -100,77 +100,79 @@
 % $Revision: 1.0 21-Apr-2013 09:25:25 krobbins $
 % $Initial version $
 %
-function [tMap, fPaths] = tagdir(inDir, varargin)
+function [fMap, fPaths, excluded] = tagdir(inDir, varargin)
     % Parse the input arguments
     parser = inputParser;
     parser.addRequired('InDir', @(x) (~isempty(x) && ischar(x)));
     parser.addParamValue('BaseMapFile', '', ...
-        @(x)(isempty(x) || (ischar(x) && exist(x, 'file') && ...
-            ~isempty(tagMap.loatMapFile(x)))));
+        @(x)(isempty(x) || (ischar(x))));
+    parser.addParamValue('DbCredsFile', '', ...
+        @(x)(isempty(x) || (ischar(x))));    
     parser.addParamValue('DoSubDirs', true, @islogical);
+    parser.addParamValue('ExcludeFields', ...
+            {'latency', 'epoch', 'urevent', 'hedtags', 'usertags'}, ...
+            @(x) (iscellstr(x)));
+    parser.addParamValue('Fields', {}, @(x) (iscellstr(x)));
     parser.addParamValue('PreservePrefix', false, @islogical);
     parser.addParamValue('RewriteOption', 'both', ...
           @(x) any(validatestring(lower(x), ...
-          {'both', 'etconly', 'none', 'useronly'})));
-    parser.addParamValue('SaveMapName', '', ...
+           {'Both', 'EtcOnly', 'None', 'UserOnly'})));
+    parser.addParamValue('SaveMapFile', '', ...
          @(x)(isempty(x) || (ischar(x))));
-   
-    parser.addParamValue('SelectOption',  'select', ...
-        @(x) any(validatestring(lower(x), {'none', 'select', 'type'})));
+    parser.addParamValue('SelectOption', true, @islogical);
     parser.addParamValue('Synchronize', true, @islogical);
-    parser.addParamValue('RewriteOptions', 'onlytags', ...
-          @(x) any(validatestring(lower(x), ...
-          {'merge', 'replace', 'onlytags', 'update', 'none'})));
-    parser.addParamValue('UseGUI', true, @islogical);
+    parser.addParamValue('UseGui', true, @islogical);
     parser.parse(inDir, varargin{:});
     p = parser.Results;
     
-
     fPaths = getfilelist(p.InDir, '.set', p.DoSubDirs);
     if isempty(fPaths)
-        eTags = '';
+        fMap = '';
         return;
     end
-    
-    % Consolidate all of the tags from the input directory and base
-    if p.OnlyType
-        types = {'type'};
-    else
-        types = {};
-    end
-    tMap = typeMap('', 'PreservePrefix',  p.PreservePrefix);
+    fprintf('\n---Loading the data files to merge the tags---\n');
+    fMap = fieldMap('', 'PreservePrefix',  p.PreservePrefix);
     for k = 1:length(fPaths) % Assemble the list
         eegTemp = pop_loadset(fPaths{k});
-        tMapNew = findtags(eegTemp, 'Fields', types, ...
-                            'PreservePrefix', p.PreservePrefix);
-        tMap.merge(tMapNew, 'Merge');
+        tMapNew = findtags(eegTemp, 'PreservePrefix', p.PreservePrefix, ...
+           'ExcludeFields', p.ExcludeFields, 'Fields', p.Fields);
+        fMap.merge(tMapNew, 'Merge', p.ExcludeFields);
     end
-    baseTags = typeMap.loadTagFile(p.BaseTagsFile);
-    tMap = tagevents(tMap, 'BaseTags', baseTags, ...
-        'UpdateType', p.UpdateType, 'UseGUI', p.UseGUI, ...
-        'Synchronize', p.Synchronize);
+    % Exclude the appropriate tags from baseTags
+    excluded = p.ExcludeFields;
+    baseTags = fieldMap.loadFieldMap(p.BaseMapFile);
+    if ~isempty(baseTags) && ~isempty(p.Fields)
+        excluded = setdiff(baseTags.getFields(), p.Fields);
+    end;        
+    fMap.merge(baseTags, 'Merge', excluded);
+    
+    if p.SelectOption
+        fprintf('\n---Now select the fields you want to tag---\n');
+       [fMap, exc] = selectmaps(fMap, 'Fields', p.Fields);
+       excluded = union(excluded, exc);
+    end
+    if p.UseGui
+        fprintf('\n---Now choose tags for each field value---\n');
+        fMap = editmaps(fMap, 'PreservePrefix', p.PreservePrefix, ...
+             'Synchronize', p.Synchronize);
+    end
 
     % Save the tags file for next step
-    if ~isempty(p.SaveMapName) && ~fieldMap.saveFieldMap(p.SaveMapName, fMap)
-        bName = tempname;
+    if ~isempty(p.SaveMapFile) && ~fieldMap.saveFieldMap(p.SaveMapFile, fMap)
         warning('tagdir:invalidFile', ...
-            ['Couldn''t save typeMap to ' p.TagFileName]);
-        fieldMap.SaveMapName(bName, tMap)
-    else 
-        bName = p.SaveMapName;
+            ['Couldn''t save fieldMap to ' p.SaveMapFile]);
     end
  
-    if isempty(fPaths) || strcmpi(p.UpdateType, 'none')
+    if isempty(fPaths) || strcmpi(p.RewriteOption, 'none')
         return;
     end
     
     % Rewrite all of the EEG files with updated tag information
+    fprintf('\n---Now rewriting the tags to the indiviudal data files---\n');
     for k = 1:length(fPaths) % Assemble the list
         teeg = pop_loadset(fPaths{k});
-        teeg = tageeg(teeg, 'BaseMapFile', bName, ...
-              'PreservePrefix', p.PreservePrefix, ...
-              'Synchronize', p.Synchronize, ...
-              'UpdateType', p.UpdateType, 'UseGUI', false);
+        teeg = writetags(teeg, fMap, 'ExcludeFields', excluded, ...
+                        'RewriteOption', p.RewriteOption);
         pop_saveset(teeg, 'filename', fPaths{k});
     end
 end % tagdir
