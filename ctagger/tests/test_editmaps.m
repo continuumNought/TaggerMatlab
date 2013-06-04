@@ -33,7 +33,7 @@ function teardown(values) %#ok<INUSD,DEFNU>
 function testValid(values)  %#ok<DEFNU>
 % Unit test for editmaps
     fprintf('\nUnit tests for editmaps increase indent\n');
-    fprintf('It should work when and present multiple GUIs\n');
+    fprintf('It should work present multiple GUIs\n');
     fMap = values.map1;
     fMap1 = editmaps(fMap.clone());
     assertEqual(fMap1, values.map1);

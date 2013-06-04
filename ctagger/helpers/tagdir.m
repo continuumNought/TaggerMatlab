@@ -2,79 +2,81 @@
 % Allows a user to tag an entire tree directory of similar EEG .set files.
 %
 % Usage:
-%   >>  [tMap, fPaths] = tagdir(inDir)
-%   >>  [tMap, fPaths] = tagdir(inDir, 'key1', 'value1', ...)
+%   >>  [fMap, fPaths, excluded] = tagdir(inDir)
+%   >>  [fMap, fPaths, excluded] = tagdir(inDir, 'key1', 'value1', ...)
 %
 %% Description
-% [eTags, fPaths] = tagdir(inDir)extracts a consolidated tagMap object 
-% from the EEGLAB .set files in the directory tree inDir.
+% [eTags, fPaths, excluded] = tagdir(inDir) extracts a consolidated 
+% fieldMap object from the data files in the directory tree inDir.
 %
-% First the events and tags from all EEGLAB .set files are extracted and 
-% consolidated into a single typeMap object by merging all of the 
-% existing tags. Then the ctagger GUI is displayed so that users can
-% edit/modify the tags. The GUI is launched in synchronous mode, meaning 
-% that it behaves like a modal dialog and must be closed before execution 
-% continues. Finally the tags for each EEG file are updated.
+% First the events and tags from all data files are extracted and 
+% consolidated into a single fieldMap object by merging all of the 
+% existing tags. Then the user is presented with a GUI for choosing
+% which fields to tag. The ctagger GUI is displayed so that users can
+% edit/modify the tags. The GUI is launched in asynchronous mode.
+% Finally the tags are rewritten to the data files.
 %
-% The final, consolidated and edited typeMap object is returned in tMap,
+% The final, consolidated and edited fieldMap object is returned in fMap,
 % and fPaths is a cell array containing the full path names of all of the
-% matched files that were affected. If fPaths is empty, then tMap will also
-% be empty.
+% matched files that were affected. If fPaths is empty, then fMap will  
+% not containing any tag information.
 %
-%
-% [eTags, fPaths] = tagdir(eData, 'key1', 'value1', ...) specifies 
+% [fMap, fPaths, excluded] = tagdir(inDir, 'key1', 'value1', ...) specifies 
 % optional name/value parameter pairs:
-%   'BaseTagsFile'   A file containing a typeMap object to be used
+%   'BaseMapFile'    A file containing a fieldMap object to be used
 %                    for initial tag information. The default is an 
-%                    tagMap object with the default HED XML and no tags.
-%   'DoSubDirs'      If true the entire inDir directory tree is searched.
-%                    If false, only the inDir directory is searched.  
+%                    fieldMap object with the default HED XML and no tags.
+%   'DbCredsFile'    Name of a property file containing the database
+%                    credentials. If this argument isnot provided, a
+%                    database is not used. (See notes.)
+%   'DoSubDirs'      If true (default), the entire inDir directory tree is searched.
+%                    If false, only the inDir directory is searched. 
+%   'ExcludeFields'  Cell array of field names in the .event structure
+%                    to ignore during the tagging process. By default
+%                    the following fields are ignored: 'latency', ...
+%                    'epoch', 'urevent', 'hedtags', 'usertags'. The user
+%                    can over-ride these tags using this name-value
+%                    parameter.
+%   'Fields'         Cell array of field names of the fields to include
+%                    in the tagging. If this parameter is non-empty
+%                    (default), only these fields are tagged.
 %   'PreservePrefix' If false (default), tags of the same event type that
 %                    share prefixes are combined and only the most specific
 %                    is retained (e.g., /a/b/c and /a/b become just
 %                    /a/b/c). If true, then all unique tags are retained.
-%   'SelectOption'   If 'type', then only tags based on the
-%                    event type field are considered. The 'select' option
-%                    (the default) causes a series of selection GUIs to be displayed.
-%                    The 'none' option causes no selection to be done.
-%   'Synchronize'    If true (default), the ctagger GUI is run synchronously so
+%   'RewriteOption'  String indicating how tag information should be
+%                    written to the datasets. The options are 'Both',
+%                    'EtcOnly', 'None', 'UserOnly'. See the notes for
+%                    additional information.
+%   'SaveMapFile'    File name for saving the final, consolidated fieldMap
+%                    object that results from the tagging process.
+%   'SelectOption'   If true (default), the user is presented with a GUI 
+%                    that allows users to select which fields to tag.
+%   'Synchronize'    If false (default), the ctagger GUI is run with
+%                    synchronization done using the MATLAB pause. If
+%                    true, synchronization is done within Java. This
+%                    latter option is usually reserved when not calling
+%                    the GUI from MATLAB.
 %                    no other MATLAB commands can be issued until this GUI
-%                    is closed. A value of false is used when this function
-%                    is being called as a menu item from another GUI.
-%   'RewriteTags'    Rewrite tags back to the data files after tag map
-%                    has been created.
-%   'TagFileName'    Name containing the name of the file in which to
-%                    save the consolidated typeMap object for future use.
-%   'UpdateType'     Indicates how tags are merged with initial tags if the
-%                    tagging information is to be rewritten to the EEG
-%                    files. The options are: 'merge', 'replace', 
-%                    'onlytags' (default), 'update' or 'none'.
 %   'UseGui'         If true (default), the ctagger GUI is displayed after
 %                    initialization.
 %
-% Description of update options:
-%    'merge'         If an event with that key is not part of this
-%                    object, add it as is.
-%    'replace'       If an event with that key is not part of this
-%                     object, do nothing. Otherwise, if an event with that
-%                     key is part of this object then completely replace 
-%                     that event with the new one.
-%    'onlytags'      If an event with that key is not part of this
-%                     object, do nothing. Otherwise, if an event with that
-%                     key is part of this object, then update the tags of 
-%                     the matching event with the new ones from this event,
-%                     using the PreservePrefix value to determine how to
-%                     combine the tags.
-%    'update'         If an event with that key is not part of this
-%                     object, do nothing. Otherwise, if an event with that
-%                     key is part of this object, then update the tags of 
-%                     the matching event with the new ones from this event,
-%                     using the PreservePrefix value to determine how to
-%                     combine the tags. Also update any empty code, label
-%                     or description fields by using the values in the
-%                     input event.
-%    'none'           Don't do any updating
+% Notes on tag rewrite:
+%   The tags are written to the data files in two ways. In both cases
+%   the dataset x is assumed to be a MATLAB structure: 
+%   1) If the 'RewriteOption' is either 'Both' or 'EtcOnly', the tags
+%      are written to the dataset in the x.etc.tags field:
+%            x.etc.tags.xml
+%            x.etc.tags.map.field1
+%            x.etc.tags.map.field2 ...
+%      
 %
+%   2) If the 'RewriteOption' is either 'Both' or 'UserOnly', the tags
+%      are also written to x.event.usertags based on the individual 
+%      values of their events.
+%
+% Notes on the database:  Database is not deployed.
+%    
 % See also: tageeg and tagstudy
 %
 
@@ -120,7 +122,7 @@ function [fMap, fPaths, excluded] = tagdir(inDir, varargin)
     parser.addParamValue('SaveMapFile', '', ...
          @(x)(isempty(x) || (ischar(x))));
     parser.addParamValue('SelectOption', true, @islogical);
-    parser.addParamValue('Synchronize', true, @islogical);
+    parser.addParamValue('Synchronize', false, @islogical);
     parser.addParamValue('UseGui', true, @islogical);
     parser.parse(inDir, varargin{:});
     p = parser.Results;

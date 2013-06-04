@@ -2,68 +2,72 @@
 % Allows a user to tag an EEGLAB EEG structure
 %
 % Usage:
-%   >>  [EEG, dTags] = tageeg(EEG)
-%   >>  [EEG, dTags] = tageeg(EEG, 'key1', 'value1', ...)
+%   >>  [EEG, fMap, excluded] = tageeg(EEG)
+%   >>  [EEG, fMap, excluded] = tageeg(EEG, 'key1', 'value1', ...)
 %
 %% Description
-% [EEG, dTags] = tageeg(EEG) creates an fieldMap object called dTags
-% from the specified EEG structure using only the 'type' field of the
-% EEG.event and EEG.urevent structures. After existing event tags are
-% extracted from the EEG structure, the ctagger GUI is launched in
-% synchronous mode, meaning that it behaves like a modal dialog and must
-% be closed before execution continues. 
+% [EEG, fMap, excluded] = tageeg(EEG) creates an fieldMap object called
+% fMap. First all of the tag information and potential fields are
+% extracted from EEG.event, EEG.urevent, and EEG.etc.tags structures. 
+% After existing event tags are extracted and merged with an optional
+% input fieldMap, the user is presented with a GUI to accept or exclude
+% potential fields from tagging. Then the user is presented with the 
+% ctagger GUI to edit and tag. Finally, the tags are rewritten to
+% the EEG structure. 
 %
-%
-% |[EEG, dTags] = tageeg(EEG, 'key1', 'value1', ...)| specifies 
+% [EEG, fMap, excluded] = tageeg(EEG, 'key1', 'value1', ...) specifies 
 % optional name/value parameter pairs:
-%   'BaseMapFile'   A file containing a fieldMap object to be used
+%   'BaseMapFile'    A file containing a fieldMap object to be used
 %                    for initial tag information. The default is an 
-%                    fieldMap object with the default xml and no tags.     
+%                    fieldMap object with the default HED XML and no tags.
+%   'DbCredsFile'    Name of a property file containing the database
+%                    credentials. If this argument isnot provided, a
+%                    database is not used. (See notes.)
+%   'ExcludeFields'  Cell array of field names in the .event structure
+%                    to ignore during the tagging process. By default
+%                    the following fields are ignored: 'latency', ...
+%                    'epoch', 'urevent', 'hedtags', 'usertags'. The user
+%                    can over-ride these tags using this name-value
+%                    parameter.
+%   'Fields'         Cell array of field names of the fields to include
+%                    in the tagging. If this parameter is non-empty
+%                    (default), only these fields are tagged.
 %   'PreservePrefix' If false (default), tags of the same event type that
 %                    share prefixes are combined and only the most specific
 %                    is retained (e.g., /a/b/c and /a/b become just
 %                    /a/b/c). If true, then all unique tags are retained.
-%   'RewriteTags'    Rewrite tags back to the data files after tag map
-%                    has been created.
-%   'SelectOption'   If 'type', then only tags based on the
-%                    event type field are considered. The 'select' option
-%                    (the default) causes a series of selection GUIs to be displayed.
-%                    The 'none' option causes no selection to be done.
-%   'Synchronize'    If true (default), the ctagger GUI is run synchronously so
+%   'RewriteOption'  String indicating how tag information should be
+%                    written to the datasets. The options are 'Both',
+%                    'EtcOnly', 'None', 'UserOnly'. See the notes for
+%                    additional information.
+%   'SaveMapFile'    File name for saving the final, consolidated fieldMap
+%                    object that results from the tagging process.
+%   'SelectOption'   If true (default), the user is presented with a GUI 
+%                    that allows users to select which fields to tag.
+%   'Synchronize'    If false (default), the ctagger GUI is run with
+%                    synchronization done using the MATLAB pause. If
+%                    true, synchronization is done within Java. This
+%                    latter option is usually reserved when not calling
+%                    the GUI from MATLAB.
 %                    no other MATLAB commands can be issued until this GUI
-%                    is closed. A value of false is used when this function
-%                    is being called as a menu item from another GUI.
-%   'MapFileName'    Name containing the name of the file in which to
-%                    save the consolidated fieldMap object for future use.
-%   'UpdateType'     Indicates how tags are merged with initial tags. The
-%                    options are: 'merge', 'replace', 'onlytags' (default),
-%                    'update' or 'none' as decribed below.
 %   'UseGui'         If true (default), the ctagger GUI is displayed after
 %                    initialization.
 %
-% Description of update options:
-%    'merge'         If an event with that key is not part of this
-%                     object, add it as is.
-%    'replace'       If an event with that key is not part of this
-%                     object, do nothing. Otherwise, if an event with that
-%                     key is part of this object then completely replace 
-%                     that event with the new one.
-%    'onlytags'      If an event with that key is not part of this
-%                     object, do nothing. Otherwise, if an event with that
-%                     key is part of this object, then update the tags of 
-%                     the matching event with the new ones from this event,
-%                     using the PreservePrefix value to determine how to
-%                     combine the tags.
-%    'update'         If an event with that key is not part of this
-%                     object, do nothing. Otherwise, if an event with that
-%                     key is part of this object, then update the tags of 
-%                     the matching event with the new ones from this event,
-%                     using the PreservePrefix value to determine how to
-%                     combine the tags. Also update any empty code, label
-%                     or description fields by using the values in the
-%                     input event.
-%    'none'           Don't use the base tags to update the information 
-%                     in the output EEG structure.
+% Notes on tag rewrite:
+%   The tags are written to the data files in two ways. In both cases
+%   the dataset x is assumed to be a MATLAB structure: 
+%   1) If the 'RewriteOption' is either 'Both' or 'EtcOnly', the tags
+%      are written to the dataset in the x.etc.tags field:
+%            x.etc.tags.xml
+%            x.etc.tags.map.field1
+%            x.etc.tags.map.field2 ...
+%      
+%
+%   2) If the 'RewriteOption' is either 'Both' or 'UserOnly', the tags
+%      are also written to x.event.usertags based on the individual 
+%      values of their events.
+%
+% Notes on the database:  Database is not deployed.
 %
 % See also: tagdir and tagstudy
 %
@@ -136,12 +140,10 @@ function [EEG, fMap, excluded] = tageeg(EEG, varargin)
     % Save the fieldmap 
     if ~isempty(p.SaveMapFile) && ~fieldMap.saveFieldMap(p.SaveMapFile, fMap)
         warning('tageeg:invalidFile', ...
-            ['Couldn''t save fieldMap to ' p.SaveMapName]);
+            ['Couldn''t save fieldMap to ' p.SaveMapFile]);
     end   
     
     % Now finish writing the tags to the EEG structure
     EEG = writetags(EEG, fMap, 'ExcludeFields', excluded, ...
                     'RewriteOption', p.RewriteOption);
-               
-
 end % tageeg
