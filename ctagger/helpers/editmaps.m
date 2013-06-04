@@ -1,12 +1,12 @@
 % editmaps
-% Allow user to selectively edit the tags.
+% Allow user to selectively edit the tags using the ctagger GUI
 %
 % Usage:
-%   >>  [tMap, fPaths] = tagdir(inDir)
-%   >>  [tMap, fPaths] = tagdir(inDir, 'key1', 'value1', ...)
+%   >>  fMap = editmaps(fMap)
+%   >>  fMap = editmaps(fMap, varargin)
 %
 %% Description
-% [eTags, fPaths] = tagdir(inDir)extracts a consolidated tagMap object
+% fMap = editmaps(fMap)extracts a consolidated tagMap object
 % from the EEGLAB .set files in the directory tree inDir.
 %
 % First the events and tags from all EEGLAB .set files are extracted and
@@ -71,7 +71,6 @@ function fMap = editmaps(fMap, varargin)
     function editmap(field)
         % Proceed with tagging
         eTitle = ['Tagging ' field ' values'];
-        notifiedPrint('---at beginning', false);
         tMap = fMap.getMap(field);
         xml = fMap.getXml();
         if isempty(tMap)
@@ -87,13 +86,10 @@ function fMap = editmaps(fMap, varargin)
             javaMethodEDT('createController', 'edu.utsa.tagger.Controller', ...
                            xml, tEvents, true, 0, eTitle, 3);
             notified = edu.utsa.tagger.Controller.get().getNotified();
-            notifiedPrint('---before loop', false);
             while (~notified)
                 pause(5);
                 notified = edu.utsa.tagger.Controller.get().getNotified();
-                notifiedPrint('---loop', notified);
             end
-            notifiedPrint('---after loop', false);
             taggedList = edu.utsa.tagger.Controller.getReturnString(true);
             if ~isempty(taggedList)
                xml = char(taggedList(1, :));
@@ -118,13 +114,4 @@ function fMap = editmaps(fMap, varargin)
         end
         tMap.reset(strtrim(xml), tEvents);
     end % editmap
-
-    function s = notifiedPrint(m, notified)
-        if notified
-            s = 'true';
-        else
-            s = 'false';
-        end
-        fprintf(2, '%s: %s\n', m, s);
-    end   
-end
+end % editmaps

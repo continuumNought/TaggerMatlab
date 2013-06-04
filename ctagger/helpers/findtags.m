@@ -58,7 +58,7 @@
 % $Initial version $
 %
 
-function [tMap] = findtags(edata, varargin)
+function fMap = findtags(edata, varargin)
     % Parse the input arguments
     parser = inputParser;
     parser.addRequired('edata', @(x) (isempty(x) || isstruct(x)));
@@ -84,14 +84,14 @@ function [tMap] = findtags(edata, varargin)
          tfields = fieldnames(edata.etc.tags.map);
       end
     end
-    tMap = fieldMap(xml, 'PreservePrefix', p.PreservePrefix);
+    fMap = fieldMap(xml, 'PreservePrefix', p.PreservePrefix);
     if ~isempty(p.Fields)
         tfields = intersect(p.Fields, tfields);
     end
     for k = 1:length(tfields)
         eString = edata.etc.tags.map.(tfields{k});
         eStruct = tagMap.text2Events(eString);
-        tMap.addEvents(tfields{k}, eStruct, 'Merge');
+        fMap.addEvents(tfields{k}, eStruct, 'Merge');
     end
     
     efields = '';
@@ -116,7 +116,7 @@ function [tMap] = findtags(edata, varargin)
         end
         for j = 1:length(tValues)
            eventForm.label = num2str(tValues{j});
-           tMap.addEvent(efields{k}, eventForm, 'Merge');
+           fMap.addEvent(efields{k}, eventForm, 'Merge');
         end
     end
 end %findtags

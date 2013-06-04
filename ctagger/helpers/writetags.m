@@ -1,9 +1,9 @@
-% findtags
-% Create a fieldMap object for the existing tags in a data structure
+% writetags
+% Write tags to a structure from the field map information
 %
 % Usage:
-%   >>  tMap = findtags(edata)
-%   >>  tMap = findtags(edata, 'key1', 'value1', ...)
+%   >>  edata = writetags(edata, fMap)
+%   >>  edata = writetags(edata, fMap, 'key1', 'value1', ...)
 %
 % Description:
 % tMap = findtags(edata) extracts a fieldMap object representing the

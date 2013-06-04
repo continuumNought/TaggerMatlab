@@ -27,89 +27,131 @@ values.Shooter = 'ShooterSet';
 function teardown(values) %#ok<INUSD,DEFNU>
 % Function executed after each test
 
-function test_tagdirAttn(values)  %#ok<DEFNU>
-% % Unit test for cTagger tagEEGDIR static method 
-fprintf('\nUnit tests for tagdir for attention shift data\n');
 
-fprintf('It should work for the attention shift data without GUI\n');
-thisDir = [values.TestDirectory filesep values.Attn];
-[eTags1, fPaths1] = tagdir(thisDir, 'UseGui', false);
-attnEvents1 = eTags1.getEvents();
-assertEqual(length(attnEvents1), 17);
-assertEqual(length(fPaths1), 6);
+function test_tagdirEmpty(values)  %#ok<INUSD,DEFNU>
+% Unit test for tagdir function with empty directory
+fprintf('\nUnit tests for tagdir for empty directory\n');
 
-fprintf('It should work for the attention shift data with GUI\n');
-thisDir = [values.TestDirectory filesep values.Attn];
-[eTags2, fPaths2] = tagdir(thisDir);
-attnEvents2 = eTags2.getEvents();
-assertEqual(length(attnEvents2), 17);
-assertEqual(length(fPaths2), 6);
+fprintf('It should work for an empty directory\n');
+[eTags1, fPaths1] = tagdir('', 'UseGui', false);
+assertTrue(isa(eTags1, 'fieldMap'));
+assertTrue(isempty(fPaths1));
+fields1 = eTags1.getFields();
+assertTrue(isempty(fields1));
 
-fprintf('It should work for the attention shift data with GUI\n');
-thisDir = [values.TestDirectory filesep values.Attn];
-[eTags2, fPaths2] = tagdir(thisDir, 'UseGui', true);
-attnEvents2 = eTags2.getEvents();
-assertEqual(length(attnEvents2), 17);
-assertEqual(length(fPaths2), 6);
-
-fprintf('It should work for the attention shift data with GUI and no synchronization\n');
-thisDir = [values.TestDirectory filesep values.Attn];
-[eTags2, fPaths2] = tagdir(thisDir, 'UseGui', true, 'Synchronize', false);
-attnEvents2 = eTags2.getEvents();
-assertEqual(length(attnEvents2), 17);
-assertEqual(length(fPaths2), 6);
-
-function test_tagdirBCI2000(values)  %#ok<DEFNU>
-% Unit test for tagdir for BCI2000 data
-fprintf('\nUnit tests for tagdir for BCI2000\n');
-
-fprintf('It should work for the BCI 2000 data without GUI\n');
-thisDir = [values.TestDirectory filesep values.BCI2000];
-[eTags3, fPaths3] = tagdir(thisDir, 'UseGui', false);
-bci2000Events3 = eTags3.getEvents();
-assertEqual(length(bci2000Events3), 17);
-assertEqual(length(fPaths3), 42);
-
-fprintf('It should work for the BCI 2000 data witht GUI\n');
-thisDir = [values.TestDirectory filesep values.BCI2000];
-[eTags4, fPaths4] = tagdir(thisDir);
-bci2000Events4 = eTags4.getEvents();
-assertEqual(length(bci2000Events4), 17);
-assertEqual(length(fPaths4), 42);
-
-fprintf('It should work for the BCI 2000 data witht GUI and no synchronization\n');
-thisDir = [values.TestDirectory filesep values.BCI2000];
-[eTags4, fPaths4] = tagdir(thisDir, 'Synchronize', false);
-bci2000Events4 = eTags4.getEvents();
-assertEqual(length(bci2000Events4), 17);
-assertEqual(length(fPaths4), 42);
+fprintf('It should work when there is an invalid directory\n');
+[eTags2, fPaths2] = tagdir('--34', 'UseGui', false);
+assertTrue(isa(eTags2, 'fieldMap'));
+assertTrue(isempty(fPaths2));
+fields2 = eTags1.getFields();
+assertTrue(isempty(fields2));
 
 function test_tagdirEEGLAB(values)  %#ok<DEFNU>
 % Unit test for tagdir for EEGLAB sample data
 fprintf('\nUnit tests for tagdir with EEGLAB data\n');
 
-fprintf('It should work for the EEGLAB data without the GUI\n');
+fprintf('It should work for the EEGLAB data without any GUIs\n');
 thisDir = [values.TestDirectory filesep values.EEGLAB];
-[eTags5, fPaths5] = tagdir(thisDir, 'UseGui', false);
-eeglabEvents = eTags5.getEvents();
-assertEqual(length(eeglabEvents), 2)
-assertEqual(length(fPaths5), 3);
+[fMap1, fPaths1] = tagdir(thisDir, 'UseGui', false, 'SelectOption', false);
+fields1 = fMap1.getFields();
+assertEqual(length(fields1), 2);
+types1 = fMap1.getEvents('type');
+assertEqual(length(types1.getEvents), 2)
+position1 = fMap1.getEvents('position');
+assertEqual(length(position1.getEvents), 2)
+assertEqual(length(fPaths1), 3);
 
-fprintf('It should work for the EEGLAB data\n');
-thisDir = [values.TestDirectory filesep values.EEGLAB];
-[eTags6, fPaths6] = tagdir(thisDir);
-eeglabEvents6 = eTags6.getEvents();
-fprintf('events: %d, paths: %d\n', length(eeglabEvents6), length(fPaths6));
-assertEqual(length(eeglabEvents6), 2)
-assertEqual(length(fPaths6), 3);
+fprintf('It should work for the EEGLAB data with the only the options\n');
+fprintf('....REQUIRES USER INPUT\n');
+fprintf('PRESS the EXCLUDE BUTTON FOR TYPE AND TAG BUTTON FOR POSITION\n');
+[fMap2, fPaths2] = tagdir(thisDir, 'UseGui', false, 'SelectOption', true);
+fields2 = fMap2.getFields();
+assertEqual(length(fields2), 1);
+assertTrue(strcmpi('position', fields2{1}));
+types2 = fMap2.getEvents('type');
+assertTrue(isempty(types2));
+position2 = fMap2.getEvents('position');
+assertEqual(length(position2.getEvents), 2)
+assertEqual(length(fPaths2), 3);
 
-function test_tagdirShooter(values)  %#ok<DEFNU>
-% Unit test for tagdir with shooter data 
-fprintf('\nUnit tests for tagdir with shooter data\n');
+fprintf('It should work for the EEGLAB data with both options and GUI\n');
+fprintf('....REQUIRES USER INPUT\n');
+fprintf('PRESS the TAG BUTTON BOTH TIMES\n');
+[fMap3, fPaths3] = tagdir(thisDir, 'UseGui', true, 'SelectOption', true);
+fields3 = fMap3.getFields();
+assertEqual(length(fields3), 2);
+types3 = fMap3.getEvents('type');
+assertTrue(isempty(types3));
+position3 = fMap1.getEvents('position');
+assertEqual(length(position3.getEvents), 2)
+assertEqual(length(fPaths3), 3);
 
-fprintf('It should work for the shooter data\n');
-thisDir = [values.TestDirectory filesep values.Shooter];
-[eTags7, fPaths7] = tagdir(thisDir);
-shooterEvents7 = eTags7.getEvents();
-fprintf('events: %d, paths: %d\n', length(shooterEvents7), length(fPaths7));
 
+% function test_tagdirAttn(values)  %#ok<DEFNU>
+% % % Unit test for tagdir function with attention shift data
+% fprintf('\nUnit tests for tagdir for attention shift data\n');
+% 
+% fprintf('It should work for the attention shift data without GUI\n');
+% thisDir = [values.TestDirectory filesep values.Attn];
+% [eTags1, fPaths1] = tagdir(thisDir, 'UseGui', false);
+% attnEvents1 = eTags1.getEvents();
+% assertEqual(length(attnEvents1), 17);
+% assertEqual(length(fPaths1), 6);
+% 
+% fprintf('It should work for the attention shift data with GUI\n');
+% thisDir = [values.TestDirectory filesep values.Attn];
+% [eTags2, fPaths2] = tagdir(thisDir);
+% attnEvents2 = eTags2.getEvents();
+% assertEqual(length(attnEvents2), 17);
+% assertEqual(length(fPaths2), 6);
+% 
+% fprintf('It should work for the attention shift data with GUI\n');
+% thisDir = [values.TestDirectory filesep values.Attn];
+% [eTags2, fPaths2] = tagdir(thisDir, 'UseGui', true);
+% attnEvents2 = eTags2.getEvents();
+% assertEqual(length(attnEvents2), 17);
+% assertEqual(length(fPaths2), 6);
+% 
+% fprintf('It should work for the attention shift data with GUI and no synchronization\n');
+% thisDir = [values.TestDirectory filesep values.Attn];
+% [eTags2, fPaths2] = tagdir(thisDir, 'UseGui', true, 'Synchronize', false);
+% attnEvents2 = eTags2.getEvents();
+% assertEqual(length(attnEvents2), 17);
+% assertEqual(length(fPaths2), 6);
+
+% function test_tagdirBCI2000(values)  %#ok<DEFNU>
+% % Unit test for tagdir for BCI2000 data
+% fprintf('\nUnit tests for tagdir for BCI2000\n');
+% 
+% fprintf('It should work for the BCI 2000 data without GUI\n');
+% thisDir = [values.TestDirectory filesep values.BCI2000];
+% [eTags3, fPaths3] = tagdir(thisDir, 'UseGui', false);
+% bci2000Events3 = eTags3.getEvents();
+% assertEqual(length(bci2000Events3), 17);
+% assertEqual(length(fPaths3), 42);
+% 
+% fprintf('It should work for the BCI 2000 data witht GUI\n');
+% thisDir = [values.TestDirectory filesep values.BCI2000];
+% [eTags4, fPaths4] = tagdir(thisDir);
+% bci2000Events4 = eTags4.getEvents();
+% assertEqual(length(bci2000Events4), 17);
+% assertEqual(length(fPaths4), 42);
+% 
+% fprintf('It should work for the BCI 2000 data witht GUI and no synchronization\n');
+% thisDir = [values.TestDirectory filesep values.BCI2000];
+% [eTags4, fPaths4] = tagdir(thisDir, 'Synchronize', false);
+% bci2000Events4 = eTags4.getEvents();
+% assertEqual(length(bci2000Events4), 17);
+% assertEqual(length(fPaths4), 42);
+% 
+
+% function test_tagdirShooter(values)  %#ok<DEFNU>
+% % Unit test for tagdir with shooter data 
+% fprintf('\nUnit tests for tagdir with shooter data\n');
+% 
+% fprintf('It should work for the shooter data\n');
+% thisDir = [values.TestDirectory filesep values.Shooter];
+% [eTags7, fPaths7] = tagdir(thisDir);
+% shooterEvents7 = eTags7.getEvents();
+% fprintf('events: %d, paths: %d\n', length(shooterEvents7), length(fPaths7));
+% 

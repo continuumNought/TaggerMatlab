@@ -96,7 +96,7 @@
 % $Revision: 1.0 21-Apr-2013 09:25:25 krobbins $
 % $Initial version $
 %
-function [rTags, fPaths] = tagstudy(studyFile, varargin)
+function [fMap, fPaths] = tagstudy(studyFile, varargin)
     % Tag all of the EEG files in a study
     parser = inputParser;
     parser.addRequired('StudyFile', ...
@@ -105,7 +105,6 @@ function [rTags, fPaths] = tagstudy(studyFile, varargin)
         @(x)(isempty(x) || (ischar(x))));
     parser.addParamValue('DbCredsFile', '', ...
         @(x)(isempty(x) || (ischar(x))));    
-    parser.addParamValue('DoSubDirs', true, @islogical);
     parser.addParamValue('ExcludeFields', ...
             {'latency', 'epoch', 'urevent', 'hedtags', 'usertags'}, ...
             @(x) (iscellstr(x)));
@@ -123,57 +122,96 @@ function [rTags, fPaths] = tagstudy(studyFile, varargin)
     p = parser.Results;
  
    % Consolidate all of the tags from the study
-    baseTags = typeMap.loadTagFile(p.BaseTagsFile);
     [s, fPaths] = loadstudy(p.StudyFile);
-    if isempty(s)
-   %   dTags =
-    elseif ~isfield(s, 'etc')
-        s.etc = struct('tagMap', '');
-    elseif ~isstruct(s.etc)
-        s.etc = struct('other', s.etc, 'tagMap', '');
-    elseif ~isfield(s.etc, 'tagMap')
-        s.etc.tagMap = '';
+    fMap = findtags(s, 'ExcludeFields', p.ExcludeFields, ...
+        'Fields', p.Fields, 'PreservePrefix', p.PreservePrefix);
+ 
+    % Merge the tags for the study from individual files
+    if isempty(fPaths)
+        warning('tagstudy:nofiles', 'No files in study\n');
     end
-    [hed, events] = tagMap.split(s.etc.tagMap, true);
-    eTags = tagMap(hed, events, 'Match', p.Match, 'PreservePrefix', ...
-                      p.PreservePrefix);
-    
-    % Merge the tags for the study
+
     for k = 1:length(fPaths) % Assemble the list
         eegTemp = pop_loadset(fPaths{k});
-        eTagsNew = findtags(eegTemp, 'Match', p.Match, ...
-                   'PreservePrefix', p.PreservePrefix);
-        eTags.mergeEventTags(eTagsNew, 'Merge');
+        tMapNew = findtags(eegTemp, 'PreservePrefix', p.PreservePrefix, ...
+           'ExcludeFields', p.ExcludeFields, 'Fields', p.Fields);
+        fMap.merge(tMapNew, 'Merge', p.ExcludeFields);
     end
-    baseTags = tagMap.loadTagFile(p.BaseTagsFile);
-    eTags = tagevents(eTags, 'BaseTags', baseTags, ...
-        'UpdateType', p.UpdateType, 'UseGUI', p.UseGUI, ...
-        'Synchronize', p.Synchronize);
-  
+    
+        % Exclude the appropriate tags from baseTags
+    excluded = p.ExcludeFields;
+    baseTags = fieldMap.loadFieldMap(p.BaseMapFile);
+    if ~isempty(baseTags) && ~isempty(p.Fields)
+        excluded = setdiff(baseTags.getFields(), p.Fields);
+    end;        
+    fMap.merge(baseTags, 'Merge', excluded);
+    
+    if p.SelectOption
+        fprintf('\n---Now select the fields you want to tag---\n');
+       [fMap, exc] = selectmaps(fMap, 'Fields', p.Fields);
+       excluded = union(excluded, exc);
+    end
+    if p.UseGui
+        fprintf('\n---Now choose tags for each field value---\n');
+        fMap = editmaps(fMap, 'PreservePrefix', p.PreservePrefix, ...
+             'Synchronize', p.Synchronize);
+    end
+
     % Save the tags file for next step
-    if ~isempty(p.TagFileName) || ...
-        ~tagMap.saveTagFile(p.TagFileName, 'eTags')
-        bName = tempname;
-        warning('tagstudy:invalidFile', ...
-            ['Couldn''t save tagMap to ' p.TagFileName]);
-        tagMap.saveTagFile(bName, 'eTags')
-    else 
-        bName = p.TagFileName;
+    if ~isempty(p.SaveMapFile) && ~fieldMap.saveFieldMap(p.SaveMapFile, fMap)
+        warning('tagdir:invalidFile', ...
+            ['Couldn''t save fieldMap to ' p.SaveMapFile]);
     end
  
-    if isempty(fPaths) || strcmpi(p.UpdateType, 'none')
+    if isempty(fPaths) || strcmpi(p.RewriteOption, 'none')
         return;
     end
     
     % Rewrite all of the EEG files with updated tag information
+    fprintf('\n---Now rewriting the tags to the individual data files---\n');
     for k = 1:length(fPaths) % Assemble the list
         teeg = pop_loadset(fPaths{k});
-        teeg = tageeg(teeg, 'BaseTagsFile', bName, ...
-              'Match', p.Match, 'PreservePrefix', p.PreservePrefix, ...
-              'Synchronize', p.Synchronize,...
-              'UpdateType', p.UpdateType, 'UseGUI', false);
+        teeg = writetags(teeg, fMap, 'ExcludeFields', excluded, ...
+                        'RewriteOption', p.RewriteOption);
         pop_saveset(teeg, 'filename', fPaths{k});
     end
+    
+    % Rewrite to the study file
+    if strcmpi(p.RewriteOption, 'Both') || strcmpi(p.RewriteOption, 'EtcOnly')
+        s = writetags(s, fMap, 'ExcludeFields', excluded, ...
+                        'RewriteOption', p.RewriteOption); %#ok<NASGU>
+        save(p.StudyFile, 's', '-mat');
+    end
+    
+%     baseTags = tagMap.loadTagFile(p.BaseTagsFile);
+%     eTags = tagevents(eTags, 'BaseTags', baseTags, ...
+%         'UpdateType', p.UpdateType, 'UseGUI', p.UseGUI, ...
+%         'Synchronize', p.Synchronize);
+%   
+%     % Save the tags file for next step
+%     if ~isempty(p.TagFileName) || ...
+%         ~tagMap.saveTagFile(p.TagFileName, 'eTags')
+%         bName = tempname;
+%         warning('tagstudy:invalidFile', ...
+%             ['Couldn''t save tagMap to ' p.TagFileName]);
+%         tagMap.saveTagFile(bName, 'eTags')
+%     else 
+%         bName = p.TagFileName;
+%     end
+%  
+%     if isempty(fPaths) || strcmpi(p.UpdateType, 'none')
+%         return;
+%     end
+%     
+%     % Rewrite all of the EEG files with updated tag information
+%     for k = 1:length(fPaths) % Assemble the list
+%         teeg = pop_loadset(fPaths{k});
+%         teeg = tageeg(teeg, 'BaseTagsFile', bName, ...
+%               'Match', p.Match, 'PreservePrefix', p.PreservePrefix, ...
+%               'Synchronize', p.Synchronize,...
+%               'UpdateType', p.UpdateType, 'UseGUI', false);
+%         pop_saveset(teeg, 'filename', fPaths{k});
+%     end
      
     function [s, fNames] = loadstudy(studyFile)
         % Set baseTags if tagsFile contains an tagMap object

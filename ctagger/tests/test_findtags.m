@@ -77,9 +77,6 @@ assertTrue(strcmpi(fields4{1}, 'code'));
 assertTrue(strcmpi(fields4{2}, 'group'));
 assertTrue(strcmpi(fields4{3}, 'type'));
 
-
-
-
 function testMultipleFields(values)  %#ok<DEFNU>
 % Unit test for findtags
 fprintf('\nUnit tests for findtags with multiple field combinations\n');
@@ -98,3 +95,11 @@ e3 = events{3}.getStruct();
 assertTrue(strcmpi(e3.field, 'type'));
 assertEqual(length(e3.events), 2);
 
+function testEmpty(values)  %#ok<INUSD,DEFNU>
+% Unit test for findtags
+fprintf('\nUnit tests for findtags for empty argument\n');
+fprintf('It should return empty map when input is empty\n');
+dTags = findtags('');
+assertTrue(isa(dTags, 'fieldMap'));
+dFields = dTags.getFields();
+assertTrue(isempty(dFields));

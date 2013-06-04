@@ -103,7 +103,7 @@
 function [fMap, fPaths, excluded] = tagdir(inDir, varargin)
     % Parse the input arguments
     parser = inputParser;
-    parser.addRequired('InDir', @(x) (~isempty(x) && ischar(x)));
+    parser.addRequired('InDir', @(x) (isempty(x) || ischar(x)));
     parser.addParamValue('BaseMapFile', '', ...
         @(x)(isempty(x) || (ischar(x))));
     parser.addParamValue('DbCredsFile', '', ...
@@ -125,12 +125,11 @@ function [fMap, fPaths, excluded] = tagdir(inDir, varargin)
     parser.parse(inDir, varargin{:});
     p = parser.Results;
     
+    fprintf('\n---Loading the data files to merge the tags---\n');
     fPaths = getfilelist(p.InDir, '.set', p.DoSubDirs);
     if isempty(fPaths)
-        fMap = '';
-        return;
+        warning('tagdir:nofiles', 'No files met tagging criteria\n');
     end
-    fprintf('\n---Loading the data files to merge the tags---\n');
     fMap = fieldMap('', 'PreservePrefix',  p.PreservePrefix);
     for k = 1:length(fPaths) % Assemble the list
         eegTemp = pop_loadset(fPaths{k});
@@ -168,7 +167,7 @@ function [fMap, fPaths, excluded] = tagdir(inDir, varargin)
     end
     
     % Rewrite all of the EEG files with updated tag information
-    fprintf('\n---Now rewriting the tags to the indiviudal data files---\n');
+    fprintf('\n---Now rewriting the tags to the individual data files---\n');
     for k = 1:length(fPaths) % Assemble the list
         teeg = pop_loadset(fPaths{k});
         teeg = writetags(teeg, fMap, 'ExcludeFields', excluded, ...
