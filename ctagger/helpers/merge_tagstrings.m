@@ -1,16 +1,16 @@
-function mergedList = mergetaglists(tList1, tList2, preservePrefix)
+function mergedString = merge_tagstrings(string1, string2, preservePrefix)
 % Return a merged cell array of tags
 %
 % Input:
-%    tList1        cellstr of tags or a single string or empty
-%    tList2        cellstr of tags or a single string or empty
-%    preservePrefix    ((optional) boolean. Ff true all explicitly specified
-%                  tags that are prefixes of other tags are retained. If
-%                  false (the default), prefixes that are included as
-%                  part of other tags are eliminated.
+%    string1          first semicolon-separated string of tags
+%    string2          second semicolon-separated string of tags
+%    preservePrefix   If true all explicitly specified
+%                     tags that are prefixes of other tags are retained. If
+%                     false (the default), prefixes that are included as
+%                     part of other tags are eliminated.
 %
 % Output:
-%    mergedList = cellstr of tags or a single tag or empty
+%    mergedString = semicolon-separated string of tags or empty
 %
 % Notes:
 %  - Tags are of a path-like form: /a/b/c
@@ -20,48 +20,24 @@ function mergedList = mergetaglists(tList1, tList2, preservePrefix)
 %  - Whitespace is trimmed from outside of tags
 %
 %
-    mergedList = '';
-    if nargin < 2
-        warning('mergeTagLists:NotEnoughArguments', ...
-            'function must have at 2 arguments');
+    mergedString = '';
+    if nargin < 3
+        warning('merge_tagstrings:NotEnoughArguments', ...
+            'function must have at 3 arguments');
         return;
     end
-    myMap = containers.Map('KeyType', 'char', 'ValueType', 'any');
-    
-    if ~isempty(tList1) && ischar(tList1)
-        tList1 = {tList1};     % Convert string to cellstring
-    end
-    for k = 1:length(tList1)
-        item = strtrim(tList1{k});
-        itemKey = lower(item);  % Key is lower case
-        if ~myMap.isKey(itemKey)
-            myMap(itemKey) = item;
-        end
+    parsed1 = regexpi(string1, ',', 'split');
+    parsed2 = regexpi(string2, ',', 'split');
+    merged = merge_taglists(parsed1, parsed2, preservePrefix);
+    if isempty(merged) 
+        return;
+    elseif ischar(merged)
+        mergedString = strtrim(merged);
+        return;
     end
     
-    if ~isempty(tList2) && ischar(tList2)
-        tList2 = {tList2};     % Convert string to cellstring
+    mergedString = strtrim(merged{1});
+    for k = 2:length(merged)
+        mergedString = [mergedString ',' merged{k}]; %#ok<AGROW>
     end
-    for k = 1:length(tList2)
-        item = strtrim(tList2{k});
-        itemKey = lower(item);  % Key is lower case
-        if ~myMap.isKey(itemKey)
-            myMap(itemKey) = item;
-        end
-    end
-    if nargin == 2 || ~preservePrefix
-        myKeys = keys(myMap);
-        myKeys = sort(myKeys);
-        for k = 1:length(myKeys) - 1
-            if ~isempty(regexp(myKeys{k+1}, ['^' myKeys{k}], 'match'))
-                remove(myMap, myKeys{k});
-            end
-        end
-    end
-    mergedList = myMap.values();
-    if isempty(mergedList)
-        mergedList = '';
-    elseif length(mergedList) == 1
-        mergedList = mergedList{1};
-    end
-end % mergetaglists
+end % merge_tagstrings

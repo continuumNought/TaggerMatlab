@@ -21,9 +21,9 @@ function mergedList = merge_taglists(tList1, tList2, preservePrefix)
 %
 %
     mergedList = '';
-    if nargin < 2
-        warning('mergeTagLists:NotEnoughArguments', ...
-            'function must have at 2 arguments');
+    if nargin < 3
+        warning('merge_taglists:NotEnoughArguments', ...
+            'function must e arguments');
         return;
     end
     myMap = containers.Map('KeyType', 'char', 'ValueType', 'any');
@@ -34,7 +34,7 @@ function mergedList = merge_taglists(tList1, tList2, preservePrefix)
     for k = 1:length(tList1)
         item = strtrim(tList1{k});
         itemKey = lower(item);  % Key is lower case
-        if ~myMap.isKey(itemKey)
+        if ~myMap.isKey(itemKey) && ~isempty(itemKey)
             myMap(itemKey) = item;
         end
     end
@@ -45,11 +45,11 @@ function mergedList = merge_taglists(tList1, tList2, preservePrefix)
     for k = 1:length(tList2)
         item = strtrim(tList2{k});
         itemKey = lower(item);  % Key is lower case
-        if ~myMap.isKey(itemKey)
+        if ~myMap.isKey(itemKey) && ~isempty(itemKey)
             myMap(itemKey) = item;
         end
     end
-    if nargin == 2 || ~preservePrefix
+    if ~preservePrefix
         myKeys = keys(myMap);
         myKeys = sort(myKeys);
         for k = 1:length(myKeys) - 1
@@ -64,4 +64,4 @@ function mergedList = merge_taglists(tList1, tList2, preservePrefix)
     elseif length(mergedList) == 1
         mergedList = mergedList{1};
     end
-end % mergetaglists
+end % merge_taglists

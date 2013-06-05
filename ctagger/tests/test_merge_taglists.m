@@ -12,20 +12,20 @@ function teardown(values) %#ok<INUSD,DEFNU>
 
 function testMergeTagListsArgumentsValid(values) %#ok<DEFNU>
 % Unit test for mergeTagLists
-fprintf('\nUnit tests formergetaglists with valid lists\n');
+fprintf('\nUnit tests for merge_taglists with valid lists\n');
 
 fprintf('It should merge correctly when lists are independent\n');
-mergedList1 = merge_taglists(values.tList1, values.tList2);
+mergedList1 = merge_taglists(values.tList1, values.tList2, false);
 assertEqual(length(mergedList1), 5);
-mergedList2 = merge_taglists(values.tList1, values.tList3);
+mergedList2 = merge_taglists(values.tList1, values.tList3, false);
 assertEqual(length(mergedList2), 5);
 
 fprintf('It should ignore case differences\n')
-mergedList3 = merge_taglists(values.tList2, values.tList3);
+mergedList3 = merge_taglists(values.tList2, values.tList3, false);
 assertEqual(length(mergedList3), 3);
 
 fprintf('It should remove prefixes by default\n');
-mergedList4 = merge_taglists(values.tList1, values.tList4);
+mergedList4 = merge_taglists(values.tList1, values.tList4, false);
 assertEqual(length(mergedList4), 2);
 
 fprintf('It should not remove prefixes when preservePrefix is true\n');
