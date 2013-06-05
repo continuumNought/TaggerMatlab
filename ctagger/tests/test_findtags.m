@@ -31,7 +31,7 @@ assertTrue(isa(dTags, 'fieldMap'));
 fields = dTags.getFields();
 assertEqual(length(fields), 3);
 for k = 1:length(fields)
-    assertTrue(isa(dTags.getEvents(fields{k}), 'tagMap'));
+    assertTrue(isa(dTags.getMap(fields{k}), 'tagMap'));
 end
 
 fprintf('It should return a tag map for an EEG structure that hasn''t been tagged\n');

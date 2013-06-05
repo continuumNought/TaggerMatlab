@@ -196,11 +196,25 @@ classdef fieldMap < hgsetget
         function events = getEvents(obj, type)
             % Return the events as a cell array of structures
             if obj.TypeMap.isKey(type)
-                events = obj.TypeMap(type);
+               events = obj.TypeMap(type).getEvents();
             else
                 events = '';
             end;
         end % getEvents
+        
+        function fields = getFields(obj)
+            fields = obj.TypeMap.keys();
+        end % getFields
+        
+        function jString = getJson(obj)
+            % Return a JSON string version of the tagMap object
+            jString = savejson('', obj.getStruct());
+        end % getJson
+        
+        function jString = getJsonEvents(obj)
+            % Return a JSON string version of the tagMap object
+            jString = tagMap.events2Json(obj.TagMap.values);
+        end % getJson
         
         function tMap = getMap(obj, field)
             % Return the tagMap object associated with field or empty
@@ -216,20 +230,7 @@ classdef fieldMap < hgsetget
             tMaps = obj.TypeMap.values;
         end % getMaps
         
-        function fields = getFields(obj)
-            fields = obj.TypeMap.keys();
-        end % getFields
-            
-        function jString = getJson(obj)
-            % Return a JSON string version of the tagMap object
-            jString = savejson('', obj.getStruct());
-        end % getJson
-        
-        function jString = getJsonEvents(obj)
-            % Return a JSON string version of the tagMap object
-            jString = tagMap.events2Json(obj.TagMap.values);
-        end % getJson
-        
+ 
         function pPrefix = getPreservePrefix(obj)
             % Return the PreservePrefix flag (false means no tag prefix duplication)
             pPrefix = obj.PreservePrefix;
@@ -250,15 +251,16 @@ classdef fieldMap < hgsetget
             thisStruct.map = events;
         end % getStruct
         
-%         function thisText = getText(obj)
-%             % Return this object as semi-colon separated text
-%             thisText = [obj.Field ';' obj.Xml ';' obj.getTextEvents()];
-%         end % getText
-%         
-%         function eventsText = getTextEvents(obj)
-%             % Return events of this object as semi-colon separated text
-%             eventsText  = tagMap.events2Text(obj.TagMap.values);
-%         end % getTextEvents
+        function tags = getTags(obj, field, event)
+            % Returns tag string associated with value event of field
+            tags = '';
+            try
+               tMap = obj.TypeMap(field);
+               eStruct = tMap.getEvent(event);
+               tags = eStruct.tags;
+            catch me %#ok<NASGU>
+            end
+        end % getTags
 
         function xml = getXml(obj)
             % Return a string containing the xml
@@ -318,8 +320,6 @@ classdef fieldMap < hgsetget
                 obj.addEvent(eStruct(k), 'Merge');
             end
         end % reset
-        
-
         
         function setMap(obj, field, tMap)
             % Set the map associated with field to tMap

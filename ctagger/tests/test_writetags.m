@@ -26,13 +26,26 @@ function teardown(values) %#ok<INUSD,DEFNU>
 function testValidValues(values)  %#ok<DEFNU>
 % Unit test for findtags
 fprintf('\nUnit tests for writetags\n');
-fprintf('It should tag a data set that has a map but no events\n');
+fprintf('It should tag a data set with no events if rewrite is Summary\n');
 x = values.data;
 dTags = findtags(x);
 assertTrue(isa(dTags, 'fieldMap'));
-y = writetags(x, dTags);
-assertTrue(isfield(y.etc, 'tags'));
-assertTrue(isfield(y.etc.tags, 'xml'));
-assertEqual(length(fieldnames(y.etc.tags)), 2);
-assertTrue(isfield(y.etc.tags, 'map'));
-assertEqual(length(fieldnames(y.etc.tags.map)), 2);
+y1 = writetags(x, dTags, 'RewriteOption', 'Summary');
+assertTrue(isfield(y1.etc, 'tags'));
+assertTrue(isfield(y1.etc.tags, 'xml'));
+assertEqual(length(fieldnames(y1.etc.tags)), 2);
+assertTrue(isfield(y1.etc.tags, 'map'));
+assertEqual(length(fieldnames(y1.etc.tags.map)), 2);
+assertTrue(~isfield(y1.event, 'usertags'));
+assertTrue(~isfield(x.event, 'usertags'));
+y1 = writetags(x, dTags);
+
+y2 = writetags(x, dTags, 'RewriteOption', 'Both');
+assertTrue(isfield(y2.etc, 'tags'));
+assertTrue(isfield(y2.etc.tags, 'xml'));
+assertEqual(length(fieldnames(y2.etc.tags)), 2);
+assertTrue(isfield(y2.etc.tags, 'map'));
+assertEqual(length(fieldnames(y2.etc.tags.map)), 2);
+assertTrue(isfield(y2.event, 'usertags'));
+assertTrue(~isfield(x.event, 'usertags'));
+

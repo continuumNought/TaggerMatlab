@@ -76,17 +76,15 @@ function edata = writetags(edata, fMap, varargin)
           @(x) any(validatestring(lower(x), ...
           {'Both', 'Individual', 'None', 'Summary'})));
     parser.parse(edata, fMap, varargin{:});
-
-    % Prepare the structure
-    if isfield(edata, 'etc') && ~isstruct(edata.etc)
-        edata.etc.other = edata.etc;
+    p = parser.Results;
+    
+    % Do nothing if option is 'none'
+    if strcmpi(p.RewriteOption, 'None')
+        return;
     end
     
-    edata.etc.tags = '';   % clear the tags
-    edata.etc.tags = struct('xml', fMap.getXml(), 'map', '');
-    
-    % Prepare the values
-    tFields = setdiff(fMap.getFields(), parser.Results.ExcludeFields);
+    % Prepare the values to be written
+    tFields = setdiff(fMap.getFields(), p.ExcludeFields);
     eFields = {};
     if isfield(edata, 'event') && isstruct(edata.event)
         eFields = intersect(fieldnames(edata.event), tFields);
@@ -95,14 +93,38 @@ function edata = writetags(edata, fMap, varargin)
     if isfield(edata, 'urevent') && isstruct(edata.urevent)
         urFields = intersect(fieldnames(edata.urevent), tFields);
     end
-    
+
     % Write the etc.tags.map fields
-    fields = union(eFields, urFields);  
-    for k = 1:length(fields)
-        edata.etc.tags.map.(fields{k}) = ...
-            fMap.getMap(fields{k}).getTextEvents();
+    fields = union(eFields, urFields);
+    
+    % Write summary if needed
+    if strcmpi(p.RewriteOption, 'Summary') || strcmpi(p.RewriteOption, 'Both')
+       
+        % Prepare the structure
+        if isfield(edata, 'etc') && ~isstruct(edata.etc)
+            edata.etc.other = edata.etc;
+        end
+        edata.etc.tags = '';   % clear the tags
+        edata.etc.tags = struct('xml', fMap.getXml(), 'map', '');
+
+        for k = 1:length(fields)
+            edata.etc.tags.map.(fields{k}) = ...
+                fMap.getMap(fields{k}).getTextEvents();
+        end
     end
- 
+    
+    % Write summary if needed
+    if isfield(edata, 'event') && (strcmpi(p.RewriteOption, 'Both') ...
+            || strcmpi(p.RewriteOption, 'Individual'))
+        for k = 1:length(edata.event)
+            utags = {};
+            for j = 1:length(eFields)
+                tags = fMap.getTags(eFields{j}, edata.event(k).(eFields{j}));
+                utags = mergetaglists(utags, tags, p.PreservePrefix);
+            end
+            edata.event(k).usertags = utags;
+        end
+    end
 %     
 %     % If edata.etc.tags exists, then extract tag information
 %     xml = '';

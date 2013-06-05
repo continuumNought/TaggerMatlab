@@ -1,22 +1,18 @@
-% pop_tageeg provides a GUI for annotating events in the EEGLAB EEG structure 
+% pop_tageeg 
+% Allows a user to tag an EEG structure 
 %
 % Usage:
 %   >>  [EEGOUT, com] = pop_tageeg(EEG)
 %
 % [EEGOUT, com] = pop_tageeg(EEG) takes an input EEGLAB EEG structure,
 % brings up a GUI to enter parameters for tageeg, and calls
-% tageeg to extracts the EEG structure's tags, if any. The tageeg
-% function may optionally connect to a community tag database and bring up
-% the ctagger GUI so that users can adjust the tags.
+% tageeg to extracts the EEG structure's tags, if any. 
 %
-% Notes:
-%  -  pop_tageeg() is meant to be used as the callback under the 
-%     EEGLAB Edit menu. It is a singleton and clicking
-%     the menu item again will not create a new window if one already
-%     exists.
-%  -  The function first brings up a GUI to enter the parameters to 
-%     override the default values for tageeg and then optionally allows
-%     the user to use the ctagger GUI to modify the tags.
+% The tageeg function may optionally connect to a community tag database.
+%
+% Note: The primary purpose of pop_tageeg to package up parameter input
+% and calling of tageeg for use as a plugin for EEGLAB (Edit menu).
+%
 % 
 % See also:
 %   eeglab, tageeg, tagdir, tagstudy, and eegplugin_ctagger
@@ -71,7 +67,6 @@ function [EEG, com] = pop_tageeg(EEG)
                  'RewriteOption', rewriteOption, ...
                  'SaveMapFile', saveMapFile, ...
                  'SelectOption', selectOption, ...
-                 'Synchronize', false, ...
                  'UseGUI', useGUI);
     formatString = ['%s = tageeg(%s, ' ...
           '''BaseMapFile'', ''' baseMapFile ''', ' ...
@@ -80,7 +75,6 @@ function [EEG, com] = pop_tageeg(EEG)
           '''RewriteOption'', ' logical2str(rewriteOption) ', ' ...
           '''SaveMapFile'', ''' saveMapFile ''', ' ...
           '''SelectOption'', ' logical2str(selectOption) ', ' ...
-          '''Synchronize'', ' logical2str(true) ', ' ...
           '''UseGui'', ' logical2str(useGUI) ')'];
     com = sprintf(formatString, inputname(1), inputname(1));
 end % pop_tageeg

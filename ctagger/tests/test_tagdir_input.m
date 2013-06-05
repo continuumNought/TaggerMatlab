@@ -2,7 +2,7 @@ function test_suite = test_tagdir_input%#ok<STOUT>
 initTestSuite;
 
 function test_valid()  %#ok<DEFNU>
-% Unit test for cTagger tageeg_input 
+% Unit test for tagdir_input 
 fprintf('Testing tagdir_input....REQUIRES USER INPUT\n');
 fprintf('PRESS the CANCEL BUTTON\n');
  [inDir, baseMapFile, dbCredsFile, doSubDirs, preservePrefix, ...

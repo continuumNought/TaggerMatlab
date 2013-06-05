@@ -112,7 +112,7 @@ function [EEG, fMap, excluded] = tageeg(EEG, varargin)
           {'Both', 'Individual', 'None', 'Summary'})));
     parser.addParamValue('SaveMapFile', '', @(x)(isempty(x) || (ischar(x))));
     parser.addParamValue('SelectOption', true, @islogical);
-    parser.addParamValue('Synchronize', true, @islogical);
+    parser.addParamValue('Synchronize', false, @islogical);
     parser.addParamValue('UseGui', true, @islogical);
     parser.parse(EEG, varargin{:});
     p = parser.Results;

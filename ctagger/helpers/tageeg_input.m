@@ -1,6 +1,6 @@
 function [baseMapFile,  dbCredsFile, preservePrefix, ...
     rewriteOption, saveMapFile, selectOption, useGUI, cancelled] = tageeg_input()
-% GUI for input needed for cTagger.tagEEGDir
+% GUI for input needed for tageeg
 
 % Setup the variables used by the GUI
     baseMapFile = '';
@@ -67,7 +67,7 @@ function [baseMapFile,  dbCredsFile, preservePrefix, ...
         uiextras.Empty('Parent', mainVBox);
         createButtonPanel(mainVBox);
         
-        set(mainHBox, 'Sizes', [20, 150, 20, -1, 20]);
+        set(mainHBox, 'Sizes', [20, 200, 20, -1, 20]);
         set(mainVBox, 'Sizes', [10, 120, 200,  -1,  35]);
     end % createLayout
 
@@ -180,7 +180,7 @@ function [baseMapFile,  dbCredsFile, preservePrefix, ...
 
     function browseDbCredsCallback(src, eventdata, dbCredsCtrl, myTitle) %#ok<INUSL>
         % Callback for browse button sets a directory for control
-        [tFile, tPath] = uigetfile('*.mat', myTitle);
+        [tFile, tPath] = uigetfile({'*.*', 'All files (*.*)'}, myTitle);
         dbCredsFile = fullfile(tPath, tFile);
         set(dbCredsCtrl, 'String', fullfile(tPath, tFile));
     end % browseDbCredsCtrl Callback
@@ -193,14 +193,14 @@ function [baseMapFile,  dbCredsFile, preservePrefix, ...
         end
         dName = uigetdir(startPath, myTitle);  % Get
         if ~isempty(dName) && ischar(dName) && isdir(dName)
-            saveMapFile = fullfile(dName, 'dTags.mat');
+            saveMapFile = fullfile(dName, 'fMap.mat');
             set(saveTagsCtrl, 'String', saveMapFile);         
         end
-    end % browseCallback
+    end % browseSaveTagsCallback
 
     function browseTagsCallback(src, eventdata, tagsCtrl, myTitle) %#ok<INUSL>
         % Callback for browse button sets a directory for control
-        [tFile, tPath] = uigetfile('*.mat', myTitle);
+        [tFile, tPath] = uigetfile({'*.mat', 'MATLAB Files (*.mat)'}, myTitle);
         baseMapFile = fullfile(tPath, tFile);
         set(tagsCtrl, 'String', baseMapFile);
     end % browseTagsCallback
@@ -250,6 +250,10 @@ function [baseMapFile,  dbCredsFile, preservePrefix, ...
        rewriteCtrl = src;
        rewriteOption = lower(get(src, 'String'));
     end % rewriteCallback
+
+   function selectCallback(src, eventdata) %#ok<INUSD>
+        selectOption = get(src, 'Max') == get(src, 'Value');
+    end % selectCallback
 
     function tagsCtrlCallback(hObject, eventdata, tagsCtrl) %#ok<INUSD>
         % Callback for user directly editing directory control textbox

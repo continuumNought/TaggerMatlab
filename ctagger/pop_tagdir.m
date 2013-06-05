@@ -1,24 +1,23 @@
-% pop_tagdir opens ctagger GUI to tag a directory tree of EEG files
+% pop_tagdir 
+% Allows user to tag a directory of datasets
 %
 % Usage:
-%   >>  [dTags, fPaths, com] = pop_tagdir()
+%   >>  [fMap, fPaths, com] = pop_tagdir()
 %
-% [dTags, fPaths, com] = pop_tagdir() first brings up a GUI to allow the
+% [fMap, fPaths, com] = pop_tagdir() first brings up a GUI to allow the
 % user to set parameters for the tagdir function, and then calls tagdir
-% to consolidate the tags from all of the .set files in the specified
-% directories. Depending on the arguments, tagdir may also bring up
-% the ctagger GUI to allow users to edit the tags and then write the
-% resulting tags back into each of the .set files.
+% to consolidate the tags from all of the data files in the specified
+% directories. Depending on the arguments, tagdir may bring up select
+% menus to allow the user to choose which fields should be tagged. The
+% tagdir function may also bring up the ctagger GUI to allow users to 
+% edit the tags. The pop_tagdir function returns a fieldMap object
+% containing all of the tag information, a list of full file names of
+% the datasets to be tagged, and a string with the actual arguments to
+% the tagdir function for use in a script. 
 %
-% Notes:
-%  -  pop_tagdir() is meant to be used as the callback under the 
-%     EEGLAB File menu. It is a singleton and clicking
-%     the menu item again will not create a new window if one already
-%     exists.
-%  -  The function first brings up a GUI to enter the parameters to 
-%     override the default values for tagdir and then optionally allows
-%     the user to use the ctagger GUI to modify the tags.
-% 
+% Note: The primary purpose of pop_tagdir to package up parameter input
+% and calling of tagdir for use as a plugin for EEGLAB.
+%
 % See also:
 %   eeglab, tageeg, tagdir, tagstudy, and eegplugin_ctagger
 %
@@ -48,9 +47,9 @@
 %
 
 
-function [dTags, fPaths, com] = pop_tagdir()    
+function [fMap, fPaths, com] = pop_tagdir()    
 % Create the tagger for this EEG set
-    dTags = '';
+    fMap = '';
     fPaths = '';
     com = '';
    [inDir, baseMapFile, dbCredsFile, doSubDirs, preservePrefix, ...
@@ -59,14 +58,13 @@ function [dTags, fPaths, com] = pop_tagdir()
     if cancelled
         return;
     end
-    [dTags, fPaths] = tagdir(inDir, 'BaseMapFile', baseMapFile, ...
+    [fMap, fPaths] = tagdir(inDir, 'BaseMapFile', baseMapFile, ...
                       'DbCredsFile', dbCredsFile, ...
                       'DoSubDirs', doSubDirs,  ...
                       'PreservePrefix', preservePrefix, ...
                       'RewriteOption', rewriteOption, ...
                       'SaveMapFile', saveMapFile, ...
                       'SelectOption', selectOption, ...
-                      'Synchronize', false, ...
                       'UseGUI', useGUI);
 
     com = char(['tagdir(''' inDir ''', ' ...
@@ -77,7 +75,6 @@ function [dTags, fPaths, com] = pop_tagdir()
                 '''RewriteOption'', ' logical2str(rewriteOption) ', ' ...
                 '''SaveMapFile'', ''' saveMapFile ''', ' ...
                 '''SelectOption'', ' logical2str(selectOption) ', ' ...
-                '''Synchronize'', ' logical2str(true) ', ' ...
                 '''UseGui'', ' logical2str(useGUI) ')']);
 end % pop_tagdir
 

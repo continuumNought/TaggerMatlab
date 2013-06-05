@@ -65,7 +65,7 @@ function [inDir, baseMapFile, dbCredsFile, doSubDirs, preservePrefix, ...
         uiextras.Empty('Parent', mainVBox);
         createButtonPanel(mainVBox);
         uiextras.Empty('Parent', mainVBox);
-        set(mainHBox, 'Sizes', [20, 150, 10, -1, 10]);
+        set(mainHBox, 'Sizes', [20, 200, 10, -1, 10]);
         set(mainVBox, 'Sizes', [10, 150, 200,  -1,  40, 10]);
         drawnow
     end % createLayout
@@ -199,7 +199,7 @@ function [inDir, baseMapFile, dbCredsFile, doSubDirs, preservePrefix, ...
 
     function browseDbCredsCallback(src, eventdata, dbCredsCtrl, myTitle) %#ok<INUSL>
         % Callback for browse button sets a directory for control
-        [tFile, tPath] = uigetfile('*.mat', myTitle);
+        [tFile, tPath] = uigetfile({'*.*', 'All files (*.*)'}, myTitle);
         dbCredsFile = fullfile(tPath, tFile);
         set(dbCredsCtrl, 'String', fullfile(tPath, tFile));
     end % browseDbCredsCtrlCallback
@@ -225,10 +225,10 @@ function [inDir, baseMapFile, dbCredsFile, doSubDirs, preservePrefix, ...
         end
         dName = uigetdir(startPath, myTitle);  % Get
         if ~isempty(dName) && ischar(dName) && isdir(dName)
-            saveMapFile = fullfile(dName, 'dTags.mat');
+            saveMapFile = fullfile(dName, 'fMap.mat');
             set(saveTagsCtrl, 'String', saveMapFile);         
         end
-    end % browseCallback
+    end % browseSaveTagsCallback
 
     function browseTagsCallback(src, eventdata, tagsCtrl, myTitle) %#ok<INUSL>
         % Callback for browse button sets a directory for control

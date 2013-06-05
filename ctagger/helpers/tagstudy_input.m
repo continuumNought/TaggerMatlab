@@ -1,5 +1,5 @@
 function [studyFile, baseMapFile, dbCredsFile, preservePrefix, ...
-    rewriteOption, saveMapFile, selectOption, useGUI, cancelled] = tagstudy_input()
+    rewriteOption, saveAll, saveMapFile,  selectOption, useGUI, cancelled] = tagstudy_input()
 % GUI for input needed to create inputs for tagstudy function
 
 % Setup the variables used by the GUI
@@ -9,6 +9,7 @@ function [studyFile, baseMapFile, dbCredsFile, preservePrefix, ...
     preservePrefix = false;
     rewriteOption = 'Both';
     rewriteCtrl = '';
+    saveAll = true;
     saveMapFile = '';
     selectOption = true;
     studyFile = '';
@@ -63,25 +64,8 @@ function [studyFile, baseMapFile, dbCredsFile, preservePrefix, ...
         uiextras.Empty('Parent', mainVBox);
         createButtonPanel(mainVBox);
         uiextras.Empty('Parent', mainVBox);
-        set(mainHBox, 'Sizes', [20, 150, 10, -1, 10]);
+        set(mainHBox, 'Sizes', [20, 200, 10, -1, 10]);
         set(mainVBox, 'Sizes', [10, 150, 200,  -1,  40, 10]);
-%         
-%         mainVBox = uiextras.VBox('Parent', parent, ...
-%             'Tag', 'MainVBox',  'Spacing', 5, 'Padding', 5);
-%         uiextras.Empty('Parent', mainVBox);
-%         createBrowsePanel(mainVBox);
-%         mainHBox = uiextras.HBox('Parent', mainVBox, ...
-%             'Tag', 'MainHBox',  'Spacing', 5, 'Padding', 5);
-%         uiextras.Empty('Parent', mainHBox);
-%         createUpdateGroup(mainHBox);
-%         uiextras.Empty('Parent', mainHBox);
-%         createOptionsGroup(mainHBox);
-%         uiextras.Empty('Parent', mainHBox);
-%         uiextras.Empty('Parent', mainVBox);
-%         createButtonPanel(mainVBox);
-%         
-%         set(mainHBox, 'Sizes', [20, 150, 20, -1, 20]);
-%         set(mainVBox, 'Sizes', [10, 150, 200,  -1,  35]);
         drawnow
     end % createLayout
 
@@ -155,31 +139,32 @@ function [studyFile, baseMapFile, dbCredsFile, preservePrefix, ...
         bBox = uiextras.Grid('Parent', panel, ...
             'Tag', 'OptionsGrid', 'Spacing', 5);
          %{'Merge', 'Replace', 'TagsOnly', 'Update'})
+ 
         u1 = uicontrol('Parent', bBox, ...
-            'Style', 'CheckBox', 'Tag', 'UseGUICB', ...
-            'String', 'Use GUI to edit tags', 'Enable', 'on', 'Tooltip', ...
-            'Use cTagger GUI to edit consolidated tags', ...
-            'Callback', @useGUICallback);
-        set(u1, 'Value', get(u1, 'Max'));
-        u2 = uicontrol('Parent', bBox, ...
-            'Style', 'CheckBox', 'Tag', 'DoSubDirsCB', ...
-            'String', 'Save tags to EEG files', 'Enable', 'on', 'Tooltip', ...
-            'Traverse all subdirectories to process EEG .set files', ...
-            'Callback', @doSubDirsCallback);
-        set(u2, 'Value', get(u2, 'Max'));
-        u3 = uicontrol('Parent', bBox, ...
             'Style', 'CheckBox', 'Tag', 'SelectOptionCB', ...
             'String', 'Use GUI to select fields to tag', 'Enable', 'on', 'Tooltip', ...
             'If checked, you will be presented with a GUI to select fields to tagG', ...
             'Callback', @selectCallback);
-        set(u3, 'Value', get(u3, 'Max'));
-               u4 = uicontrol('Parent', bBox, ...
-            'Style', 'CheckBox', 'Tag', 'PreservePrefixfield', ...
+        set(u1, 'Value', get(u1, 'Max'));
+        u2 = uicontrol('Parent', bBox, ...
+            'Style', 'CheckBox', 'Tag', 'UseGUICB', ...
+            'String', 'Use GUI to edit tags', 'Enable', 'on', 'Tooltip', ...
+            'Use cTagger GUI to edit consolidated tags', ...
+            'Callback', @useGUICallback);
+        set(u2, 'Value', get(u2, 'Max'));
+        u3 = uicontrol('Parent', bBox, ...
+            'Style', 'CheckBox', 'Tag', 'PreservePrefixfieldCB', ...
             'String', 'Preserve tag prefixes', 'Enable', 'on', 'Tooltip', ...
             'Do not consolidate tags that share prefixes', ...
             'Callback', @preservePrefixCallback);
+        set(u3, 'Value', get(u3, 'Min'));
+        u4 = uicontrol('Parent', bBox, ...
+            'Style', 'CheckBox', 'Tag', 'SaveAllCb', ...
+            'String', 'Save to study datasets', 'Enable', 'on', 'Tooltip', ...
+            'Save tags to study datasets in addition to study file', ...
+            'Callback', @saveAllCallback);
         set(u4, 'Value', get(u4, 'Min'));
-       set(bBox, 'ColumnSizes', 260, 'RowSizes', [30, 30, 30, 30, 30]);
+       set(bBox, 'ColumnSizes', 200, 'RowSizes', [30, 30, 30, 30, 30]);
     end % createOptionsGroup
 
    function createRewriteGroup(parent)
@@ -215,7 +200,7 @@ function [studyFile, baseMapFile, dbCredsFile, preservePrefix, ...
 
     function browseDbCredsCallback(src, eventdata, dbCredsCtrl, myTitle) %#ok<INUSL>
         % Callback for browse button sets a directory for control
-        [tFile, tPath] = uigetfile('*.mat', myTitle);
+        [tFile, tPath] = uigetfile({'*.*', 'All files (*.*)'}, myTitle);
         dbCredsFile = fullfile(tPath, tFile);
         set(dbCredsCtrl, 'String', fullfile(tPath, tFile));
     end % browseDbCredsCtrlCallback
@@ -228,14 +213,14 @@ function [studyFile, baseMapFile, dbCredsFile, preservePrefix, ...
         end
         dName = uigetdir(startPath, myTitle);  % Get
         if ~isempty(dName) && ischar(dName) && isdir(dName)
-            saveMapFile = fullfile(dName, 'dTags.mat');
+            saveMapFile = fullfile(dName, 'fMap.mat');
             set(saveTagsCtrl, 'String', saveMapFile);         
         end
-    end % browseCallback
+    end % browseSaveTagsCallback
 
     function browseStudyCallback(src, eventdata, studyCtrl, myTitle) %#ok<INUSL>
         % Callback for browse button sets a directory for control
-        [fName, fPath] = uigetfile('*.*', myTitle);   
+        [fName, fPath] = uigetfile({'*.*t', 'All files(*.*)'}, myTitle);   
         fName = fullfile(fPath, fName);
         if ~isempty(fName) && ischar(fName) && exist(fName, 'file')
             set(studyCtrl, 'String', fName);
@@ -289,6 +274,10 @@ function [studyFile, baseMapFile, dbCredsFile, preservePrefix, ...
        rewriteCtrl = src;
        rewriteOption = lower(get(src, 'String'));
     end % rewriteCallback
+
+    function saveAllCallback(src, eventdata) %#ok<INUSD>
+        saveAll = get(src, 'Max') == get(src, 'Value');
+    end % saveAllCallback
 
     function saveTagsCtrlCallback(hObject, eventdata, saveTagsCtrl) %#ok<INUSD>
         % Callback for user directly editing directory control textbox

@@ -38,11 +38,26 @@ values.eStruct1 = eStruct;
 values.eJSON1 = eJSON1;
 load EEGEpoch.mat;
 values.EEGEpoch = EEGEpoch;
-load EEGShoot.mat;
-values.EEGShoot = EEGShoot;
+% load EEGShoot.mat;
+% values.EEGShoot = EEGShoot;
 values.noTagsFile = 'EEGEpoch.mat';
 values.oneTagsFile = 'dTags.mat';
 values.otherTagsFile = 'dTagsOther.mat';
+typeValues = ['RT,User response,' ...
+        '/Time-Locked Event/Stimulus/Visual/Shape/Ellipse/Circle,' ...
+        '/Time-Locked Event/Stimulus/Visual/Uniform Color/Black;' ...
+        'Trigger,User stimulus,,;Missed,User failed to respond,'];
+codeValues = ['1,User response,' ...
+        '/Time-Locked Event/Stimulus/Visual/Shape/Ellipse/Square,' ...
+        '/Time-Locked Event/Stimulus/Visual/Uniform Color/Blue;' ...
+        '2,User stimulus,,;3,User failed to respond,'];
+% Read in the HED schema
+latestHed = 'HEDSpecification1.3.xml';
+values.data.etc.tags.xml = fileread(latestHed);
+values.data.etc.tags.map.type = typeValues;
+values.data.etc.tags.map.code = codeValues;
+values.data.etc.tags.map.group = codeValues;
+values.data.event = struct('type', {'RT', 'Trigger'}, 'code', {'1', '2'});
 
 
 function teardown(values) %#ok<INUSD,DEFNU>
@@ -166,7 +181,7 @@ keys2 = obj2.getLabels();
 fprintf('The two objects should have the same number of labels\n');
 assertEqual(length(keys1), length(keys2));
 
-function testSaveFieldMap(values) %#ok<DEFNU>
+function testSaveFieldMap(values) %#ok<INUSD,DEFNU>
 fprintf('\nUnit tests for saveFieldMap static method of fieldMap\n');
 fprintf('It should save a fieldMap object correctly\n');
 fMap = fieldMap('');
@@ -174,3 +189,23 @@ fName = tempname;
 fieldMap.saveFieldMap(fName, fMap);
 bT2 = fieldMap.loadFieldMap(fName);
 assertTrue(isa(bT2, 'fieldMap'));
+
+function testGetTags(values) %#ok<DEFNU>
+% Unit test for fieldMap getTags method
+fprintf('\nUnit tests for fieldMap getTags method\n');
+
+fprintf('It should get the right tags for fields that exist \n');
+fMap = findtags(values.data);
+tags1 = fMap.getTags('type', 'RT');
+assertEqual(length(tags1), 2);
+tags2 = fMap.getTags('type', 'Trigger');
+assertTrue(isempty(tags2));
+tags3 = fMap.getTags('code', '1');
+assertEqual(length(tags3), 2);
+
+fprintf('It should not cause an error when field name doesn''t exist \n');
+tags4 = fMap.getTags('banana', 'RT');
+assertTrue(isempty(tags4));
+fprintf('It should not cause an error when the field value doesn''t exist\n');
+tags5 = fMap.getTags('type', 'banana');
+assertTrue(isempty(tags5));
