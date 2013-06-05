@@ -96,7 +96,7 @@
 % $Revision: 1.0 21-Apr-2013 09:25:25 krobbins $
 % $Initial version $
 %
-function [fMap, fPaths] = tagstudy(studyFile, varargin)
+function [fMap, fPaths, excluded] = tagstudy(studyFile, varargin)
     % Tag all of the EEG files in a study
     parser = inputParser;
     parser.addRequired('StudyFile', ...
@@ -112,7 +112,7 @@ function [fMap, fPaths] = tagstudy(studyFile, varargin)
     parser.addParamValue('PreservePrefix', false, @islogical);
     parser.addParamValue('RewriteOption', 'both', ...
           @(x) any(validatestring(lower(x), ...
-           {'Both', 'EtcOnly', 'None', 'UserOnly'})));
+           {'Both', 'Individual', 'None', 'Summary'})));
     parser.addParamValue('SaveMapFile', '', ...
          @(x)(isempty(x) || (ischar(x))));
     parser.addParamValue('SelectOption', true, @islogical);
@@ -159,7 +159,7 @@ function [fMap, fPaths] = tagstudy(studyFile, varargin)
 
     % Save the tags file for next step
     if ~isempty(p.SaveMapFile) && ~fieldMap.saveFieldMap(p.SaveMapFile, fMap)
-        warning('tagdir:invalidFile', ...
+        warning('tagstudy:invalidFile', ...
             ['Couldn''t save fieldMap to ' p.SaveMapFile]);
     end
  
@@ -172,46 +172,18 @@ function [fMap, fPaths] = tagstudy(studyFile, varargin)
     for k = 1:length(fPaths) % Assemble the list
         teeg = pop_loadset(fPaths{k});
         teeg = writetags(teeg, fMap, 'ExcludeFields', excluded, ...
+                        'PreservePrefix', p.PreservePrefix, ...
                         'RewriteOption', p.RewriteOption);
         pop_saveset(teeg, 'filename', fPaths{k});
     end
     
     % Rewrite to the study file
-    if strcmpi(p.RewriteOption, 'Both') || strcmpi(p.RewriteOption, 'EtcOnly')
+    if strcmpi(p.RewriteOption, 'Both') || strcmpi(p.RewriteOption, 'Summary')
         s = writetags(s, fMap, 'ExcludeFields', excluded, ...
-                        'RewriteOption', p.RewriteOption); %#ok<NASGU>
+                        'PreservePrefix', p.PreservePrefix, ...
+                        'RewriteOption', p.RewriteOption);  %#ok<NASGU>
         save(p.StudyFile, 's', '-mat');
     end
-    
-%     baseTags = tagMap.loadTagFile(p.BaseTagsFile);
-%     eTags = tagevents(eTags, 'BaseTags', baseTags, ...
-%         'UpdateType', p.UpdateType, 'UseGUI', p.UseGUI, ...
-%         'Synchronize', p.Synchronize);
-%   
-%     % Save the tags file for next step
-%     if ~isempty(p.TagFileName) || ...
-%         ~tagMap.saveTagFile(p.TagFileName, 'eTags')
-%         bName = tempname;
-%         warning('tagstudy:invalidFile', ...
-%             ['Couldn''t save tagMap to ' p.TagFileName]);
-%         tagMap.saveTagFile(bName, 'eTags')
-%     else 
-%         bName = p.TagFileName;
-%     end
-%  
-%     if isempty(fPaths) || strcmpi(p.UpdateType, 'none')
-%         return;
-%     end
-%     
-%     % Rewrite all of the EEG files with updated tag information
-%     for k = 1:length(fPaths) % Assemble the list
-%         teeg = pop_loadset(fPaths{k});
-%         teeg = tageeg(teeg, 'BaseTagsFile', bName, ...
-%               'Match', p.Match, 'PreservePrefix', p.PreservePrefix, ...
-%               'Synchronize', p.Synchronize,...
-%               'UpdateType', p.UpdateType, 'UseGUI', false);
-%         pop_saveset(teeg, 'filename', fPaths{k});
-%     end
      
     function [s, fNames] = loadstudy(studyFile)
         % Set baseTags if tagsFile contains an tagMap object

@@ -1,17 +1,17 @@
-function [studyFile, baseTagsFile, dbCredsFile, onlyType, preservePrefix, ...
-    saveTagsFile, updateType, useGUI, cancelled] = tagstudy_input()
-% GUI for input needed for cTagger.tagEEGStudy
+function [studyFile, baseMapFile, dbCredsFile, preservePrefix, ...
+    rewriteOption, saveMapFile, selectOption, useGUI, cancelled] = tagstudy_input()
+% GUI for input needed to create inputs for tagstudy function
 
 % Setup the variables used by the GUI
-    baseTagsFile = '';
+    baseMapFile = '';
     cancelled = true;
     dbCredsFile = '';
-    onlyType = true;
     preservePrefix = false;
-    saveTagsFile = '';
+    rewriteOption = 'Both';
+    rewriteCtrl = '';
+    saveMapFile = '';
+    selectOption = true;
     studyFile = '';
-    updateCtrl = '';
-    updateType = 'OnlyTags';
     useGUI = true;
     theTitle = 'Inputs for tagging EEG study';
     inputFig = figure( ...
@@ -27,7 +27,6 @@ function [studyFile, baseTagsFile, dbCredsFile, onlyType, preservePrefix, ...
     createLayout(inputFig);
     movegui(inputFig); % Make sure it is visible
     uiwait(inputFig);
-
 
     function buttons = createButtonPanel(parent)
         % Create the button panel on the side of GUI
@@ -57,15 +56,32 @@ function [studyFile, baseTagsFile, dbCredsFile, onlyType, preservePrefix, ...
         mainHBox = uiextras.HBox('Parent', mainVBox, ...
             'Tag', 'MainHBox',  'Spacing', 5, 'Padding', 5);
         uiextras.Empty('Parent', mainHBox);
-        createUpdateGroup(mainHBox);
+        createRewriteGroup(mainHBox);
         uiextras.Empty('Parent', mainHBox);
         createOptionsGroup(mainHBox);
         uiextras.Empty('Parent', mainHBox);
         uiextras.Empty('Parent', mainVBox);
         createButtonPanel(mainVBox);
-        
-        set(mainHBox, 'Sizes', [20, 150, 20, -1, 20]);
-        set(mainVBox, 'Sizes', [10, 150, 200,  -1,  35]);
+        uiextras.Empty('Parent', mainVBox);
+        set(mainHBox, 'Sizes', [20, 150, 10, -1, 10]);
+        set(mainVBox, 'Sizes', [10, 150, 200,  -1,  40, 10]);
+%         
+%         mainVBox = uiextras.VBox('Parent', parent, ...
+%             'Tag', 'MainVBox',  'Spacing', 5, 'Padding', 5);
+%         uiextras.Empty('Parent', mainVBox);
+%         createBrowsePanel(mainVBox);
+%         mainHBox = uiextras.HBox('Parent', mainVBox, ...
+%             'Tag', 'MainHBox',  'Spacing', 5, 'Padding', 5);
+%         uiextras.Empty('Parent', mainHBox);
+%         createUpdateGroup(mainHBox);
+%         uiextras.Empty('Parent', mainHBox);
+%         createOptionsGroup(mainHBox);
+%         uiextras.Empty('Parent', mainHBox);
+%         uiextras.Empty('Parent', mainVBox);
+%         createButtonPanel(mainVBox);
+%         
+%         set(mainHBox, 'Sizes', [20, 150, 20, -1, 20]);
+%         set(mainVBox, 'Sizes', [10, 150, 200,  -1,  35]);
         drawnow
     end % createLayout
 
@@ -152,10 +168,10 @@ function [studyFile, baseTagsFile, dbCredsFile, onlyType, preservePrefix, ...
             'Callback', @doSubDirsCallback);
         set(u2, 'Value', get(u2, 'Max'));
         u3 = uicontrol('Parent', bBox, ...
-            'Style', 'CheckBox', 'Tag', 'OnlyTypeField', ...
-            'String', 'Only tag type field of EEG events', 'Enable', 'on', 'Tooltip', ...
-            'Only tag unique values of the type field of EEG', ...
-            'Callback', @onlyTypeCallback);
+            'Style', 'CheckBox', 'Tag', 'SelectOptionCB', ...
+            'String', 'Use GUI to select fields to tag', 'Enable', 'on', 'Tooltip', ...
+            'If checked, you will be presented with a GUI to select fields to tagG', ...
+            'Callback', @selectCallback);
         set(u3, 'Value', get(u3, 'Max'));
                u4 = uicontrol('Parent', bBox, ...
             'Style', 'CheckBox', 'Tag', 'PreservePrefixfield', ...
@@ -166,42 +182,36 @@ function [studyFile, baseTagsFile, dbCredsFile, onlyType, preservePrefix, ...
        set(bBox, 'ColumnSizes', 260, 'RowSizes', [30, 30, 30, 30, 30]);
     end % createOptionsGroup
 
-   function createUpdateGroup(parent)
+   function createRewriteGroup(parent)
         % Create the button panel on the side of GUI
         panel = uiextras.Panel('Parent', parent, 'Title', ...
-               'Tag update options', 'Padding', 5);
+               'How to rewrite tags to dataset:', 'Padding', 5);
         bBox = uiextras.Grid('Parent', panel, ...
             'Tag', 'UpdateGrid', 'Spacing', 5);
-        updateCtrl = uicontrol('Parent', bBox, ...
-            'Style', 'RadioButton', 'Tag', 'OnlyTagsUpdateButton', ...
-            'String', 'OnlyTags', 'Enable', 'On', ...
-            'Tooltip', 'Add new tags to for existing events.', ...
-            'Callback', @updateCallback);
-        set(updateCtrl, 'Value', get(updateCtrl, 'Max'));
         uicontrol('Parent', bBox, ...
-            'Style', 'RadioButton', 'Tag', 'MergeUpdateButton', ...
-            'String', 'Merge', 'Enable', 'on', 'Tooltip', ...
-            ['Add event tags including those corresponding to events ' ...
-            'that aren''t in this EEG.'], ...
-            'Callback', @updateCallback);
+            'Style', 'RadioButton', 'Tag', 'Summary', ...
+            'String', 'Only summary', 'Enable', 'On', ...
+            'Tooltip', 'Add tag summary to .etc.tags field of data', ...
+            'Callback', @rewriteCallback);   
         uicontrol('Parent', bBox, ...
-            'Style', 'RadioButton', 'Tag', 'ReplaceUpdateButton', ...
-            'String', 'Replace', 'Enable', 'on', 'Tooltip', ...
-            ['If an event with that key is part of this object,' ...
-             'completely replace that event tagging with the new version.'], ...
-            'Callback', @updateCallback);
+            'Style', 'RadioButton', 'Tag', 'Individual', ...
+            'String', 'Individual events', 'Enable', 'on', 'Tooltip', ...
+            'Add tags to individual events in .events.usertags', ...
+            'Callback', @rewriteCallback);
+        rewriteCtrl = uicontrol('Parent', bBox, ...
+            'Style', 'RadioButton', 'Tag', 'Both', ...
+            'String', 'Both', 'Enable', 'on', 'Tooltip', ...
+            ['Rewrites tag summary to .etc.tags and tags to ' ...
+             'individual events through .event.usertags'], ...
+            'Callback', @rewriteCallback);
+        set(rewriteCtrl, 'Value', get(rewriteCtrl, 'Max'));
         uicontrol('Parent', bBox, ...
-            'Style', 'RadioButton', 'Tag', 'UpdateUpdateButton', ...
-            'String', 'Update', 'Enable', 'on', 'Tooltip', ...
-            'Update descriptions as well as tags.', ...
-            'Callback', @updateCallback);
-        uicontrol('Parent', bBox, ...
-            'Style', 'RadioButton', 'Tag', 'NoneUpdateButton', ...
+            'Style', 'RadioButton', 'Tag', 'None', ...
             'String', 'None', 'Enable', 'on', 'Tooltip', ...
-            'Don''t modify any EEG, just create consolidated tags', ...
-            'Callback', @updateCallback);
-       set(bBox, 'ColumnSizes', 200, 'RowSizes', [30, 30, 30, 30, 30]);
-    end % createButtonPanel
+            'Don'' write any tags to the data or clear existing tags', ...
+            'Callback', @rewriteCallback);
+       set(bBox, 'ColumnSizes', 200, 'RowSizes', [30, 30, 30, 30]);
+    end % createRewriteGroup
 
     function browseDbCredsCallback(src, eventdata, dbCredsCtrl, myTitle) %#ok<INUSL>
         % Callback for browse button sets a directory for control
@@ -218,8 +228,8 @@ function [studyFile, baseTagsFile, dbCredsFile, onlyType, preservePrefix, ...
         end
         dName = uigetdir(startPath, myTitle);  % Get
         if ~isempty(dName) && ischar(dName) && isdir(dName)
-            saveTagsFile = fullfile(dName, 'dTags.mat');
-            set(saveTagsCtrl, 'String', saveTagsFile);         
+            saveMapFile = fullfile(dName, 'dTags.mat');
+            set(saveTagsCtrl, 'String', saveMapFile);         
         end
     end % browseCallback
 
@@ -235,24 +245,23 @@ function [studyFile, baseTagsFile, dbCredsFile, onlyType, preservePrefix, ...
 
     function browseTagsCallback(src, eventdata, tagsCtrl, myTitle) %#ok<INUSL>
         % Callback for browse button sets a directory for control
-        [tFile, tPath] = uigetfile('*.mat', myTitle);
-        tagsFile = fullfile(tPath, tFile);
-        if isempty(typeMap.loadTagFile(tagsFile))
-           warndlg([ tagsFile ' does not contain a typeMap object'], 'modal');
-        else
-            baseTagsFile = tagsFile;
-            set(tagsCtrl, 'String', baseTagsFile);
-        end
+        [tFile, tPath] = uigetfile({'*.mat', 'MATLAB Files (*.mat)'}, myTitle);
+        baseMapFile = fullfile(tPath, tFile);
+        set(tagsCtrl, 'String', baseMapFile);
     end % browseTagsCallback
 
     function cancelCallback(src, eventdata)  %#ok<INUSD>
         % Callback for browse button sets a directory for control
-        baseTagsFile = '';
+        baseMapFile = '';
         cancelled = true;
         dbCredsFile = '';
+        preservePrefix = false;
+        rewriteCtrl = '';
+        rewriteOption = 'Both';
+        saveMapFile = '';
+        selectOption = true;
         studyFile = '';
-        updateCtrl = '';
-        updateType = 'TagsOnly';
+        rewriteCtrl = '';
         useGUI = true;
         close(inputFig);
     end % cancelTagsCallback
@@ -260,9 +269,6 @@ function [studyFile, baseTagsFile, dbCredsFile, onlyType, preservePrefix, ...
     function dbCredsCtrlCallback(hObject, eventdata, tagsCtrl) %#ok<INUSD>
         % Callback for user directly editing directory control textbox
         dbCredsFile = get(hObject, 'String');
-        if ~exist(dbCredsFile, 'file')          
-           warndlg([ dbCredsFile ' does not contain a typeMap object'], 'modal');
-        end
     end % dbCredsCtrlCallback
 
     function okayCallback(src, eventdata)  %#ok<INUSD>
@@ -271,18 +277,27 @@ function [studyFile, baseTagsFile, dbCredsFile, onlyType, preservePrefix, ...
         close(inputFig);
     end % okayCallback
 
-    function onlyTypeCallback(src, eventdata) %#ok<INUSD>
-        onlyType = get(src, 'Max') == get(src, 'Value');
-    end % useGUICallback
-
     function preservePrefixCallback(src, eventdata) %#ok<INUSD>
         preservePrefix = get(src, 'Max') == get(src, 'Value');
     end % preservePrefixCallback
 
+   function rewriteCallback(src, eventdata)    %#ok<INUSD>
+       % Callback for the updateType button group
+       if ~isempty(rewriteCtrl)
+           set(rewriteCtrl, 'Value', get(rewriteCtrl, 'Min'));
+       end
+       rewriteCtrl = src;
+       rewriteOption = lower(get(src, 'String'));
+    end % rewriteCallback
+
     function saveTagsCtrlCallback(hObject, eventdata, saveTagsCtrl) %#ok<INUSD>
         % Callback for user directly editing directory control textbox
-        saveTagsFile = get(hObject, 'String');
+        saveMapFile = get(hObject, 'String');
     end % tagsCtrlCallback
+
+    function selectCallback(src, eventdata) %#ok<INUSD>
+        selectOption = get(src, 'Max') == get(src, 'Value');
+    end % selectCallback
 
     function studyCtrlCallback(hObject, eventdata) %#ok<INUSD>
         % Callback for user directly editing directory control textbox
@@ -296,23 +311,8 @@ function [studyFile, baseTagsFile, dbCredsFile, onlyType, preservePrefix, ...
 
     function tagsCtrlCallback(hObject, eventdata, tagsCtrl) %#ok<INUSD>
         % Callback for user directly editing directory control textbox
-        tagsFile = get(hObject, 'String');
-        if isempty(tagMap.loadTagFile(tagsFile))           
-           warndlg([ tagsFile ' does not contain an tagMap object'], 'modal');
-           set(hObject, 'String', baseTagsFile);
-        else
-            baseTagsFile = tagsFile;
-        end
+        baseMapFile = get(hObject, 'String');
     end % tagsCtrlCallback
-
-   function updateCallback(src, eventdata)    %#ok<INUSD>
-       % Callback for the updateType button group
-       if ~isempty(updateCtrl)
-           set(updateCtrl, 'Value', get(updateCtrl, 'Min'));
-       end
-       updateCtrl = src;
-       updateType = get(src, 'String');
-    end % updateCallback
 
     function useGUICallback(src, eventdata) %#ok<INUSD>
         useGUI = get(src, 'Max') == get(src, 'Value');

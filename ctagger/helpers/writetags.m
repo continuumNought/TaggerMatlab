@@ -6,8 +6,9 @@
 %   >>  edata = writetags(edata, fMap, 'key1', 'value1', ...)
 %
 % Description:
-% tMap = findtags(edata) extracts a fieldMap object representing the
-% events and their tags for the structure.
+% edata = writetags(edata, fMap) inserts the tags in the edata structure
+% as specified by the fMap fieldMap object, both in summary form and
+% individually.
 %
 % tMap = findtags(edata, 'key1', 'value1', ...) specifies optional name/value
 % parameter pairs:
@@ -25,15 +26,18 @@
 %                    'onlytags' (default), 'update' or 'none'.
 %
 % Notes:
-%   The ddata structure should have its events encoded as a structure
-%   array edata.events. The findtags will also examinate a edata.urevents
-%   structure array if it exists. 
+%   The tags are written to the data files in two ways. In both cases
+%   the dataset x is assumed to be a MATLAB structure: 
+%   1) If the 'RewriteOption' is either 'Both' or 'Summary', the tags
+%      are written to the dataset in the x.etc.tags field:
+%            x.etc.tags.xml
+%            x.etc.tags.map.field1
+%            x.etc.tags.map.field2 ...
+%      
 %
-%   Tags are assumed to be stored in the edata.etc structure as follows:
-%
-%    edata.etc.tags.xml
-%    edata.etc.tags.map
-%       ...
+%   2) If the 'RewriteOption' is either 'Both' or 'Individual', the tags
+%      are also written to x.event.usertags based on the individual 
+%      values of their events.
 %
 % See also: tageeg, tagevents, and tagMap
 %
@@ -56,7 +60,7 @@
 % along with this program; if not, write to the Free Software
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 %
-% $Log: findtags.m,v $
+% $Log: writetags.m,v $
 % $Revision: 1.0 21-Apr-2013 09:25:25 krobbins $
 % $Initial version $
 %
@@ -66,12 +70,11 @@ function edata = writetags(edata, fMap, varargin)
     parser = inputParser;
     parser.addRequired('edata', @(x) (isempty(x) || isstruct(x)));
     parser.addRequired('fMap', @(x) (~isempty(x) && isa(x, 'fieldMap')));
-    parser.addParamValue('ExcludeFields', ...
-            {'latency', 'epoch', 'urevent', 'hedtags', 'usertags'}, ...
-         @(x) (iscellstr(x)));
-    parser.addParamValue('RewriteOption', 'all', ...
+    parser.addParamValue('ExcludeFields', {}, @(x) (iscellstr(x)));
+    parser.addParamValue('PreservePrefix', false, @islogical);
+    parser.addParamValue('RewriteOption', 'Both', ...
           @(x) any(validatestring(lower(x), ...
-          {'Both', 'EtcOnly', 'None', 'UserOnly'})));
+          {'Both', 'Individual', 'None', 'Summary'})));
     parser.parse(edata, fMap, varargin{:});
 
     % Prepare the structure

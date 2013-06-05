@@ -46,7 +46,7 @@
 %                    /a/b/c). If true, then all unique tags are retained.
 %   'RewriteOption'  String indicating how tag information should be
 %                    written to the datasets. The options are 'Both',
-%                    'EtcOnly', 'None', 'UserOnly'. See the notes for
+%                    'Individual', 'None', 'Summary'. See the notes for
 %                    additional information.
 %   'SaveMapFile'    File name for saving the final, consolidated fieldMap
 %                    object that results from the tagging process.
@@ -64,14 +64,14 @@
 % Notes on tag rewrite:
 %   The tags are written to the data files in two ways. In both cases
 %   the dataset x is assumed to be a MATLAB structure: 
-%   1) If the 'RewriteOption' is either 'Both' or 'EtcOnly', the tags
+%   1) If the 'RewriteOption' is either 'Both' or 'Summary', the tags
 %      are written to the dataset in the x.etc.tags field:
 %            x.etc.tags.xml
 %            x.etc.tags.map.field1
 %            x.etc.tags.map.field2 ...
 %      
 %
-%   2) If the 'RewriteOption' is either 'Both' or 'UserOnly', the tags
+%   2) If the 'RewriteOption' is either 'Both' or 'Individual', the tags
 %      are also written to x.event.usertags based on the individual 
 %      values of their events.
 %
@@ -118,7 +118,7 @@ function [fMap, fPaths, excluded] = tagdir(inDir, varargin)
     parser.addParamValue('PreservePrefix', false, @islogical);
     parser.addParamValue('RewriteOption', 'both', ...
           @(x) any(validatestring(lower(x), ...
-           {'Both', 'EtcOnly', 'None', 'UserOnly'})));
+           {'Both', 'Individual', 'None', 'Summary'})));
     parser.addParamValue('SaveMapFile', '', ...
          @(x)(isempty(x) || (ischar(x))));
     parser.addParamValue('SelectOption', true, @islogical);
@@ -173,7 +173,8 @@ function [fMap, fPaths, excluded] = tagdir(inDir, varargin)
     for k = 1:length(fPaths) % Assemble the list
         teeg = pop_loadset(fPaths{k});
         teeg = writetags(teeg, fMap, 'ExcludeFields', excluded, ...
-                        'RewriteOption', p.RewriteOption);
+                'PreservePrefix', p.PreservePrefix, ...
+                'RewriteOption', p.RewriteOption);
         pop_saveset(teeg, 'filename', fPaths{k});
     end
 end % tagdir
