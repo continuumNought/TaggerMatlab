@@ -170,7 +170,7 @@ classdef tagMap < hgsetget
    
             % Merge tags of existing events
             oldEvent = obj.TagMap(key);
-            oldEvent.tags = mergetaglists(oldEvent.tags, ...
+            oldEvent.tags = merge_taglists(oldEvent.tags, ...
                 event.tags, obj.PreservePrefix);
             if strcmpi(updateType, 'OnlyTags')
                 obj.TagMap(key) = oldEvent;

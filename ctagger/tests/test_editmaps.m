@@ -34,16 +34,10 @@ function testValid(values)  %#ok<DEFNU>
 % Unit test for editmaps
     fprintf('\nUnit tests for editmaps increase indent\n');
     fprintf('It should work present multiple GUIs\n');
+    fprintf('....REQUIRES USER INPUT\n');
+    fprintf('PRESS ANY GUI BUTTON\n');
     fMap = values.map1;
     fMap1 = editmaps(fMap.clone());
     assertEqual(fMap1, values.map1);
   
  
-  function testNotSynchronized(values)  %#ok<DEFNU>
-% Unit test for editmaps
-  fprintf('\nUnit tests for editmaps not synchronized\n');
-  fprintf('It should work when and present multiple GUIs\n');
-  fMap = values.map1;
-  fMap1 = editmaps(fMap.clone(), 'Synchronize', false);
-  assertEqual(fMap1, values.map1);
-  
