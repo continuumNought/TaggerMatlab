@@ -38,7 +38,7 @@ assertTrue(isfield(y1.etc.tags, 'map'));
 assertEqual(length(fieldnames(y1.etc.tags.map)), 2);
 assertTrue(~isfield(y1.event, 'usertags'));
 assertTrue(~isfield(x.event, 'usertags'));
-y1 = writetags(x, dTags);
+
 
 y2 = writetags(x, dTags, 'RewriteOption', 'Both');
 assertTrue(isfield(y2.etc, 'tags'));
@@ -47,5 +47,9 @@ assertEqual(length(fieldnames(y2.etc.tags)), 2);
 assertTrue(isfield(y2.etc.tags, 'map'));
 assertEqual(length(fieldnames(y2.etc.tags.map)), 2);
 assertTrue(isfield(y2.event, 'usertags'));
+assertTrue(~isempty(y2.event(1).usertags));
+s = regexpi(y2.event(1).usertags, ',', 'split');
+assertEqual(length(s), 4);
+assertTrue(isempty(y2.event(2).usertags));
 assertTrue(~isfield(x.event, 'usertags'));
 

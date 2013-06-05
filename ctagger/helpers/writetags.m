@@ -120,57 +120,18 @@ function edata = writetags(edata, fMap, varargin)
             utags = {};
             for j = 1:length(eFields)
                 tags = fMap.getTags(eFields{j}, edata.event(k).(eFields{j}));
-                utags = mergetaglists(utags, tags, p.PreservePrefix);
+                utags = merge_taglists(utags, tags, p.PreservePrefix);
             end
-            edata.event(k).usertags = utags;
+            if ~isempty(utags)
+                 tags = utags{1};
+                 for j = 2:length(utags)
+                     tags = [tags ',' utags{j}]; %#ok<AGROW>
+                 end
+                 edata.event(k).usertags = tags;
+            else
+                edata.event(k).usertags = '';
+            end
         end
     end
-%     
-%     % If edata.etc.tags exists, then extract tag information
-%     xml = '';
-%     tfields = {};
-%     if isfield(edata, 'etc') && isstruct(edata.etc) && ...
-%             isfield(edata.etc, 'tags') && isstruct(edata.etc.tags)
-%       if isfield(edata.etc.tags, 'xml')
-%            xml = edata.etc.tags.xml;
-%       end
-%       if isfield(edata.etc.tags, 'map') 
-%          tfields = fieldnames(edata.etc.tags.map);
-%       end
-%     end
-%     tMap = fieldMap(xml, 'PreservePrefix', p.PreservePrefix);
-%     if ~isempty(p.Fields)
-%         tfields = intersect(p.Fields, tfields);
-%     end
-%     for k = 1:length(tfields)
-%         eString = edata.etc.tags.map.(tfields{k});
-%         eStruct = tagMap.text2Events(eString);
-%         tMap.addEvents(tfields{k}, eStruct, 'Merge');
-%     end
-%     
-%     efields = '';
-%     if isfield(edata, 'event') && isstruct(edata.urevent)
-%        efields = fieldnames(edata.event);
-%     end
-%     if isfield(edata, 'urevent') && isstruct(edata.urevent)
-%         efields = union(efields, fieldnames(edata.urevent)); 
-%     end
-%     efields = setdiff(efields, p.ExcludeFields);
-%     if ~isempty(p.Fields)
-%         efields = intersect(p.Fields, efields);
-%     end
-%     eventForm = struct('label', '', 'description', '', 'tags', '');
-%     for k = 1:length(efields)
-%         tValues = getutypes(edata.event, efields{k});
-%         if isfield(edata, 'urevent') 
-%             tValues = union(tValues, getutypes(edata.urevent, efields{k}));
-%         end
-%         if isempty(tValues)
-%             continue
-%         end
-%         for j = 1:length(tValues)
-%            eventForm.label = num2str(tValues{j});
-%            tMap.addEvent(efields{k}, eventForm, 'Merge');
-%         end
-%     end
-end %findtags
+
+end %writetags
