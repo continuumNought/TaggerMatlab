@@ -125,8 +125,8 @@ function configPath = dbcreds()
         end
         dName = uigetdir(startPath, myTitle);  % Get
         if ~isempty(dName) && ischar(dName) && isdir(dName)
-            saveTagsFile = fullfile(dName, 'dbcreds.txt');
-            set(savePropsCtrl, 'String', saveTagsFile);         
+            configPath = fullfile(dName, 'dbcreds.txt');
+            set(savePropsCtrl, 'String', configPath);         
         end
     end % browseCallback
 
@@ -137,6 +137,12 @@ function configPath = dbcreds()
     end % cancelCallback
 
     function okayCallback(~, ~, infig, passObj)
+        if isempty(configPath)
+            warning('dbcreds:NoSaveFile', ...
+                'Give a file name in order to create file or Press Cancel\n');
+            return;
+        end
+
         handles = guihandles(infig);
         dbname = get(handles.dbname, 'String');
         hostname = get(handles.hostname, 'String');
@@ -144,16 +150,6 @@ function configPath = dbcreds()
         username = get(handles.username, 'String');
         password = get(handles.password, 'String');
         %password = char(passObj.getText);
-%        filename = get(handles.filename, 'String');
-%         if ~isempty(port)
-%             hostname = [hostname ':' port];
-% %         end
-%         if isfield(handles, 'directory') && handles.dirctory ~= 0
-%             directory = get(handles.directory, 'string');
-%             configPath = [directory filesep filename];
-%         else
-%             configPath = [pwd filesep filename];
-%         end
         edu.utsa.tagger.database.TagsDBManager.createCredentials(...
             configPath, dbname, hostname, port, username, password);
         close;
@@ -163,6 +159,6 @@ function configPath = dbcreds()
     function savePropsCtrlCallback(hObject, eventdata, saveTagsCtrl) %#ok<INUSD>
         % Callback for user directly editing directory control textbox
         configPath  = get(hObject, 'String');
-    end % saveTagsCtrlCallback
+    end % savePropsCtrlCallback
 
 end % tagdir_input
