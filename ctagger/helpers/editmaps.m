@@ -112,6 +112,7 @@ function fMap = editmaps(fMap, varargin)
             end
             tValues = rmfield(tValues, 'paths');
         end
-        tMap.reset(strtrim(xml), tValues);
+        fMap.mergeXml(strtrim(xml));
+        tMap.reset(tValues);
     end % editmap
 end % editmaps

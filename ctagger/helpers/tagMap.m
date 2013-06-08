@@ -104,13 +104,14 @@ classdef tagMap < hgsetget
     end % private properties
     
     methods
-        function obj = tagMap(values, varargin)
+        function obj = tagMap(varargin)
             % Constructor parses parameters and sets up initial data
             if isempty(varargin)
-                obj.parseParameters(values);
+                obj.parseParameters();
             else
-                obj.parseParameters(values, varargin{:});
+                obj.parseParameters(varargin{:});
             end
+            obj.TagMap = containers.Map('KeyType', 'char', 'ValueType', 'any');
         end % tagMap constructor
         
         function addValue(obj, value, updateType)
@@ -159,12 +160,19 @@ classdef tagMap < hgsetget
             obj.TagMap(key) = oldValue;
         end % addValue
         
+        function addValues(obj, values, updateType)
+            % Include event (a structure) in this tagMap object based on updateType
+            for k = 1:length(values)
+                obj.addValue(values(k), updateType);
+            end
+        end % addValues
+        
         function newMap = clone(obj)
-            newMap = tagMap('');
+            newMap = tagMap();
             newMap.Field = obj.Field;
             newMap.PreservePrefix = obj.PreservePrefix;
             values = obj.TagMap.values;
-            tMap = containers.Map('KeyType', 'char', 'ValueType', 'any');          
+            tMap = newMap.TagMap;
             for k = 1:length(values)
                 tMap(values{k}.label) = values{k};
             end
@@ -253,15 +261,7 @@ classdef tagMap < hgsetget
                 obj.addValue(values{k}, updateType);
             end
         end % merge
-           
-        function reset(obj,eStruct)
-            % Reset this object based on hedString and value structure
-            obj.TagMap = containers.Map('KeyType', 'char', 'ValueType', 'any');
-            for k = 1:length(eStruct)
-                obj.addValue(eStruct(k), 'Merge');
-            end
-        end % reset
-        
+              
         function setMap(obj, field, tMap)
             % Set the map associated with field to tMap
             obj.TagMap(field) = tMap;
@@ -271,14 +271,17 @@ classdef tagMap < hgsetget
     
     methods(Access = private)
          
-        function parseParameters(obj, values, varargin)
+        function parseParameters(obj, varargin)
             % Parse parameters provided by user in constructor
             parser = tagMap.getParser();
-            parser.parse(values, varargin{:})
+            if nargin < 1
+                parser.parse();
+            else
+                 parser.parse(varargin{:});
+            end
             pdata = parser.Results;
             obj.Field = pdata.Field;
             obj.PreservePrefix = pdata.PreservePrefix;
-            obj.reset(pdata.Values)
         end % parseParameters
         
     end % private methods
@@ -360,9 +363,6 @@ classdef tagMap < hgsetget
         function parser = getParser()
             % Create a parser for blockedData
             parser = inputParser;
-            parser.addRequired('Values', ...
-                @(x) (isempty(x) || (isstruct(x) && isfield(x, 'label') ...
-                      && isfield(x, 'description') && isfield(x, 'tags'))))
             parser.addParamValue('Field', 'type', ...
                 @(x) (~isempty(x) && ischar(x)));
             parser.addParamValue('PreservePrefix', false, ...
