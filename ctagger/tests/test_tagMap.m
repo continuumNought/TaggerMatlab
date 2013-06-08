@@ -346,3 +346,11 @@ keys1 = obj1.getLabels();
 keys2 = obj2.getLabels();
 fprintf('The two objects should have the same number of labels\n');
 assertEqual(length(keys1), length(keys2));
+
+function testGetJsonEvents(values) %#ok<DEFNU>
+fprintf('\nUnit tests for getJson method of tagMap\n');
+fprintf('It should correctly retrieve the values as a  tagMap object\n');
+[xml1, field1, events1] = tagMap.split(values.eJSON1, true);
+obj1 = tagMap(xml1, events1);
+string1 = obj1.getJsonEvents();
+assertTrue(ischar(string1));
