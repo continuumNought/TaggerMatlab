@@ -97,7 +97,7 @@ classdef tagMap < hgsetget
     
     properties (Access = private)
         Field                % Name of field for this group of tags
-        PreservePrefix       % If true, don't eliminate duplicate prefixes (default false)
+%        PreservePrefix       % If true, don't eliminate duplicate prefixes (default false)
         TagMap               % Map for matching value labels
 %         Xml                  % Tag hierarchy as an XML string
 %         XmlSchema            % String containing the XML schema
@@ -114,7 +114,7 @@ classdef tagMap < hgsetget
             obj.TagMap = containers.Map('KeyType', 'char', 'ValueType', 'any');
         end % tagMap constructor
         
-        function addValue(obj, value, updateType)
+        function addValue(obj, value, updateType, preservePrefix)
             % Include value in this tagMap object based on updateType
             if ~tagMap.validateValue(value)
                 warning('tagMap_addTags:invalid', ...
@@ -144,7 +144,7 @@ classdef tagMap < hgsetget
             % Merge tags of existing values
             oldValue = obj.TagMap(key);
             oldValue.tags = merge_taglists(oldValue.tags, ...
-                value.tags, obj.PreservePrefix);
+                value.tags, preservePrefix);
             if strcmpi(updateType, 'OnlyTags')
                 obj.TagMap(key) = oldValue;
                 return;
@@ -160,17 +160,16 @@ classdef tagMap < hgsetget
             obj.TagMap(key) = oldValue;
         end % addValue
         
-        function addValues(obj, values, updateType)
+        function addValues(obj, values, updateType, preservePrefix)
             % Include event (a structure) in this tagMap object based on updateType
             for k = 1:length(values)
-                obj.addValue(values(k), updateType);
+                obj.addValue(values(k), updateType, preservePrefix);
             end
         end % addValues
         
         function newMap = clone(obj)
             newMap = tagMap();
             newMap.Field = obj.Field;
-            newMap.PreservePrefix = obj.PreservePrefix;
             values = obj.TagMap.values;
             tMap = newMap.TagMap;
             for k = 1:length(values)
@@ -227,11 +226,7 @@ classdef tagMap < hgsetget
             eLabels = obj.TagMap.keys();
         end % getLabels
         
-        function pPrefix = getPreservePrefix(obj)
-            % Return the PreservePrefix flag (false means no tag prefix duplication)
-            pPrefix = obj.PreservePrefix;
-        end % getPreservePrefix
-        
+
         function thisStruct = getStruct(obj)
             % Return this object in structure form
             thisStruct = struct('field', obj.Field, 'values', obj.getValueStruct());
@@ -247,7 +242,7 @@ classdef tagMap < hgsetget
             valuesText  = tagMap.values2Text(obj.TagMap.values);
         end % getTextValues
            
-        function merge(obj, eTags, updateType)
+        function merge(obj, eTags, updateType, preservePrefix)
             % Combine the eTags tagMap object info with this one
             if isempty(eTags)
                 return;
@@ -258,7 +253,7 @@ classdef tagMap < hgsetget
             end
             values = eTags.getValues();
             for k = 1:length(values)
-                obj.addValue(values{k}, updateType);
+                obj.addValue(values{k}, updateType, preservePrefix);
             end
         end % merge
               
@@ -281,7 +276,6 @@ classdef tagMap < hgsetget
             end
             pdata = parser.Results;
             obj.Field = pdata.Field;
-            obj.PreservePrefix = pdata.PreservePrefix;
         end % parseParameters
         
     end % private methods

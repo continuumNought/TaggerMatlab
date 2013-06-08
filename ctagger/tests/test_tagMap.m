@@ -74,7 +74,7 @@ assertTrue(strcmpi(field1, 'type'));
 obj1 = tagMap();
 assertTrue(isvalid(obj1));
 fprintf('It should have the right number of values\n');
-obj1.addValues(values1, 'Merge');
+obj1.addValues(values1, 'Merge', false);
 valuesA = obj1.getValues();
 assertEqual(length(valuesA), 3);
 fprintf('It should create a valid object for a valid text string\n');
@@ -84,7 +84,7 @@ assertTrue(strcmpi(field2, 'type'));
 obj2 = tagMap();
 assertTrue(isvalid(obj2));
 fprintf('It should have the right number of values\n');
-obj2.addValues(values2, 'Merge');
+obj2.addValues(values2, 'Merge', false);
 valuesA = obj2.getValues();
 assertEqual(length(valuesA), 2);
 
@@ -112,10 +112,10 @@ fprintf('It should merge correctly when code match is specified with matches fou
 assertTrue(isempty(f1));
 assertTrue(isempty(f1a));
 e1 = tagMap();
-e1.addValues(ev1, 'Merge')
+e1.addValues(ev1, 'Merge', false)
 b1 = tagMap();
-b1.addValues(bv1, 'Merge')
-e1.merge(b1, 'OnlyTags');
+b1.addValues(bv1, 'Merge', false)
+e1.merge(b1, 'OnlyTags', false);
 eValues = e1.getValues();
 assertEqual(length(eValues), 2);
 value1 = e1.getValue('Trigger');
@@ -123,31 +123,31 @@ assertTrue(~isempty(value1));
 fprintf('It should correctly merge tags when value labels match\n');
 assertEqual(length(value1.tags), 3);
 fprintf('It should have not merge values when argument is empty\n');
-e1.merge('', 'OnlyTags');
+e1.merge('', 'OnlyTags', false);
 eValues = e1.getValues();
 assertEqual(length(eValues), 2);
-e1.merge('', 'Merge');
+e1.merge('', 'Merge', false);
 eValues = e1.getValues();
 assertEqual(length(eValues), 2);
 fprintf('It should not include extra values if OnlyTags is true\n');
 [f3, bv3] = tagMap.split([';' values.baseList3], false);
 assertTrue(isempty(f3));
 b3 = tagMap();
-b3.addValues(bv3, 'Merge');
-e1.merge(b3, 'OnlyTags');
+b3.addValues(bv3, 'Merge', false);
+e1.merge(b3, 'OnlyTags', false);
 eValues = e1.getValues();
 assertEqual(length(eValues), 2);
 fprintf('It should include extra events if OnlyTags is false\n');
-e1.merge(b3, 'Merge');
+e1.merge(b3, 'Merge', false);
 eValues = e1.getValues();
 assertEqual(length(eValues), 3);
 
 fprintf('It should work when PreservePrefix is true\n');
 [f2, ev2] = tagMap.split([';' values.eventList1], false);
 assertTrue(isempty(f2));
-eT2 = tagMap('PreservePrefix', true);
-eT2.addValues(ev2, 'Merge')
-eT2.merge(b1, 'OnlyTags');
+eT2 = tagMap();
+eT2.addValues(ev2, 'Merge', true)
+eT2.merge(b1, 'OnlyTags', true);
 eValues = eT2.getValues();
 assertEqual(length(eValues), 2);
 event2 = eT2.getValue('Trigger');
@@ -159,22 +159,22 @@ fprintf('It should not merge the values when fields don''t match\n');
 [f3, ev3] = tagMap.split([';' values.eventList1], false);
 assertTrue(isempty(f3));
 eT3 = tagMap();
-eT3.addValues(ev3, 'Merge')
+eT3.addValues(ev3, 'Merge', false)
 assertEqual(length(eT3.getValues()), 2);
 assertTrue(strcmpi(eT3.getField(), 'type'));
 [f4, ev4] = tagMap.split([';' values.baseList3], false);
 assertTrue(isempty(f4));
 eT4 = tagMap();
-eT4.addValues(ev4, 'Merge')
+eT4.addValues(ev4, 'Merge', false)
 assertEqual(length(eT4.getValues()), 2);
 assertTrue(strcmpi(eT4.getField(), 'type'));
-eT3.merge(eT4, 'Merge');
+eT3.merge(eT4, 'Merge', false);
 assertEqual(length(eT3.getValues()), 3);
 eT3a = tagMap();
-eT3a.addValues(ev3, 'Merge')
+eT3a.addValues(ev3, 'Merge', false)
 eT4a = tagMap('Field', 'balony');
-eT4a.addValues(ev4, 'Merge')
-eT3a.merge(eT4a, 'Merge');
+eT4a.addValues(ev4, 'Merge', false)
+eT3a.merge(eT4a, 'Merge', false);
 assertEqual(length(eT3a.getValues()), 2);
 
 function testGetText(values) %#ok<DEFNU>
@@ -184,12 +184,13 @@ fprintf('The text from an object created in text is valid\n');
 [f1, e1] = tagMap.split([';' values.eventList1], false);
 assertTrue(isempty(f1));
 eT1 = tagMap();
-eT1.addValues(e1, 'Merge');
+eT1.addValues(e1, 'Merge', false);
 theText = eT1.getText();
 [f2, e2] = tagMap.split(theText, false);
+assertTrue(isa(e2, 'struct'));
 assertTrue(strcmpi(f2, 'type'));
 eT2 = tagMap();
-eT1.addValues(e1, 'Merge')
+eT1.addValues(e1, 'Merge', false)
 assert(isvalid(eT2));
 theJson = eT1.getJson();
 x1 = tagMap.json2Mat(theJson);
@@ -327,7 +328,7 @@ fprintf('\nUnit tests for clone method of tagMap\n');
 fprintf('It should correctly clone a tagMap object\n');
 [field1, values1] = tagMap.split(values.eJSON1, true);
 obj1 = tagMap();
-obj1.addValues(values1, 'Merge');
+obj1.addValues(values1, 'Merge', false);
 assertTrue(strcmpi (field1, obj1.getField()));
 obj2 = obj1.clone();
 assertTrue(isa(obj2, 'tagMap'));
@@ -343,6 +344,6 @@ fprintf('\nUnit tests for getJson method of tagMap\n');
 fprintf('It should correctly retrieve the values as a  tagMap object\n');
 [field1, values1] = tagMap.split(values.eJSON1, true); %#ok<ASGLU>
 obj1 = tagMap();
-obj1.addValues(values1, 'Merge');
+obj1.addValues(values1, 'Merge', false);
 string1 = obj1.getJsonValues();
 assertTrue(ischar(string1));

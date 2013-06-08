@@ -183,7 +183,13 @@ classdef fieldMap < hgsetget
                 tMap(values{k}.getField()) = values{k};
             end
             newMap.TypeMap = tMap;
-        end %clone        
+        end %clone  
+        
+       function pPrefix = getPreservePrefix(obj)
+            % Return the PreservePrefix flag (false means no tag prefix duplication)
+            pPrefix = obj.PreservePrefix;
+        end % getPreservePrefix
+        
         
         function event = getValue(obj, type, key)
             % Return the event structure corresponding to specified key
