@@ -295,7 +295,7 @@ classdef fieldMap < hgsetget
             try
                tagMap.validateXml(obj.XmlSchema, xmlMerge);
             catch ex
-                warning('tagMap:mergeXml', ['Could not merge XML ' ...
+                warning('fieldMap:mergeXml', ['Could not merge XML ' ...
                      ' [' ex.message ']']);
                 return;
             end
@@ -332,7 +332,7 @@ classdef fieldMap < hgsetget
         
         function xml = getXmlFile(xmlFile)
             % Merge the specified hedfile with the default
-            xml = fileread(tagMap.DefaultXml);
+            xml = fileread(fieldMap.DefaultXml);
             if nargin == 1 && ~isempty(xmlFile)
                 xml = tagMap.mergeHed(xml, fileread(xmlFile));
             end
@@ -385,6 +385,15 @@ classdef fieldMap < hgsetget
                 successful = false;
             end
         end % saveTagFile
+        
+                function validateXml(schema, xmlString)
+            % Validate xmlString as empty or valid XML (invalid throws exception) 
+            if isempty(xmlString)
+                return;
+            end
+            edu.utsa.tagger.database.XMLGenerator.validateSchemaString(...
+                                 char(xmlString), char(schema));
+        end % validateXml
         
     end % static methods
     

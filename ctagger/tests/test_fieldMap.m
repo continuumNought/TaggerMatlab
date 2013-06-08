@@ -209,3 +209,17 @@ assertTrue(isempty(tags4));
 fprintf('It should not cause an error when the field value doesn''t exist\n');
 tags5 = fMap.getTags('type', 'banana');
 assertTrue(isempty(tags5));
+
+
+function testMergeXml(values) %#ok<INUSD,DEFNU>
+% Unit test for tagMap mergeXml static method
+fprintf('\nUnit tests for mergeXml static method of tagMap\n');
+
+fprintf('It should merge XML when both tag sets are empty\n');
+obj1 = tagMap('', '');
+obj1.mergeXml('');
+xml1 = obj1.getXml;
+assertTrue(~isempty(xml1));
+obj1.mergeXml(xml1);
+%assertTrue(strcmpi(strtrim(obj1.getXml()), strtrim(xml1)));
+

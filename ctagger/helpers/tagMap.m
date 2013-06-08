@@ -90,26 +90,26 @@
 %
 
 classdef tagMap < hgsetget
-    properties (Constant = true)
-        DefaultXml = 'HEDSpecification1.3.xml';
-        DefaultSchema = 'HEDSchema.xsd';
-    end % constant
+%     properties (Constant = true)
+%         DefaultXml = 'HEDSpecification1.3.xml';
+%         DefaultSchema = 'HEDSchema.xsd';
+%     end % constant
     
     properties (Access = private)
         Field                % Name of field for this group of tags
         PreservePrefix       % If true, don't eliminate duplicate prefixes (default false)
         TagMap               % Map for matching value labels
-        Xml                  % Tag hierarchy as an XML string
-        XmlSchema            % String containing the XML schema
+%         Xml                  % Tag hierarchy as an XML string
+%         XmlSchema            % String containing the XML schema
     end % private properties
     
     methods
-        function obj = tagMap(xmlString, values, varargin)
+        function obj = tagMap(values, varargin)
             % Constructor parses parameters and sets up initial data
             if isempty(varargin)
-                obj.parseParameters(xmlString, values);
+                obj.parseParameters(values);
             else
-                obj.parseParameters(xmlString, values, varargin{:});
+                obj.parseParameters(values, varargin{:});
             end
         end % tagMap constructor
         
@@ -160,11 +160,9 @@ classdef tagMap < hgsetget
         end % addValue
         
         function newMap = clone(obj)
-            newMap = tagMap(obj.Xml, '');
+            newMap = tagMap('');
             newMap.Field = obj.Field;
             newMap.PreservePrefix = obj.PreservePrefix;
-            newMap.Xml = obj.Xml;
-            newMap.XmlSchema = obj.XmlSchema;
             values = obj.TagMap.values;
             tMap = containers.Map('KeyType', 'char', 'ValueType', 'any');          
             for k = 1:length(values)
@@ -228,31 +226,24 @@ classdef tagMap < hgsetget
         
         function thisStruct = getStruct(obj)
             % Return this object in structure form
-            thisStruct = struct('field', obj.Field, ...
-                         'xml', obj.Xml, 'values', obj.getValueStruct());
+            thisStruct = struct('field', obj.Field, 'values', obj.getValueStruct());
         end % getStruct
         
         function thisText = getText(obj)
             % Return this object as semi-colon separated text
-            thisText = [obj.Xml ';' obj.Field ';'  obj.getTextValues()];
+            thisText = [obj.Field ';'  obj.getTextValues()];
         end % getText
         
         function valuesText = getTextValues(obj)
             % Return values of this object as semi-colon separated text
             valuesText  = tagMap.values2Text(obj.TagMap.values);
         end % getTextValues
-        
-       function xml = getXml(obj)
-            % Return a string containing the xml
-            xml = obj.Xml;
-        end % getXml
            
         function merge(obj, eTags, updateType)
             % Combine the eTags tagMap object info with this one
             if isempty(eTags)
                 return;
             end
-            obj.mergeXml(eTags.Xml);
             field = eTags.getField();
             if ~strcmpi(field, obj.Field)
                 return;
@@ -262,31 +253,10 @@ classdef tagMap < hgsetget
                 obj.addValue(values{k}, updateType);
             end
         end % merge
-        
-        function mergeXml(obj, xmlMerge)
-            % Merge the hedXML string with obj.HedXML if valid
-            if isempty(xmlMerge)
-                return;
-            end
-            try
-               tagMap.validateXml(obj.XmlSchema, xmlMerge);
-            catch ex
-                warning('tagMap:mergeXml', ['Could not merge XML ' ...
-                     ' [' ex.message ']']);
-                return;
-            end
-            obj.Xml = char(edu.utsa.tagger.database.XMLGenerator.mergeXML( ...
-                obj.Xml, xmlMerge));
-        end % mergeXml
-        
-
-        
-        function reset(obj, xmlString, eStruct)
+           
+        function reset(obj,eStruct)
             % Reset this object based on hedString and value structure
             obj.TagMap = containers.Map('KeyType', 'char', 'ValueType', 'any');
-            obj.Xml = fileread(tagMap.DefaultXml);
-            obj.XmlSchema = fileread(tagMap.DefaultSchema);
-            obj.mergeXml(xmlString);
             for k = 1:length(eStruct)
                 obj.addValue(eStruct(k), 'Merge');
             end
@@ -300,23 +270,15 @@ classdef tagMap < hgsetget
     end % public methods
     
     methods(Access = private)
-        
-        function xml = getXmlFile(xmlFile)
-            % Merge the specified hedfile with the default
-            xml = fileread(tagMap.DefaultXml);
-            if nargin == 1 && ~isempty(xmlFile)
-                xml = tagMap.mergeHed(xml, fileread(xmlFile));
-            end
-        end % getXml
-        
-        function parseParameters(obj, xmlString, values, varargin)
+         
+        function parseParameters(obj, values, varargin)
             % Parse parameters provided by user in constructor
             parser = tagMap.getParser();
-            parser.parse(xmlString, values, varargin{:})
+            parser.parse(values, varargin{:})
             pdata = parser.Results;
             obj.Field = pdata.Field;
             obj.PreservePrefix = pdata.PreservePrefix;
-            obj.reset(pdata.XmlString, pdata.Values)
+            obj.reset(pdata.Values)
         end % parseParameters
         
     end % private methods
@@ -398,8 +360,6 @@ classdef tagMap < hgsetget
         function parser = getParser()
             % Create a parser for blockedData
             parser = inputParser;
-            parser.addRequired('XmlString', ...
-                @(x) (isempty(x) || ischar(x)));
             parser.addRequired('Values', ...
                 @(x) (isempty(x) || (isstruct(x) && isfield(x, 'label') ...
                       && isfield(x, 'description') && isfield(x, 'tags'))))
@@ -411,7 +371,7 @@ classdef tagMap < hgsetget
         
         function theStruct = json2Mat(json)
             % Convert a JSON object specification to a structure
-            theStruct = struct('field', '', 'xml', '', 'values', '');
+            theStruct = struct('field', '', 'values', '');
             if isempty(json)
                 return;
             end
@@ -473,10 +433,9 @@ classdef tagMap < hgsetget
         end % reformatValue
         
  
-        function [xml, field, values] = split(inString, useJson)
+        function [field, values] = split(inString, useJson)
             % Parse inString into xml hed string and values structure 
             field = '';
-            xml = '';
             values = '';
             if isempty(inString)
                 return;
@@ -486,7 +445,6 @@ classdef tagMap < hgsetget
                 theStruct = tagMap.text2Mat(inString);
             end
             field = theStruct.field;
-            xml = theStruct.xml;
             values = theStruct.values;
         end % split
         
@@ -528,7 +486,7 @@ classdef tagMap < hgsetget
         
         function theStruct = text2Mat(eString)
             % Convert semicolon-separated specification to struct 
-            theStruct = struct('xml', '', 'field', '', 'values', '');
+            theStruct = struct('field', '', 'values', '');
             eString = strtrim(eString);
             if isempty(eString)
                 return;
@@ -538,15 +496,11 @@ classdef tagMap < hgsetget
                 return;
             end
             nEvents = length(eParsed);
-            theStruct.xml = strtrim(eParsed{1});
+            theStruct.field = strtrim(eParsed{1});
             if nEvents < 2
                 return;
             end
-            theStruct.field = strtrim(eParsed{2});
-            if nEvents < 3
-                return;
-            end
-            valueString = eString(eStart(2)+ 1:end);
+            valueString = eString(eStart(1)+ 1:end);
             theStruct.values = tagMap.text2Values(valueString);
         end % text2mat
 
@@ -565,15 +519,6 @@ classdef tagMap < hgsetget
                 valid = true;
             end
         end % validateValue
-        
-        function validateXml(schema, xmlString)
-            % Validate xmlString as empty or valid XML (invalid throws exception) 
-            if isempty(xmlString)
-                return;
-            end
-            edu.utsa.tagger.database.XMLGenerator.validateSchemaString(...
-                                 char(xmlString), char(schema));
-        end % validateXml
         
     end % static method
 end % tagMap

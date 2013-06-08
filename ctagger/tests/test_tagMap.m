@@ -3,7 +3,7 @@ initTestSuite;
 
 function values = setup %#ok<DEFNU>
 types = {'RT', 'Trigger', 'Missed'};
-eStruct = struct('xml', 'abc', 'field', 'type',  'values', 'def');
+eStruct = struct('field', 'type',  'values', 'def');
 tags = {'/Time-Locked Event/Stimulus/Visual/Shape/Ellipse/Circle', ...
         '/Time-Locked Event/Stimulus/Visual/Fixation Point', ...
         '/Time-Locked Event/Stimulus/Visual/Uniform Color/Black'};
@@ -11,7 +11,6 @@ sE = struct('label', types, 'description', types, 'tags', '');
 sE(1).tags = tags;
 eStruct.field = 'type';
 eStruct.values = sE;
-eStruct.xml = fileread('HEDSpecification1.3.xml');
 values.eJSON1 = savejson('', eStruct);
 values.eStruct1 = eStruct;
 values.eventList1 = 'Trigger,code 1,/my/tag1, /my/tag2;Trigger2,t2,';
@@ -47,22 +46,19 @@ function testSplit(values) %#ok<DEFNU>
 fprintf('\nUnit tests for tagMap split static method \n');
 
 fprintf('It should split a valid JSON string\n');
-[xml1, field1, values1] = tagMap.split(values.eJSON1, true);
+[field1, values1] = tagMap.split(values.eJSON1, true);
 fprintf('It should have the right field\n');
 assertTrue(strcmpi(field1, 'type'));
 fprintf('It should have the right number of values\n');
 assertEqual(length(values1), 3);
 fprintf('It should return the values in a structure\n');
 assertTrue(isstruct(values1));
-fprintf('It should have the right XML string\n');
-assertTrue(strcmpi(xml1, values.eStruct1.xml));
+
 fprintf('It should split a valid text string \n');
-testString = [values.eStruct1.xml ';type;' values.eventList1];
-[xml2, field2, values2] = tagMap.split(testString, false);
+testString = ['type;' values.eventList1];
+[field2, values2] = tagMap.split(testString, false);
 fprintf('It should have the right field\n');
 assertTrue(strcmpi(field2, 'type'));
-fprintf('It should have the right XML string\n');
-assertTrue(strcmpi(strtrim(xml2), strtrim(values.eStruct1.xml)));
 fprintf('It should have the right number of values\n');
 assertEqual(length(values2), 2);
 fprintf('It should return events in a structure when multiple values\n');
@@ -73,18 +69,18 @@ function testValid(values) %#ok<DEFNU>
 fprintf('\nUnit tests for tagMap valid JSON constructor\n');
 
 fprintf('It should create a valid object for a valid JSON events string\n');
-[xml1, field1, values1] = tagMap.split(values.eJSON1, true);
+[field1, values1] = tagMap.split(values.eJSON1, true);
 assertTrue(strcmpi(field1, 'type'));
-obj1 = tagMap(xml1, values1);
+obj1 = tagMap(values1);
 assertTrue(isvalid(obj1));
 fprintf('It should have the right number of values\n');
 valuesA = obj1.getValues();
 assertEqual(length(valuesA), 3);
 fprintf('It should create a valid object for a valid text string\n');
-testString = [ values.eStruct1.xml ';type;' values.eventList1];
-[xml2, field2, values2] = tagMap.split(testString, false);
+testString = ['type;' values.eventList1];
+[field2, values2] = tagMap.split(testString, false);
 assertTrue(strcmpi(field2, 'type'));
-obj2 = tagMap(xml2,values2);
+obj2 = tagMap(values2);
 assertTrue(isvalid(obj2));
 fprintf('It should have the right number of values\n');
 valuesA = obj2.getValues();
@@ -99,40 +95,26 @@ f = @() tagMap();
 assertAltExceptionThrown(f, {'MATLAB:inputArgUndefined', 'MATLAB:minrhs'});
 
 fprintf('It should output a warning if an empty string is used ---WARNING\n');
-obj1 = tagMap('', '');
+obj1 = tagMap('');
 assertTrue(isvalid(obj1));
 fprintf('---the resulting structure should have the right fields\n');
 eStruct1 = obj1.getStruct();
 assertTrue(isstruct(eStruct1));
-assertEqual(length(fieldnames(eStruct1)), 3);
-assertElementsAlmostEqual(sum(isfield(eStruct1, {'xml', 'field', 'values'})), 3);
-assertTrue(~isempty(eStruct1.xml));
+assertEqual(length(fieldnames(eStruct1)), 2);
+assertElementsAlmostEqual(sum(isfield(eStruct1, { 'field', 'values'})), 2);
 assertTrue(isempty(eStruct1.values));
-
-
-function testMergeXml(values) %#ok<INUSD,DEFNU>
-% Unit test for tagMap mergeXml static method
-fprintf('\nUnit tests for mergeXml static method of tagMap\n');
-
-fprintf('It should merge XML when both tag sets are empty\n');
-obj1 = tagMap('', '');
-obj1.mergeXml('');
-xml1 = obj1.getXml;
-assertTrue(~isempty(xml1));
-obj1.mergeXml(xml1);
-%assertTrue(strcmpi(strtrim(obj1.getXml()), strtrim(xml1)));
 
 function testMerge(values) %#ok<DEFNU>
 % Unit test for tagMap merge method
 fprintf('\nUnit tests for merge method of tagMap\n');
 
 fprintf('It should merge correctly when code match is specified with matches found\n');
-[h1, f1, e1] = tagMap.split([';;' values.eventList1], false);
-[h1a, f1a, b1] = tagMap.split([';;' values.baseList1], false);
+[f1, e1] = tagMap.split([';' values.eventList1], false);
+[f1a, b1] = tagMap.split([';' values.baseList1], false);
 assertTrue(isempty(f1));
 assertTrue(isempty(f1a));
-e1 = tagMap(h1, e1);
-b1 = tagMap(h1a, b1);
+e1 = tagMap(e1);
+b1 = tagMap(b1);
 e1.merge(b1, 'OnlyTags');
 eValues = e1.getValues();
 assertEqual(length(eValues), 2);
@@ -148,9 +130,9 @@ e1.merge('', 'Merge');
 eValues = e1.getValues();
 assertEqual(length(eValues), 2);
 fprintf('It should not include extra values if OnlyTags is true\n');
-[h3, f3, b3] = tagMap.split([';;' values.baseList3], false);
+[f3, b3] = tagMap.split([';' values.baseList3], false);
 assertTrue(isempty(f3));
-b3 = tagMap(h3, b3);
+b3 = tagMap(b3);
 e1.merge(b3, 'OnlyTags');
 eValues = e1.getValues();
 assertEqual(length(eValues), 2);
@@ -160,9 +142,9 @@ eValues = e1.getValues();
 assertEqual(length(eValues), 3);
 
 fprintf('It should work when PreservePrefix is true\n');
-[h2, f2, e2] = tagMap.split([';;' values.eventList1], false);
+[f2, e2] = tagMap.split([';' values.eventList1], false);
 assertTrue(isempty(f2));
-eT2 = tagMap(h2, e2, 'PreservePrefix', true);
+eT2 = tagMap(e2, 'PreservePrefix', true);
 eT2.merge(b1, 'OnlyTags');
 eValues = eT2.getValues();
 assertEqual(length(eValues), 2);
@@ -172,20 +154,20 @@ fprintf('It should correctly merge tags when value labels match\n');
 assertEqual(length(event2.tags), 4);
 
 fprintf('It should not merge the values when fields don''t match\n');
-[ h3, f3, e3] = tagMap.split([';;' values.eventList1], false);
+[f3, e3] = tagMap.split([';' values.eventList1], false);
 assertTrue(isempty(f3));
-eT3 = tagMap(h3, e3);
+eT3 = tagMap(e3);
 assertEqual(length(eT3.getValues()), 2);
 assertTrue(strcmpi(eT3.getField(), 'type'));
-[h4, f4, e4] = tagMap.split([';;' values.baseList3], false);
+[f4, e4] = tagMap.split([';' values.baseList3], false);
 assertTrue(isempty(f4));
-eT4 = tagMap(h4, e4);
+eT4 = tagMap(e4);
 assertEqual(length(eT4.getValues()), 2);
 assertTrue(strcmpi(eT4.getField(), 'type'));
 eT3.merge(eT4, 'Merge');
 assertEqual(length(eT3.getValues()), 3);
-eT3a = tagMap(h3, e3);
-eT4a = tagMap(h4, e4, 'Field', 'balony');
+eT3a = tagMap(e3);
+eT4a = tagMap(e4, 'Field', 'balony');
 eT3a.merge(eT4a, 'Merge');
 assertEqual(length(eT3a.getValues()), 2);
 
@@ -193,13 +175,13 @@ function testGetText(values) %#ok<DEFNU>
 % Unit test for tagMap mergeTagMap method
 fprintf('\nUnit tests for getText method of tagMap\n');
 fprintf('The text from an object created in text is valid\n');
-[h1, f1, e1] = tagMap.split([';;' values.eventList1], false);
+[f1, e1] = tagMap.split([';' values.eventList1], false);
 assertTrue(isempty(f1));
-eT1 = tagMap(h1, e1);
+eT1 = tagMap(e1);
 theText = eT1.getText();
-[h2, f2, e2] = tagMap.split(theText, false);
+[f2, e2] = tagMap.split(theText, false);
 assertTrue(strcmpi(f2, 'type'));
-eT2 = tagMap(h2, e2);
+eT2 = tagMap(e2);
 assert(isvalid(eT2));
 theJson = eT1.getJson();
 x1 = tagMap.json2Mat(theJson);
@@ -335,8 +317,8 @@ fprintf('It should work if the string is empty\n');
 function testClone(values) %#ok<DEFNU>
 fprintf('\nUnit tests for clone method of tagMap\n');
 fprintf('It should correctly clone a tagMap object\n');
-[xml1, field1, values1] = tagMap.split(values.eJSON1, true);
-obj1 = tagMap(xml1, values1);
+[field1, values1] = tagMap.split(values.eJSON1, true);
+obj1 = tagMap(values1);
 assertTrue(strcmpi (field1, obj1.getField()));
 obj2 = obj1.clone();
 assertTrue(isa(obj2, 'tagMap'));
@@ -350,7 +332,7 @@ assertEqual(length(keys1), length(keys2));
 function testGetJsonEvents(values) %#ok<DEFNU>
 fprintf('\nUnit tests for getJson method of tagMap\n');
 fprintf('It should correctly retrieve the values as a  tagMap object\n');
-[xml1, field1, values1] = tagMap.split(values.eJSON1, true);
-obj1 = tagMap(xml1, values1);
+[field1, values1] = tagMap.split(values.eJSON1, true);
+obj1 = tagMap(values1);
 string1 = obj1.getJsonValues();
 assertTrue(ischar(string1));
