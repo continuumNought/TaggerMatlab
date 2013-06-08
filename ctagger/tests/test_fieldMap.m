@@ -3,7 +3,7 @@ initTestSuite;
 
 function values = setup %#ok<DEFNU>
 types = {'RT', 'Trigger', 'Missed'};
-eStruct = struct('field', 'type', 'xml', 'abc', 'events', 'def');
+eStruct = struct('field', 'type', 'xml', 'abc', 'values', 'def');
 tags = {'/Time-Locked Event/Stimulus/Visual/Shape/Ellipse/Circle', ...
         '/Time-Locked Event/Stimulus/Visual/Fixation Point', ...
         '/Time-Locked Event/Stimulus/Visual/Uniform Color/Black'};
@@ -11,7 +11,7 @@ sE = struct('label', types, 'description', types, 'tags', '');
 sE(1).tags = tags;
 eStruct.field = 'type';
 eStruct.xml = fileread('HEDSpecification1.3.xml');
-eStruct.events = sE;
+eStruct.values = sE;
 values.eJSON1 = savejson('', eStruct);
 values.eStruct1 = eStruct;
 values.eventList1 = 'Trigger,code 1,/my/tag1, /my/tag2;Trigger2,t2,';
@@ -21,10 +21,10 @@ values.baseList2 = 'Trigger,code 3,/my/tag3, /my/tag4';
 values.eventList3 = 'RT,code 4,/my/tag1, /my/tag2';
 values.baseList3 = 'Trigger,code 1,/my/tag4, /my/tag2; RT,code 4,/my/tag1, /my/tag2';
 
-values.emptyEvent = '';
-values.eventMissingFields = struct('label', types);
-values.eventEmptyTags = struct('label', types, 'description', types, 'tags', '');
-values.oneEvent = struct('label', 'abc type', 'description', '', 'tags', '/a/b');
+values.emptyValue = '';
+values.valueMissingFields = struct('label', types);
+values.valueEmptyTags = struct('label', types, 'description', types, 'tags', '');
+values.oneValue = struct('label', 'abc type', 'description', '', 'tags', '/a/b');
 types = {'RT', 'Trigger', 'Missed'};
 eStruct = struct('field', 'type', 'xml', '', 'events', 'def');
 tags = {'/Time-Locked Event/Stimulus/Visual/Shape/Ellipse/Circle', ...
@@ -32,7 +32,7 @@ tags = {'/Time-Locked Event/Stimulus/Visual/Shape/Ellipse/Circle', ...
         '/Time-Locked Event/Stimulus/Visual/Uniform Color/Black'};
 sE = struct('label', types, 'description', types, 'tags', '');
 sE(1).tags = tags;
-eStruct.events = sE;
+eStruct.values = sE;
 eJSON1 = savejson('', eStruct);
 values.eStruct1 = eStruct;
 values.eJSON1 = eJSON1;
@@ -75,7 +75,7 @@ assertTrue(strcmpi(field1, 'type'));
 obj1 = fieldMap(xml1);
 assertTrue(isvalid(obj1));
 fprintf('It should have the right number of events\n');
-obj1.addEvents(field1, events1, 'Merge');
+obj1.addValues(field1, events1, 'Merge');
 events = obj1.getMaps();
 assertEqual(length(events), 1);
 fprintf('It should create a valid object for a valid text string\n');
@@ -86,7 +86,7 @@ obj2 = fieldMap(xml2);
 assertTrue(isvalid(obj2));
 fprintf('It should have the right number of events when there is one field\n');
 for k = 1:length(events2)
-    obj2.addEvent(field2, events2(k), 'Merge');
+    obj2.addValue(field2, events2(k), 'Merge');
 end
 events = obj2.getMaps();
 assertEqual(length(events), 1);
@@ -100,12 +100,12 @@ assertTrue(isfield(p, 'events'));
 assertEqual(length(p.events), 2);
 fprintf('It should have the right number of events with multiple fields\n');
 for k = 1:length(events2)
-    obj2.addEvent('banana', events2(k), 'Merge');
+    obj2.addValue('banana', events2(k), 'Merge');
 end
 events = obj2.getMaps();
 assertEqual(length(events), 2);
 for k = 1:length(events2)
-    obj2.addEvent('grapes', events2(k), 'Merge');
+    obj2.addValue('grapes', events2(k), 'Merge');
 end
 events = obj2.getMaps();
 assertEqual(length(events), 3);

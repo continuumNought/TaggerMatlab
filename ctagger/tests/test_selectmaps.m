@@ -18,11 +18,11 @@ values.code = codeValues;
 values.group = codeValues;
 values.inMap1 = fieldMap(values.xml);
 values.inMap2 = fieldMap(values.xml);
-s1 = tagMap.text2Events(values.type);
-values.inMap2.addEvents('type', s1, 'Merge');
-s2 = tagMap.text2Events(values.code);
-values.inMap2.addEvents('code', s2, 'Merge');
-values.inMap2.addEvents('group', s2, 'Merge');
+s1 = tagMap.text2Values(values.type);
+values.inMap2.addValues('type', s1, 'Merge');
+s2 = tagMap.text2Values(values.code);
+values.inMap2.addValues('code', s2, 'Merge');
+values.inMap2.addValues('group', s2, 'Merge');
 values.inMap3 = values.inMap2.clone();
 
 function teardown(values) %#ok<INUSD,DEFNU>
@@ -61,6 +61,8 @@ function testValidInteractive(values)  %#ok<DEFNU>
 % fprintf('\nUnit tests for selectmaps\n');
 % fprintf('These tests require user intervention\n');
 fprintf('\nUnit tests for selectmaps\n');
+fprintf('....REQUIRES USER INPUT\n');
+fprintf('PRESS the TAG BUTTON ALWAYS\n');
 fprintf('It should return an empty map when input map is empty\n');
 [fMap1, excluded1] = selectmaps(values.inMap1, 'SelectOption', true);
 assertTrue(isempty(excluded1));

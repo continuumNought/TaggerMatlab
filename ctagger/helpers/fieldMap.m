@@ -139,7 +139,7 @@ classdef fieldMap < hgsetget
             end
         end % tagMap constructor
         
-        function addEvent(obj, type, event, updateType)
+        function addValue(obj, type, event, updateType)
             % Include event (a structure) in this tagMap object based on updateType
             % Does this type exist?
             if ~obj.TypeMap.isKey(type)
@@ -149,16 +149,16 @@ classdef fieldMap < hgsetget
             end
 
             % Add the event to the fieldMap
-            eTag.addEvent(event, updateType);
+            eTag.addValue(event, updateType);
             obj.TypeMap(type) = eTag;
-        end % addEvent
+        end % addValue
         
-        function addEvents(obj, type, events, updateType)
+        function addValues(obj, type, events, updateType)
             % Include event (a structure) in this tagMap object based on updateType
             for k = 1:length(events)
-                obj.addEvent(type, events(k), updateType);
+                obj.addValue(type, events(k), updateType);
             end
-        end % addEvents
+        end % addValues
         
        function addTagMap(obj, eData, updateType)
             % Include information of the eData tagMap object based on updateType
@@ -185,22 +185,22 @@ classdef fieldMap < hgsetget
             newMap.TypeMap = tMap;
         end %clone        
         
-        function event = getEvent(obj, type, key)
+        function event = getValue(obj, type, key)
             % Return the event structure corresponding to specified key
             event = '';
             if obj.TypeMap.isKey(type)
-                event = obj.TypeMap(type).getEvent(key);
+                event = obj.TypeMap(type).getValue(key);
             end
-        end % getEvent
+        end % getValue
         
-        function events = getEvents(obj, type)
+        function events = getValues(obj, type)
             % Return the events as a cell array of structures
             if obj.TypeMap.isKey(type)
-               events = obj.TypeMap(type).getEvents();
+               events = obj.TypeMap(type).getValues();
             else
                 events = '';
             end;
-        end % getEvents
+        end % getValues
         
         function fields = getFields(obj)
             fields = obj.TypeMap.keys();
@@ -246,7 +246,7 @@ classdef fieldMap < hgsetget
             events = struct('field', types, 'events', '');
             for k = 1:length(types)
                 eTags = obj.TypeMap(types{k});
-                events(k).events = eTags.getEventStruct();
+                events(k).events = eTags.getValueStruct();
             end
             thisStruct.map = events;
         end % getStruct
@@ -256,7 +256,7 @@ classdef fieldMap < hgsetget
             tags = '';
             try
                tMap = obj.TypeMap(field);
-               eStruct = tMap.getEvent(event);
+               eStruct = tMap.getValue(event);
                tags = eStruct.tags;
             catch me %#ok<NASGU>
             end
@@ -317,7 +317,7 @@ classdef fieldMap < hgsetget
             obj.XmlSchema = fileread(tagMap.DefaultSchema);
             obj.mergeXml(xmlString);
             for k = 1:length(eStruct)
-                obj.addEvent(eStruct(k), 'Merge');
+                obj.addValue(eStruct(k), 'Merge');
             end
         end % reset
         

@@ -78,4 +78,4 @@ assertEqual(sum(strcmpi(fields, 'type')), 1);
 assertTrue(isfield(y.etc, 'tags'));
 assertTrue(isfield(y.etc.tags, 'xml'));
 assertEqual(length(fieldnames(y.etc.tags)), 2);
-assertEqual(length(excluded), 6);
+assertEqual(length(excluded), 5);

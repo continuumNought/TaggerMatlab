@@ -16,14 +16,14 @@
 %   'ExcludeFields'  A cell array containing the field names to exclude
 %   'Fields'         A cell array containing the field names to extract
 %                    tags for.
-%   'PreservePrefix' If false (default), tags of the same event type that
+%   'PreservePrefix' If false (default), tags associated with same value that
 %                    share prefixes are combined and only the most specific
 %                    is retained (e.g., /a/b/c and /a/b become just
 %                    /a/b/c). If true, then all unique tags are retained.
-%    'UpdateType'     Indicates how tags are merged with initial tags if the
-%                    tagging information is to be rewritten to the EEG
-%                    files. The options are: 'merge', 'replace', 
-%                    'onlytags' (default), 'update' or 'none'.
+%   'RewriteOption'  String indicating how tag information should be
+%                    written to the datasets. The options are 'Both',
+%                    'Individual', 'None', 'Summary'. See the notes for
+%                    additional information.
 %
 % Notes:
 %   The tags are written to the data files in two ways. In both cases
@@ -39,7 +39,7 @@
 %      are also written to x.event.usertags based on the individual 
 %      values of their events.
 %
-% See also: tageeg, tagevents, and tagMap
+% See also: tageeg, fieldMap, and tagMap
 %
 
 %1234567890123456789012345678901234567890123456789012345678901234567890
@@ -109,11 +109,11 @@ function edata = writetags(edata, fMap, varargin)
 
         for k = 1:length(fields)
             edata.etc.tags.map.(fields{k}) = ...
-                fMap.getMap(fields{k}).getTextEvents();
+                fMap.getMap(fields{k}).getTextValues();
         end
     end
     
-    % Write summary if needed
+    % Write tags to individual events in usertags field if needed
     if isfield(edata, 'event') && (strcmpi(p.RewriteOption, 'Both') ...
             || strcmpi(p.RewriteOption, 'Individual'))
         for k = 1:length(edata.event)

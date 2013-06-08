@@ -1,68 +1,40 @@
-% tagMap    object encapsulating xml tags and event labels of one type
+% tagMap    object encapsulating xml tags and value labels of one type
 %
 % Usage:
-%   >>  eTags = tagMap(xmlString, events)
-%   >>  eTags = tagMap(xmlString, events, 'key1', 'value1', ...)
+%   >>  eTags = tagMap(xmlString, values)
+%   >>  eTags = tagMap(xmlString, values, 'key1', 'value1', ...)
 %
 % Description:
-% eTags = tagMap(xmlString, events) creates an object representing the 
+% eTags = tagMap(xmlString, values) creates an object representing the 
 %    tag hierarchy for community tagging. The object knows how to merge and
 %    can produce output in either JSON or semicolon separated
 %    text format. The xmlString is an XML string with the tag hierarchy
-%    and events is a structure array that holds the events and tags.
+%    and values is a structure array that holds the values and tags.
 %
-% eTags = tagMap(xmlString, events, 'key1', 'value1', ...)
+% eTags = tagMap(xmlString, values, 'key1', 'value1', ...)
 %
 %
 % where the key-value pairs are:
 %
-%   'Field'            field name corresponding to these event tags
+%   'Field'            field name corresponding to these value tags
 %   'PreservePrefix'   logical - if false (default) tags with matching
 %                      prefixes are merged to be the longest
-%
-% addTags mergeOptions:
-%    'Merge'          If an event with that key is not part of this
-%                     object, add it as is. 
-%
-%    'NoUpdate'       Don't update anything in the structure
-%
-%    'Replace'        If an event with that key is not part of this
-%                     object, do nothing. Otherwise, if an event with that
-%                     key is part of this object then completely replace 
-%                     that event with the new one.
-%
-%    'TagsOnly'       If an event with that key is not part of this
-%                     object, do nothing. Otherwise, if an event with that
-%                     key is part of this object, then update the tags of 
-%                     the matching event with the new ones from this event,
-%                     using the PreservePrefix value to determine how to
-%                     combine the tags.
-%
-%    'Update'         If an event with that key is not part of this
-%                     object, do nothing. Otherwise, if an event with that
-%                     key is part of this object, then update the tags of 
-%                     the matching event with the new ones from this event,
-%                     using the PreservePrefix value to determine how to
-%                     combine the tags. Also update any empty code, label
-%                     or description fields by using the values in the
-%                     input event.
-%
 % Notes:
 %
 % Event string format:
-%    Each unique event type is stored in comma separated form as
+%    Each unique value type is stored in comma separated form as
 %    label,description, tags. The specifications for the individual
-%    unique events types are separated by semicolumns. To form the
-%    string for each event, the unique type is used as the code and
+%    unique values types are separated by semicolumns. To form the
+%    string for each value, the unique type is used as the code and
 %    the name after num2str has been applied. The description
 %    is empty.  The user will then use the
 %
-% Example 1: The unique event types in the EEG structure are 'RT' and
+% Example 1: The unique value types in the EEG structure are 'RT' and
 %            'flash'. The output string is:
 %
 %             'RT,RT;flash,flash'
 %
-% Example 2: The unique event types in the EEG structure are the numerical
+% Example 2: The unique value types in the EEG structure are the numerical
 %            values: 1, 302, and 43. The output string is:
 %
 %            '1,1;302,302;43,43'
@@ -75,9 +47,9 @@
 %
 %     field: 'type'
 %     xml:    ''
-%     events: [1x2 struct]
+%     values: [1x2 struct]
 %
-% The events field is either empty of contains a structure array:
+% The values field is either empty of contains a structure array:
 % 
 % Example:
 %  1x2 struct array with fields:
@@ -126,26 +98,26 @@ classdef tagMap < hgsetget
     properties (Access = private)
         Field                % Name of field for this group of tags
         PreservePrefix       % If true, don't eliminate duplicate prefixes (default false)
-        TagMap               % Map for matching event labels
+        TagMap               % Map for matching value labels
         Xml                  % Tag hierarchy as an XML string
         XmlSchema            % String containing the XML schema
     end % private properties
     
     methods
-        function obj = tagMap(xmlString, events, varargin)
+        function obj = tagMap(xmlString, values, varargin)
             % Constructor parses parameters and sets up initial data
             if isempty(varargin)
-                obj.parseParameters(xmlString, events);
+                obj.parseParameters(xmlString, values);
             else
-                obj.parseParameters(xmlString, events, varargin{:});
+                obj.parseParameters(xmlString, values, varargin{:});
             end
         end % tagMap constructor
         
-        function addEvent(obj, event, updateType)
-            % Include event in this tagMap object based on updateType
-            if ~tagMap.validateEvent(event)
+        function addValue(obj, value, updateType)
+            % Include value in this tagMap object based on updateType
+            if ~tagMap.validateValue(value)
                 warning('tagMap_addTags:invalid', ...
-                    ['Could not add tags - event is not structure with' ...
+                    ['Could not add tags - value is not structure with' ...
                     ' label, description and tag fields']);
                 return;
             elseif sum(strcmpi(updateType, ...
@@ -156,36 +128,36 @@ classdef tagMap < hgsetget
                 return;
             end
             
-            % Does this event exist in this object?
-            key = event.label;
-            eventExists = obj.TagMap.isKey(key);
+            % Does this value exist in this object?
+            key = value.label;
+            valueExists = obj.TagMap.isKey(key);
             if strcmpi(updateType, 'None') 
                 return;
-            elseif ~eventExists && ~strcmpi(updateType, 'Merge')
+            elseif ~valueExists && ~strcmpi(updateType, 'Merge')
                 return
-            elseif ~eventExists || strcmpi(updateType, 'Replace')
-                 obj.TagMap(key) = event;
+            elseif ~valueExists || strcmpi(updateType, 'Replace')
+                 obj.TagMap(key) = value;
                  return
             end
    
-            % Merge tags of existing events
-            oldEvent = obj.TagMap(key);
-            oldEvent.tags = merge_taglists(oldEvent.tags, ...
-                event.tags, obj.PreservePrefix);
+            % Merge tags of existing values
+            oldValue = obj.TagMap(key);
+            oldValue.tags = merge_taglists(oldValue.tags, ...
+                value.tags, obj.PreservePrefix);
             if strcmpi(updateType, 'OnlyTags')
-                obj.TagMap(key) = oldEvent;
+                obj.TagMap(key) = oldValue;
                 return;
             end
             
-            % Now handle merge or update of an existing event itself
-            if isempty(oldEvent.label)
-                oldEvent.code = event.label;
+            % Now handle merge or update of an existing value itself
+            if isempty(oldValue.label)
+                oldValue.code = value.label;
             end
-            if isempty(oldEvent.description)
-                oldEvent.description = event.description;
+            if isempty(oldValue.description)
+                oldValue.description = value.description;
             end
-            obj.TagMap(key) = oldEvent;
-        end % addEvent
+            obj.TagMap(key) = oldValue;
+        end % addValue
         
         function newMap = clone(obj)
             newMap = tagMap(obj.Xml, '');
@@ -201,33 +173,33 @@ classdef tagMap < hgsetget
             newMap.TagMap = tMap;
         end %clone        
         
-        function event = getEvent(obj, key)
-            % Return the event structure corresponding to specified key
+        function value = getValue(obj, key)
+            % Return the value structure corresponding to specified key
             if obj.TagMap.isKey(key)
-                event = obj.TagMap(key);
+                value = obj.TagMap(key);
             else
-                event = '';
+                value = '';
             end
-        end % getEvent
+        end % getValue
         
-        function events = getEvents(obj)
-            % Return the events as a cell array of structures
-            events = obj.TagMap.values;
-        end % getEvents
+        function values = getValues(obj)
+            % Return the values as a cell array of structures
+            values = obj.TagMap.values;
+        end % getValues
         
-        function eStruct = getEventStruct(obj)
-            % Return the events as a structure array
-            events = obj.TagMap.values;
-            if isempty(events)
+        function eStruct = getValueStruct(obj)
+            % Return the values as a structure array
+            values = obj.TagMap.values;
+            if isempty(values)
                 eStruct = '';
             else
-                nEvents = length(events);
-                eStruct(nEvents) = events{nEvents};
-                for k = 1:nEvents - 1
-                    eStruct(k) = events{k};
+                nValues = length(values);
+                eStruct(nValues) = values{nValues};
+                for k = 1:nValues - 1
+                    eStruct(k) = values{k};
                 end
             end
-        end % getEvents
+        end % getValues
  
         function field = getField(obj)
             field = obj.Field;
@@ -238,14 +210,14 @@ classdef tagMap < hgsetget
             jString = savejson('', obj.getStruct());
         end % getJson
         
-        function jString = getJsonEvents(obj)
+        function jString = getJsonValues(obj)
             % Return a JSON string version of the tagMap object
-            jString = tagMap.events2Json(obj.TagMap.values);
+            jString = tagMap.values2Json(obj.TagMap.values);
         end % getJson
         
                
         function eLabels = getLabels(obj)
-            % Return the unique event values of this type
+            % Return the unique value values of this type
             eLabels = obj.TagMap.keys();
         end % getLabels
         
@@ -257,18 +229,18 @@ classdef tagMap < hgsetget
         function thisStruct = getStruct(obj)
             % Return this object in structure form
             thisStruct = struct('field', obj.Field, ...
-                         'xml', obj.Xml, 'events', obj.getEventStruct());
+                         'xml', obj.Xml, 'values', obj.getValueStruct());
         end % getStruct
         
         function thisText = getText(obj)
             % Return this object as semi-colon separated text
-            thisText = [obj.Xml ';' obj.Field ';'  obj.getTextEvents()];
+            thisText = [obj.Xml ';' obj.Field ';'  obj.getTextValues()];
         end % getText
         
-        function eventsText = getTextEvents(obj)
-            % Return events of this object as semi-colon separated text
-            eventsText  = tagMap.events2Text(obj.TagMap.values);
-        end % getTextEvents
+        function valuesText = getTextValues(obj)
+            % Return values of this object as semi-colon separated text
+            valuesText  = tagMap.values2Text(obj.TagMap.values);
+        end % getTextValues
         
        function xml = getXml(obj)
             % Return a string containing the xml
@@ -285,11 +257,11 @@ classdef tagMap < hgsetget
             if ~strcmpi(field, obj.Field)
                 return;
             end
-            events = eTags.getEvents();
-            for k = 1:length(events)
-                obj.addEvent(events{k}, updateType);
+            values = eTags.getValues();
+            for k = 1:length(values)
+                obj.addValue(values{k}, updateType);
             end
-        end % mergeEvents
+        end % merge
         
         function mergeXml(obj, xmlMerge)
             % Merge the hedXML string with obj.HedXML if valid
@@ -310,13 +282,13 @@ classdef tagMap < hgsetget
 
         
         function reset(obj, xmlString, eStruct)
-            % Reset this object based on hedString and event structure
+            % Reset this object based on hedString and value structure
             obj.TagMap = containers.Map('KeyType', 'char', 'ValueType', 'any');
             obj.Xml = fileread(tagMap.DefaultXml);
             obj.XmlSchema = fileread(tagMap.DefaultSchema);
             obj.mergeXml(xmlString);
             for k = 1:length(eStruct)
-                obj.addEvent(eStruct(k), 'Merge');
+                obj.addValue(eStruct(k), 'Merge');
             end
         end % reset
         
@@ -337,98 +309,98 @@ classdef tagMap < hgsetget
             end
         end % getXml
         
-        function parseParameters(obj, xmlString, events, varargin)
+        function parseParameters(obj, xmlString, values, varargin)
             % Parse parameters provided by user in constructor
             parser = tagMap.getParser();
-            parser.parse(xmlString, events, varargin{:})
+            parser.parse(xmlString, values, varargin{:})
             pdata = parser.Results;
             obj.Field = pdata.Field;
             obj.PreservePrefix = pdata.PreservePrefix;
-            obj.reset(pdata.XmlString, pdata.Events)
+            obj.reset(pdata.XmlString, pdata.Values)
         end % parseParameters
         
     end % private methods
     
     methods(Static = true)
         
-        function event = createEvent(elabel, edescription, etags)
-            % Create structure for one event, output warning if invalid
-            event = struct('label', num2str(elabel), ...
+        function value = createValue(elabel, edescription, etags)
+            % Create structure for one value, output warning if invalid
+            value = struct('label', num2str(elabel), ...
                 'description', num2str(edescription), 'tags', '');
-            event.tags = etags;
-        end % createEvent
+            value.tags = etags;
+        end % createValue
         
-        function eJson = event2Json(event)
-            % Convert an event structure to a JSON string
-            tags = event.tags;
+        function eJson = value2Json(value)
+            % Convert an value structure to a JSON string
+            tags = value.tags;
             if isempty(tags)
                 tagString = '';
             elseif ischar(tags)
                 tagString = ['"' tags '"'];
             else
                 tagString = ['"' tags{1} '"'];
-                for j = 2:length(event.tags)
+                for j = 2:length(value.tags)
                     tagString = [tagString ',' '"' tags{j} '"']; %#ok<AGROW>
                 end
             end
             tagString = ['[' tagString ']'];
-            eJson = ['{"label":"' event.label ...
-                '","description":"' event.description '","tags":' ...
+            eJson = ['{"label":"' value.label ...
+                '","description":"' value.description '","tags":' ...
                 tagString '}'];
         end
         
-        function eText = event2Text(event)
-            % Convert an event structure to comma-separated string
-            tags = event.tags;
+        function eText = value2Text(value)
+            % Convert an value structure to comma-separated string
+            tags = value.tags;
             if isempty(tags)
                 tagString = '';
             elseif ischar(tags)
                 tagString = tags;
             else
                 tagString = tags{1};
-                for j = 2:length(event.tags)
+                for j = 2:length(value.tags)
                     tagString = [tagString ',' tags{j}]; %#ok<AGROW>
                 end
             end
-            eText = [event.label ',' event.description ',' tagString];
-        end % event2Text
+            eText = [value.label ',' value.description ',' tagString];
+        end % value2Text
         
-        function eText = events2Json(events)
-            % Convert an event structure array to a JSON string 
-            if isempty(events)
+        function eText = values2Json(values)
+            % Convert an value structure array to a JSON string 
+            if isempty(values)
                 eText = '';
             else
-                eText = tagMap.event2Json(events{1});
-                for k = 2:length(events)
-                    eText = [eText ',' tagMap.event2Json(events{k})]; %#ok<AGROW>
+                eText = tagMap.value2Json(values{1});
+                for k = 2:length(values)
+                    eText = [eText ',' tagMap.value2Json(values{k})]; %#ok<AGROW>
                 end
             end
             eText = ['[' eText ']'];
-        end % events2Json
+        end % values2Json
         
-        function eText = events2Text(events)
-            % Convert an event structure array or cell array to semi-colon separated string
-            if isempty(events)
+        function eText = values2Text(values)
+            % Convert an value structure array or cell array to semi-colon separated string
+            if isempty(values)
                 eText = '';
-            elseif isstruct(events)
-                eText = tagMap.event2Text(events(1));
-                for k = 2:length(events)
-                    eText = [eText ';' tagMap.event2Text(events(k))]; %#ok<AGROW>
+            elseif isstruct(values)
+                eText = tagMap.value2Text(values(1));
+                for k = 2:length(values)
+                    eText = [eText ';' tagMap.value2Text(values(k))]; %#ok<AGROW>
                 end
-            elseif iscell(events)
-                eText = tagMap.event2Text(events{1});
-                for k = 2:length(events)
-                    eText = [eText ';' tagMap.event2Text(events{k})]; %#ok<AGROW>
+            elseif iscell(values)
+                eText = tagMap.value2Text(values{1});
+                for k = 2:length(values)
+                    eText = [eText ';' tagMap.value2Text(values{k})]; %#ok<AGROW>
                 end
             end
-        end % events2Text
+        end % values2Text
           
         function parser = getParser()
             % Create a parser for blockedData
             parser = inputParser;
             parser.addRequired('XmlString', ...
                 @(x) (isempty(x) || ischar(x)));
-            parser.addRequired('Events', ...
+            parser.addRequired('Values', ...
                 @(x) (isempty(x) || (isstruct(x) && isfield(x, 'label') ...
                       && isfield(x, 'description') && isfield(x, 'tags'))))
             parser.addParamValue('Field', 'type', ...
@@ -439,19 +411,19 @@ classdef tagMap < hgsetget
         
         function theStruct = json2Mat(json)
             % Convert a JSON object specification to a structure
-            theStruct = struct('field', '', 'xml', '', 'events', '');
+            theStruct = struct('field', '', 'xml', '', 'values', '');
             if isempty(json)
                 return;
             end
             try
                 theStruct = loadjson(json);
                 % Adjust so tags are cellstrs
-                for k = 1:length(theStruct.events)
-                    if isempty(theStruct.events(k).tags)
+                for k = 1:length(theStruct.values)
+                    if isempty(theStruct.values(k).tags)
                         continue;
                     end   
-                    theStruct.events(k).tags = ...
-                                      cellstr(theStruct.events(k).tags)';
+                    theStruct.values(k).tags = ...
+                                      cellstr(theStruct.values(k).tags)';
                 end
             catch ME
                 if ~ischar(json)
@@ -463,32 +435,32 @@ classdef tagMap < hgsetget
             end
         end % json2mat
         
-        function eStruct = json2Events(json)
-            % Converts a JSON events string to a structure or empty string
+        function eStruct = json2Values(json)
+            % Converts a JSON values string to a structure or empty string
             if isempty(json)
                 eStruct = '';
             else
                 eStruct = loadjson(json);
             end
-        end % json2Events
+        end % json2Values
         
         
-        function [event, valid] = reformatEvent(event)
-            % Reformat and check event making sure empty tags are removed
-            valid = tagMap.validateEvent(event);
+        function [value, valid] = reformatValue(value)
+            % Reformat and check value making sure empty tags are removed
+            valid = tagMap.validateValue(value);
             if ~valid
                 return;
             end
-            event.label = strtrim(event.label);
-            if isempty(event.label)
+            value.label = strtrim(value.label);
+            if isempty(value.label)
                 valid = false;
                 return
             end
-            event.description = strtrim(event.description);
-            if ~isfield(event, 'tags') || isempty(event.tags)
-                event.tags = '';
+            value.description = strtrim(value.description);
+            if ~isfield(value, 'tags') || isempty(value.tags)
+                value.tags = '';
             else
-                tags = cellfun(@strtrim, cellstr(event.tags), 'UniformOutput', false);
+                tags = cellfun(@strtrim, cellstr(value.tags), 'UniformOutput', false);
                 eCheck = cellfun(@isempty, tags);
                 tags(eCheck) = [];
                 if isempty(tags)
@@ -496,16 +468,16 @@ classdef tagMap < hgsetget
                 elseif length(tags) == 1
                     tags = tags{1};
                 end
-                event.tags = tags;
+                value.tags = tags;
             end
-        end % reformatEvent
+        end % reformatValue
         
  
-        function [xml, field, events] = split(inString, useJson)
-            % Parse inString into xml hed string and events structure 
+        function [xml, field, values] = split(inString, useJson)
+            % Parse inString into xml hed string and values structure 
             field = '';
             xml = '';
-            events = '';
+            values = '';
             if isempty(inString)
                 return;
             elseif useJson
@@ -515,11 +487,11 @@ classdef tagMap < hgsetget
             end
             field = theStruct.field;
             xml = theStruct.xml;
-            events = theStruct.events;
+            values = theStruct.values;
         end % split
         
-        function theStruct = text2Event(eString)
-            % Parse a comma separated event string into its constituent pieces.
+        function theStruct = text2Value(eString)
+            % Parse a comma separated value string into its constituent pieces.
             theStruct = struct('label', '', 'description', '', 'tags', '');
             if isempty(eString)
                 return;
@@ -538,25 +510,25 @@ classdef tagMap < hgsetget
             if isempty(theStruct.tags)  %Clean up
                 theStruct.tags = '';
             end
-        end %text2Event
+        end %text2Value
         
-        function eStruct = text2Events(events)
-            % Create an events structure array from a cell array of text events
-            if length(events) < 1
+        function eStruct = text2Values(values)
+            % Create an values structure array from a cell array of text values
+            if length(values) < 1
                 eStruct = '';
             else  
-                splitEvents = regexpi(events, ';', 'split');
+                splitEvents = regexpi(values, ';', 'split');
                 eStruct(length(splitEvents)) = ...
                     struct('label', '', 'description', '', 'tags', '');
                 for k = 1:length(splitEvents)
-                    eStruct(k)= tagMap.text2Event(splitEvents{k});
+                    eStruct(k)= tagMap.text2Value(splitEvents{k});
                 end
             end
-        end % text2Events
+        end % text2Values
         
         function theStruct = text2Mat(eString)
             % Convert semicolon-separated specification to struct 
-            theStruct = struct('xml', '', 'field', '', 'events', '');
+            theStruct = struct('xml', '', 'field', '', 'values', '');
             eString = strtrim(eString);
             if isempty(eString)
                 return;
@@ -574,25 +546,25 @@ classdef tagMap < hgsetget
             if nEvents < 3
                 return;
             end
-            eventString = eString(eStart(2)+ 1:end);
-            theStruct.events = tagMap.text2Events(eventString);
+            valueString = eString(eStart(2)+ 1:end);
+            theStruct.values = tagMap.text2Values(valueString);
         end % text2mat
 
-        function valid = validateEvent(event)
-            % Validate the structure array corresponding to event
-            if ~isstruct(event)
+        function valid = validateValue(value)
+            % Validate the structure array corresponding to value
+            if ~isstruct(value)
                 valid = false;
-            elseif sum(isfield(event, {'label', 'description', 'tags'})) ~= 3
+            elseif sum(isfield(value, {'label', 'description', 'tags'})) ~= 3
                 valid = false;
-            elseif ~ischar(event.label) || ~ischar(event.description)
+            elseif ~ischar(value.label) || ~ischar(value.description)
                 valid = false;
-            elseif ~isempty(event.tags) && ...
-                    ~iscellstr(event.tags) && ~ischar(event.tags)
+            elseif ~isempty(value.tags) && ...
+                    ~iscellstr(value.tags) && ~ischar(value.tags)
                 valid = false;
             else
                 valid = true;
             end
-        end % validateEvent
+        end % validateValue
         
         function validateXml(schema, xmlString)
             % Validate xmlString as empty or valid XML (invalid throws exception) 

@@ -76,15 +76,15 @@ function fMap = editmaps(fMap, varargin)
         if isempty(tMap)
             return;
         end
-        tEvents = strtrim(char(tMap.getJsonEvents()));
+        tValues = strtrim(char(tMap.getJsonValues()));
         if syncThis
             taggedList = edu.utsa.tagger.Controller.showDialog( ...
-                        xml, tEvents, true, 0, char(eTitle), 3);
+                        xml, tValues, true, 0, char(eTitle), 3);
             xml = char(taggedList(1, :));
-            tEvents = strtrim(char(taggedList(2, :)));
+            tValues = strtrim(char(taggedList(2, :)));
         else
             javaMethodEDT('createController', 'edu.utsa.tagger.Controller', ...
-                           xml, tEvents, true, 0, eTitle, 3);
+                           xml, tValues, true, 0, eTitle, 3);
             notified = edu.utsa.tagger.Controller.get().getNotified();
             while (~notified)
                 pause(5);
@@ -93,25 +93,25 @@ function fMap = editmaps(fMap, varargin)
             taggedList = edu.utsa.tagger.Controller.getReturnString(true);
             if ~isempty(taggedList)
                xml = char(taggedList(1, :));
-               tEvents = strtrim(char(taggedList(2, :)));
+               tValues = strtrim(char(taggedList(2, :)));
             end
         end
-        tEvents = tagMap.json2Events(tEvents);
+        tValues = tagMap.json2Values(tValues);
 
         %----TODO merge XML
         %------TEMPORARY FIX
         
-        if isfield(tEvents, 'code')
+        if isfield(tValues, 'code')
             fprintf('----warning editmaps:CodeField --- Removing code field\n');
-            tEvents = rmfield(tEvents, 'code');
+            tValues = rmfield(tValues, 'code');
         end
-        if isfield(tEvents, 'paths')
+        if isfield(tValues, 'paths')
             fprintf('----warning editmaps:PathField --- Renaming path field to tags field\n');
-            for j = 1:length(tEvents) 
-                tEvents(j).tags = tEvents(j).paths;
+            for j = 1:length(tValues) 
+                tValues(j).tags = tValues(j).paths;
             end
-            tEvents = rmfield(tEvents, 'paths');
+            tValues = rmfield(tValues, 'paths');
         end
-        tMap.reset(strtrim(xml), tEvents);
+        tMap.reset(strtrim(xml), tValues);
     end % editmap
 end % editmaps

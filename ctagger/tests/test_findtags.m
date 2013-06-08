@@ -83,17 +83,17 @@ fprintf('\nUnit tests for findtags with multiple field combinations\n');
 fprintf('It should tag when the epoch field is not excluded\n');
 assertTrue(~isfield(values.EEGEpoch.etc, 'tags'));
 dTags = findtags(values.EEGEpoch, 'ExcludeFields', {'latency', 'urevent'});
-events = dTags.getMaps();
-assertEqual(length(events), 3);
-e1 = events{1}.getStruct();
+values1 = dTags.getMaps();
+assertEqual(length(values1), 3);
+e1 = values1{1}.getStruct();
 assertTrue(strcmpi(e1.field, 'epoch'));
-assertEqual(length(e1.events), 80);
-e2 = events{2}.getStruct();
+assertEqual(length(e1.values), 80);
+e2 = values1{2}.getStruct();
 assertTrue(strcmpi(e2.field, 'position'));
-assertEqual(length(e2.events), 2);
-e3 = events{3}.getStruct();
+assertEqual(length(e2.values), 2);
+e3 = values1{3}.getStruct();
 assertTrue(strcmpi(e3.field, 'type'));
-assertEqual(length(e3.events), 2);
+assertEqual(length(e3.values), 2);
 
 function testEmpty(values)  %#ok<INUSD,DEFNU>
 % Unit test for findtags

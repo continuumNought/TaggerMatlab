@@ -17,14 +17,14 @@ values.type = typeValues;
 values.code = codeValues;
 values.group = codeValues;
 values.map1 = fieldMap(values.xml);
-s1 = tagMap.text2Events(values.type);
-values.map1.addEvents('type', s1, 'Merge');
+s1 = tagMap.text2Values(values.type);
+values.map1.addValues('type', s1, 'Merge');
 
 values.map2 = fieldMap(values.xml);
-values.map2.addEvents('type', s1, 'Merge');
-s2 = tagMap.text2Events(values.code);
-values.map2.addEvents('code', s2, 'Merge');
-values.map2.addEvents('group', s2, 'Merge');
+values.map2.addValues('type', s1, 'Merge');
+s2 = tagMap.text2Values(values.code);
+values.map2.addValues('code', s2, 'Merge');
+values.map2.addValues('group', s2, 'Merge');
 
 function teardown(values) %#ok<INUSD,DEFNU>
 % Function executed after each test
