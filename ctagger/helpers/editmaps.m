@@ -113,6 +113,8 @@ function fMap = editmaps(fMap, varargin)
             tValues = rmfield(tValues, 'paths');
         end
         fMap.mergeXml(strtrim(xml));
-        tMap.reset(tValues);
+        tMap = tagMap('Field', field);
+        tMap.addValues(tValues, 'Merge', fMap.getPreservePrefix());
+        fMap.setMap(field, tMap);
     end % editmap
 end % editmaps

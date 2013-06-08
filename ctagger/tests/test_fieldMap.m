@@ -212,7 +212,6 @@ fprintf('It should not cause an error when the field value doesn''t exist\n');
 tags5 = fMap.getTags('type', 'banana');
 assertTrue(isempty(tags5));
 
-
 function testMergeXml(values) %#ok<INUSD,DEFNU>
 % Unit test for tagMap mergeXml static method
 fprintf('\nUnit tests for mergeXml static method of tagMap\n');

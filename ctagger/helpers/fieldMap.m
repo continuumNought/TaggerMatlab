@@ -124,7 +124,7 @@ classdef fieldMap < hgsetget
     
     properties (Access = private)
         PreservePrefix       % If true, don't eliminate duplicate prefixes (default false)
-        TypeMap              % Map for matching event labels
+        GroupMap             % Map for matching event labels
         Xml                  % Tag hierarchy as an XML string
         XmlSchema            % String containing the XML schema
     end % private properties
@@ -142,15 +142,15 @@ classdef fieldMap < hgsetget
         function addValue(obj, type, event, updateType)
             % Include event (a structure) in this tagMap object based on updateType
             % Does this type exist?
-            if ~obj.TypeMap.isKey(type)
+            if ~obj.GroupMap.isKey(type)
                 eTag = tagMap('Field', type);
             else
-                eTag = obj.TypeMap(type);
+                eTag = obj.GroupMap(type);
             end
 
             % Add the event to the fieldMap
             eTag.addValue(event, updateType, obj.PreservePrefix);
-            obj.TypeMap(type) = eTag;
+            obj.GroupMap(type) = eTag;
         end % addValue
         
         function addValues(obj, type, events, updateType)
@@ -163,10 +163,10 @@ classdef fieldMap < hgsetget
        function addTagMap(obj, eData, updateType)
             % Include information of the eData tagMap object based on updateType
             type = eData.getField();
-            if ~obj.TypeMap.isKey(type)
+            if ~obj.GroupMap.isKey(type)
                 eTag = tagMap(obj.Xml, '', 'Field', type);
             else
-                eTag = obj.TypeMap(type);
+                eTag = obj.GroupMap(type);
             end
             eTag.merge(eData, updateType);
         end % addTagMap
@@ -177,17 +177,17 @@ classdef fieldMap < hgsetget
             newMap.Xml = obj.Xml;
             newMap.XmlSchema = obj.XmlSchema;
             newMap.Xml = obj.Xml;
-            values = obj.TypeMap.values;
+            values = obj.GroupMap.values;
             tMap = containers.Map('KeyType', 'char', 'ValueType', 'any');          
             for k = 1:length(values)
                 tMap(values{k}.getField()) = values{k};
             end
-            newMap.TypeMap = tMap;
+            newMap.GroupMap = tMap;
         end %clone  
         
 
         function fields = getFields(obj)
-            fields = obj.TypeMap.keys();
+            fields = obj.GroupMap.keys();
         end % getFields
         
         function jString = getJson(obj)
@@ -202,16 +202,16 @@ classdef fieldMap < hgsetget
         
         function tMap = getMap(obj, field)
             % Return the tagMap object associated with field or empty
-            if ~obj.TypeMap.isKey(field)
+            if ~obj.GroupMap.isKey(field)
                 tMap = '';
             else
-                tMap = obj.TypeMap(field);
+                tMap = obj.GroupMap(field);
             end
         end % getMap
         
         function tMaps = getMaps(obj)
             % Returns all of the tagMap objects as a cell array
-            tMaps = obj.TypeMap.values;
+            tMaps = obj.GroupMap.values;
         end % getMaps
         
  
@@ -223,13 +223,13 @@ classdef fieldMap < hgsetget
         function thisStruct = getStruct(obj)
             % Return this object as a structure array
             thisStruct = struct('xml', obj.Xml, 'map', '');
-            types = obj.TypeMap.keys();
+            types = obj.GroupMap.keys();
             if isempty(types)
                 return;
             end
             events = struct('field', types, 'events', '');
             for k = 1:length(types)
-                eTags = obj.TypeMap(types{k});
+                eTags = obj.GroupMap(types{k});
                 events(k).events = eTags.getValueStruct();
             end
             thisStruct.map = events;
@@ -239,7 +239,7 @@ classdef fieldMap < hgsetget
             % Returns tag string associated with value event of field
             tags = '';
             try
-               tMap = obj.TypeMap(field);
+               tMap = obj.GroupMap(field);
                eStruct = tMap.getValue(event);
                tags = eStruct.tags;
             catch me %#ok<NASGU>
@@ -249,15 +249,15 @@ classdef fieldMap < hgsetget
                 function event = getValue(obj, type, key)
             % Return the event structure corresponding to specified key
             event = '';
-            if obj.TypeMap.isKey(type)
-                event = obj.TypeMap(type).getValue(key);
+            if obj.GroupMap.isKey(type)
+                event = obj.GroupMap(type).getValue(key);
             end
         end % getValue
         
         function events = getValues(obj, type)
             % Return the events as a cell array of structures
-            if obj.TypeMap.isKey(type)
-               events = obj.TypeMap(type).getValues();
+            if obj.GroupMap.isKey(type)
+               events = obj.GroupMap(type).getValues();
             else
                 events = '';
             end;
@@ -279,12 +279,12 @@ classdef fieldMap < hgsetget
             for k = 1:length(fields)
                 type = fields{k};
                 tMap = fMap.getMap(type);
-                if ~obj.TypeMap.isKey(type)
-                    obj.TypeMap(type) = tagMap('Field', type);
+                if ~obj.GroupMap.isKey(type)
+                    obj.GroupMap(type) = tagMap('Field', type);
                 end
-                myMap = obj.TypeMap(type);
+                myMap = obj.GroupMap(type);
                 myMap.merge(tMap, updateType, obj.PreservePrefix)
-                obj.TypeMap(type) = myMap;
+                obj.GroupMap(type) = myMap;
             end
         end % merge
         
@@ -307,13 +307,13 @@ classdef fieldMap < hgsetget
         function removeMap(obj, fieldSet)
             % Remove the fields specified by fieldSet from the fieldMap
             if ~isempty(fieldSet)
-                obj.TypeMap.remove(fieldSet);
+                obj.GroupMap.remove(fieldSet);
             end
         end % removeMap
         
         function reset(obj, xmlString, eStruct)
             % Reset this object based on xmlString and event structure
-            obj.TypeMap = containers.Map('KeyType', 'char', 'ValueType', 'any');
+            obj.GroupMap = containers.Map('KeyType', 'char', 'ValueType', 'any');
             obj.Xml = fileread(fieldMap.DefaultXml);
             obj.XmlSchema = fileread(fieldMap.DefaultSchema);
             obj.mergeXml(xmlString);
@@ -324,7 +324,7 @@ classdef fieldMap < hgsetget
         
         function setMap(obj, field, tMap)
             % Set the map associated with field to tMap
-            obj.TagMap(field) = tMap;
+            obj.GroupMap(field) = tMap;
         end % setMap
         
     end % public methods
