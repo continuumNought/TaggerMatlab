@@ -156,7 +156,7 @@ thisDir = [values.TestDirectory filesep values.Shooter];
     'SelectOption', true, 'Synchronize', false);
 fields1 = fMap1.getFields();
 assertEqual(length(fields1), 10);
-type1 = fMap1.getEvents('type');
-assertEqual(length(type1.getEvents()), 23);
+type1 = fMap1.getValues('type');
+assertEqual(length(type1.getValues()), 23);
 assertEqual(length(fPaths1), 16);
 
