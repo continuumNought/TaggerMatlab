@@ -143,7 +143,7 @@ classdef fieldMap < hgsetget
             % Include event (a structure) in this tagMap object based on updateType
             % Does this type exist?
             if ~obj.TypeMap.isKey(type)
-                eTag = tagMap('', 'Field', type);
+                eTag = tagMap('Field', type);
             else
                 eTag = obj.TypeMap(type);
             end
@@ -279,7 +279,7 @@ classdef fieldMap < hgsetget
                 type = fields{k};
                 tMap = fMap.getMap(type);
                 if ~obj.TypeMap.isKey(type)
-                    obj.TypeMap(type) = tagMap('', 'Field', type);
+                    obj.TypeMap(type) = tagMap('Field', type);
                 end
                 myMap = obj.TypeMap(type);
                 myMap.merge(tMap, updateType)
