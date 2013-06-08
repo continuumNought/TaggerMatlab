@@ -143,7 +143,7 @@ classdef fieldMap < hgsetget
             % Include event (a structure) in this tagMap object based on updateType
             % Does this type exist?
             if ~obj.TypeMap.isKey(type)
-                eTag = tagMap(obj.Xml, '', 'Field', type);
+                eTag = tagMap('', 'Field', type);
             else
                 eTag = obj.TypeMap(type);
             end
@@ -279,7 +279,7 @@ classdef fieldMap < hgsetget
                 type = fields{k};
                 tMap = fMap.getMap(type);
                 if ~obj.TypeMap.isKey(type)
-                    obj.TypeMap(type) = tagMap(obj.Xml, '', 'Field', type);
+                    obj.TypeMap(type) = tagMap('', 'Field', type);
                 end
                 myMap = obj.TypeMap(type);
                 myMap.merge(tMap, updateType)
@@ -293,7 +293,7 @@ classdef fieldMap < hgsetget
                 return;
             end
             try
-               tagMap.validateXml(obj.XmlSchema, xmlMerge);
+               fieldMap.validateXml(obj.XmlSchema, xmlMerge);
             catch ex
                 warning('fieldMap:mergeXml', ['Could not merge XML ' ...
                      ' [' ex.message ']']);
@@ -313,8 +313,8 @@ classdef fieldMap < hgsetget
         function reset(obj, xmlString, eStruct)
             % Reset this object based on xmlString and event structure
             obj.TypeMap = containers.Map('KeyType', 'char', 'ValueType', 'any');
-            obj.Xml = fileread(tagMap.DefaultXml);
-            obj.XmlSchema = fileread(tagMap.DefaultSchema);
+            obj.Xml = fileread(fieldMap.DefaultXml);
+            obj.XmlSchema = fileread(fieldMap.DefaultSchema);
             obj.mergeXml(xmlString);
             for k = 1:length(eStruct)
                 obj.addValue(eStruct(k), 'Merge');

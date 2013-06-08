@@ -3,14 +3,14 @@ initTestSuite;
 
 function values = setup %#ok<DEFNU>
 types = {'RT', 'Trigger', 'Missed'};
-eStruct = struct('field', 'type', 'xml', 'abc', 'values', 'def');
+eStruct = struct('field', 'type', 'values', 'def');
 tags = {'/Time-Locked Event/Stimulus/Visual/Shape/Ellipse/Circle', ...
         '/Time-Locked Event/Stimulus/Visual/Fixation Point', ...
         '/Time-Locked Event/Stimulus/Visual/Uniform Color/Black'};
 sE = struct('label', types, 'description', types, 'tags', '');
 sE(1).tags = tags;
 eStruct.field = 'type';
-eStruct.xml = fileread('HEDSpecification1.3.xml');
+values.xml = fileread('HEDSpecification1.3.xml');
 eStruct.values = sE;
 values.eJSON1 = savejson('', eStruct);
 values.eStruct1 = eStruct;
@@ -26,7 +26,7 @@ values.valueMissingFields = struct('label', types);
 values.valueEmptyTags = struct('label', types, 'description', types, 'tags', '');
 values.oneValue = struct('label', 'abc type', 'description', '', 'tags', '/a/b');
 types = {'RT', 'Trigger', 'Missed'};
-eStruct = struct('field', 'type', 'xml', '', 'events', 'def');
+eStruct = struct('field', 'type', 'events', 'def');
 tags = {'/Time-Locked Event/Stimulus/Visual/Shape/Ellipse/Circle', ...
         '/Time-Locked Event/Stimulus/Visual/Fixation Point', ...
         '/Time-Locked Event/Stimulus/Visual/Uniform Color/Black'};
@@ -41,8 +41,8 @@ values.EEGEpoch = EEGEpoch;
 % load EEGShoot.mat;
 % values.EEGShoot = EEGShoot;
 values.noTagsFile = 'EEGEpoch.mat';
-values.oneTagsFile = 'dTags.mat';
-values.otherTagsFile = 'dTagsOther.mat';
+values.oneTagsFile = 'fMapOne.mat';
+values.otherTagsFile = 'fMapTwo.mat';
 typeValues = ['RT,User response,' ...
         '/Time-Locked Event/Stimulus/Visual/Shape/Ellipse/Circle,' ...
         '/Time-Locked Event/Stimulus/Visual/Uniform Color/Black;' ...
@@ -70,19 +70,19 @@ function testValid(values) %#ok<DEFNU>
 fprintf('\nUnit tests for fieldMap valid JSON constructor\n');
 
 fprintf('It should create a valid fieldMap object for a valid JSON events string\n');
-[xml1, field1,  events1] = tagMap.split(values.eJSON1, true);
+[field1,  events1] = tagMap.split(values.eJSON1, true);
 assertTrue(strcmpi(field1, 'type'));
-obj1 = fieldMap(xml1);
+obj1 = fieldMap(values.xml);
 assertTrue(isvalid(obj1));
 fprintf('It should have the right number of events\n');
 obj1.addValues(field1, events1, 'Merge');
 events = obj1.getMaps();
 assertEqual(length(events), 1);
 fprintf('It should create a valid object for a valid text string\n');
-testString = [values.eStruct1.xml ';type;'  values.eventList1];
-[xml2, field2, events2] = tagMap.split(testString, false);
+testString = ['type;'  values.eventList1];
+[field2, events2] = tagMap.split(testString, false);
 assertTrue(strcmpi(field2, 'type'));
-obj2 = fieldMap(xml2);
+obj2 = fieldMap(values.xml);
 assertTrue(isvalid(obj2));
 fprintf('It should have the right number of events when there is one field\n');
 for k = 1:length(events2)
@@ -166,10 +166,11 @@ bT3 = fieldMap.loadFieldMap(values.otherTagsFile);
 assertTrue(isa(bT3, 'fieldMap'));
 
 function testClone(values) %#ok<DEFNU>
-fprintf('\nUnit tests for clone method of tagMap\n');
-fprintf('It should correctly clone a tagMap object\n');
-[xml1, field1, events1] = tagMap.split(values.eJSON1, true);
-obj1 = tagMap(xml1, events1);
+%____________TODO
+fprintf('\nUnit tests for clone method of fieldMap\n');
+fprintf('It should correctly clone a fieldMap object\n');
+[field1, events1] = tagMap.split(values.eJSON1, true);
+obj1 = tagMap(events1);
 assertTrue(strcmpi (field1, obj1.getField()));
 
 obj2 = obj1.clone();
@@ -216,7 +217,7 @@ function testMergeXml(values) %#ok<INUSD,DEFNU>
 fprintf('\nUnit tests for mergeXml static method of tagMap\n');
 
 fprintf('It should merge XML when both tag sets are empty\n');
-obj1 = tagMap('', '');
+obj1 = fieldMap('');
 obj1.mergeXml('');
 xml1 = obj1.getXml;
 assertTrue(~isempty(xml1));
