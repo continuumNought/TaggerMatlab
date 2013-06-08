@@ -149,7 +149,7 @@ classdef fieldMap < hgsetget
             end
 
             % Add the event to the fieldMap
-            eTag.addValue(event, updateType);
+            eTag.addValue(event, updateType, obj.PreservePrefix);
             obj.TypeMap(type) = eTag;
         end % addValue
         
@@ -185,29 +185,7 @@ classdef fieldMap < hgsetget
             newMap.TypeMap = tMap;
         end %clone  
         
-       function pPrefix = getPreservePrefix(obj)
-            % Return the PreservePrefix flag (false means no tag prefix duplication)
-            pPrefix = obj.PreservePrefix;
-        end % getPreservePrefix
-        
-        
-        function event = getValue(obj, type, key)
-            % Return the event structure corresponding to specified key
-            event = '';
-            if obj.TypeMap.isKey(type)
-                event = obj.TypeMap(type).getValue(key);
-            end
-        end % getValue
-        
-        function events = getValues(obj, type)
-            % Return the events as a cell array of structures
-            if obj.TypeMap.isKey(type)
-               events = obj.TypeMap(type).getValues();
-            else
-                events = '';
-            end;
-        end % getValues
-        
+
         function fields = getFields(obj)
             fields = obj.TypeMap.keys();
         end % getFields
@@ -267,7 +245,24 @@ classdef fieldMap < hgsetget
             catch me %#ok<NASGU>
             end
         end % getTags
-
+        
+                function event = getValue(obj, type, key)
+            % Return the event structure corresponding to specified key
+            event = '';
+            if obj.TypeMap.isKey(type)
+                event = obj.TypeMap(type).getValue(key);
+            end
+        end % getValue
+        
+        function events = getValues(obj, type)
+            % Return the events as a cell array of structures
+            if obj.TypeMap.isKey(type)
+               events = obj.TypeMap(type).getValues();
+            else
+                events = '';
+            end;
+        end % getValues
+        
         function xml = getXml(obj)
             % Return a string containing the xml
             xml = obj.Xml;
@@ -288,7 +283,7 @@ classdef fieldMap < hgsetget
                     obj.TypeMap(type) = tagMap('Field', type);
                 end
                 myMap = obj.TypeMap(type);
-                myMap.merge(tMap, updateType)
+                myMap.merge(tMap, updateType, obj.PreservePrefix)
                 obj.TypeMap(type) = myMap;
             end
         end % merge
