@@ -16,15 +16,15 @@ values.xml = fileread(latestHed);
 values.type = typeValues;
 values.code = codeValues;
 values.group = codeValues;
-values.map1 = fieldMap(values.xml);
+values.map1 = fieldMap('XML', values.xml);
 s1 = tagMap.text2Values(values.type);
-values.map1.addValues('type', s1, 'Merge');
+values.map1.addValues('type', s1);
 
-values.map2 = fieldMap(values.xml);
-values.map2.addValues('type', s1, 'Merge');
+values.map2 = fieldMap('XML', values.xml);
+values.map2.addValues('type', s1);
 s2 = tagMap.text2Values(values.code);
-values.map2.addValues('code', s2, 'Merge');
-values.map2.addValues('group', s2, 'Merge');
+values.map2.addValues('code', s2);
+values.map2.addValues('group', s2);
 
 function teardown(values) %#ok<INUSD,DEFNU>
 % Function executed after each test

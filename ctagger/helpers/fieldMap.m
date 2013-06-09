@@ -174,21 +174,12 @@ classdef fieldMap < hgsetget
             end
 
             for k = 1:length(values)
-                eTag.addValue(values(k),p.Results.UpdateType, obj.PreservePrefix);
+                eTag.addValue(values(k), ...
+                    'UpdateType', p.Results.UpdateType, ...
+                    'PreservePrefix', obj.PreservePrefix);
             end
             obj.GroupMap(type) = eTag;
         end % addValues
-        
-%        function addTagMap(obj, eData, updateType)
-%             % Include information of the eData tagMap object based on updateType
-%             type = eData.getField();
-%             if ~obj.GroupMap.isKey(type)
-%                 eTag = tagMap('Field', type);
-%             else
-%                 eTag = obj.GroupMap(type);
-%             end
-%             eTag.merge(eData, updateType);
-%         end % addTagMap
         
        function newMap = clone(obj)
             newMap = fieldMap();
@@ -321,18 +312,12 @@ classdef fieldMap < hgsetget
                 obj.Xml, xmlMerge));
         end % mergeXml
         
-        function removeMap(obj, fieldSet)
+        function removeMap(obj, field)
             % Remove the fields specified by fieldSet from the fieldMap
-            if ~isempty(fieldSet)
-                obj.GroupMap.remove(fieldSet);
+            if ~isempty(field)
+                obj.GroupMap.remove(field);
             end
         end % removeMap
-        
-        function setMap(obj, field, tMap)
-            % Set the map associated with field to tMap
-            obj.GroupMap(field) = tMap;
-        end % setMap
-        
     end % public methods
     
     

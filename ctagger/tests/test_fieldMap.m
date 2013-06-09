@@ -179,7 +179,9 @@ fprintf('\nUnit tests for clone method of fieldMap\n');
 fprintf('It should correctly clone a fieldMap object\n');
 [field1, events1] = tagMap.split(values.eJSON1, true);
 obj1 = tagMap();
-obj1.addValues(events1, 'Merge', false);
+for k = 1:length(events1)
+   obj1.addValue(events1(k));
+end
 assertTrue(strcmpi (field1, obj1.getField()));
 
 obj2 = obj1.clone();

@@ -111,24 +111,23 @@ classdef tagMap < hgsetget
             obj.TagMap = containers.Map('KeyType', 'char', 'ValueType', 'any');
         end % tagMap constructor
         
-        function addValue(obj, value, updateType, preservePrefix)
+        function addValue(obj, value, varargin)
             % Include value in this tagMap object based on updateType
-            if ~tagMap.validateValue(value)
-                warning('tagMap_addTags:invalid', ...
-                    ['Could not add tags - value is not structure with' ...
-                    ' label, description and tag fields']);
-                return;
-            elseif sum(strcmpi(updateType, ...
-                    {'OnlyTags', 'Update', 'Replace', 'Merge', 'None'})) == 0
-                warning('tagMap_addTags:invalidType', ...
-                    ['updateType must be one of OnlyTags, Update, Replace, ' ...
-                     'Merge, or None']);
-                return;
-            end
-            
+            p = inputParser;
+            p.addRequired('Value', @(x) (isempty(x) || ...
+                tagMap.validateValue(value)));
+            p.addParamValue('UpdateType', 'merge', ...
+              @(x) any(validatestring(lower(x), ...
+              {'OnlyTags', 'Update', 'Replace', 'Merge', 'None'})));
+            p.addParamValue('PreservePrefix', false, ...
+                @(x) validateattributes(x, {'logical'}, {}));
+            p.parse(value, varargin{:});
+           
             % Does this value exist in this object?
             key = value.label;
+            updateType = p.Results.UpdateType;
             valueExists = obj.TagMap.isKey(key);
+            preservePrefix = p.Results.PreservePrefix;
             if strcmpi(updateType, 'None') 
                 return;
             elseif ~valueExists && ~strcmpi(updateType, 'Merge')
@@ -157,12 +156,12 @@ classdef tagMap < hgsetget
             obj.TagMap(key) = oldValue;
         end % addValue
         
-        function addValues(obj, values, updateType, preservePrefix)
-            % Include event (a structure) in this tagMap object based on updateType
-            for k = 1:length(values)
-                obj.addValue(values(k), updateType, preservePrefix);
-            end
-        end % addValues
+%         function addValues(obj, values, updateType, preservePrefix)
+%             % Include event (a structure) in this tagMap object based on updateType
+%             for k = 1:length(values)
+%                 obj.addValue(values(k), updateType, preservePrefix);
+%             end
+%         end % addValues
         
         function newMap = clone(obj)
             newMap = tagMap();
@@ -250,7 +249,8 @@ classdef tagMap < hgsetget
             end
             values = eTags.getValues();
             for k = 1:length(values)
-                obj.addValue(values{k}, updateType, preservePrefix);
+                obj.addValue(values{k}, 'UpdateType', updateType, ...
+                    'PreservePrefix', preservePrefix);
             end
         end % merge
               
