@@ -96,7 +96,7 @@ function fMap = findtags(edata, varargin)
             continue;
         end
         eStruct = tagMap.text2Values([eField ';' eString]);
-        fMap.addValues(tFields{k}, eStruct, 'Merge');
+        fMap.addValues(tFields{k}, eStruct);
     end
     
     efields = '';
@@ -110,7 +110,7 @@ function fMap = findtags(edata, varargin)
     if ~isempty(p.Fields)
         efields = intersect(p.Fields, efields);
     end
-    valueForm = struct('label', '', 'description', '', 'tags', '');
+   
     for k = 1:length(efields)
         tValues = getutypes(edata.event, efields{k});
         if isfield(edata, 'urevent') 
@@ -119,9 +119,12 @@ function fMap = findtags(edata, varargin)
         if isempty(tValues)
             continue
         end
+        valueForm = struct('label', '', 'description', '', 'tags', '');
+        valueForm(length(tValues)) = ...
+            struct('label', '', 'description', '', 'tags', ''); 
         for j = 1:length(tValues)
-           valueForm.label = num2str(tValues{j});
-           fMap.addValue(efields{k}, valueForm, 'Merge');
+           valueForm(j).label = num2str(tValues{j}); 
         end
+        fMap.addValues(efields{k}, valueForm);
     end
 end %findtags

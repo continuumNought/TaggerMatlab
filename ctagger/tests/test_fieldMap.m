@@ -74,7 +74,7 @@ fprintf('\nUnit tests for fieldMap adding structure events\n');
 fprintf('It should allow adding of a single type\n');
 obj1 = fieldMap();
 assertTrue(isvalid(obj1));
-obj1.addValues('type', values.eStruct1.values, 'Merge');
+obj1.addValues('type', values.eStruct1.values);
 tags1 = obj1.getTags('type', 'RT');
 assertEqual(length(tags1), 3);
 
@@ -88,7 +88,7 @@ assertTrue(strcmpi(field1, 'type'));
 obj1 = fieldMap();
 assertTrue(isvalid(obj1));
 fprintf('It should have the right number of events\n');
-obj1.addValues(field1, events1, 'Merge');
+obj1.addValues(field1, events1);
 events = obj1.getMaps();
 assertEqual(length(events), 1);
 fprintf('It should create a valid object for a valid text string\n');
@@ -98,9 +98,8 @@ assertTrue(strcmpi(field2, 'type'));
 obj2 = fieldMap();
 assertTrue(isvalid(obj2));
 fprintf('It should have the right number of events when there is one field\n');
-for k = 1:length(events2)
-    obj2.addValue(field2, events2(k), 'Merge');
-end
+obj2.addValues(field2, events2);
+
 events = obj2.getMaps();
 assertEqual(length(events), 1);
 fprintf('It should produce right structure when one field\n');
@@ -112,14 +111,10 @@ assertTrue(isfield(p, 'field'));
 assertTrue(isfield(p, 'events'));
 assertEqual(length(p.events), 2);
 fprintf('It should have the right number of events with multiple fields\n');
-for k = 1:length(events2)
-    obj2.addValue('banana', events2(k), 'Merge');
-end
+obj2.addValues('banana', events2);
 events = obj2.getMaps();
 assertEqual(length(events), 2);
-for k = 1:length(events2)
-    obj2.addValue('grapes', events2(k), 'Merge');
-end
+obj2.addValues('grapes', events2);
 events = obj2.getMaps();
 assertEqual(length(events), 3);
 dStruct = obj2.getStruct();

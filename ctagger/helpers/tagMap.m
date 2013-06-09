@@ -471,14 +471,12 @@ classdef tagMap < hgsetget
 
         function valid = validateValue(value)
             % Validate the structure array corresponding to value
-            if ~isstruct(value)
-                valid = false;
-            elseif sum(isfield(value, {'label', 'description', 'tags'})) ~= 3
-                valid = false;
-            elseif ~ischar(value.label) || ~ischar(value.description)
-                valid = false;
-            elseif ~isempty(value.tags) && ...
-                    ~iscellstr(value.tags) && ~ischar(value.tags)
+            if ~isstruct(value) || ...
+                sum(isfield(value, {'label', 'description', 'tags'})) ~= 3 || ...
+                ~ischar(value.label) || ...
+                (~isempty(value.description)&& ~ischar(value.description)) || ...
+                (~isempty(value.tags) && ...
+                    ~iscellstr(value.tags) && ~ischar(value.tags))
                 valid = false;
             else
                 valid = true;

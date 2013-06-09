@@ -144,40 +144,51 @@ classdef fieldMap < hgsetget
             obj.GroupMap = containers.Map('KeyType', 'char', 'ValueType', 'any');
         end % fieldMap constructor
         
-        function addValue(obj, type, event, updateType)
+%         function addValue(obj, type, event, updateType)
+%             % Include event (a structure) in this tagMap object based on updateType
+%             % Does this type exist?
+%             if ~obj.GroupMap.isKey(type)
+%                 eTag = tagMap('Field', type);
+%             else
+%                 eTag = obj.GroupMap(type);
+%             end
+%             % Add the event to the fieldMap
+%             eTag.addValue(event, updateType, obj.PreservePrefix);
+%             obj.GroupMap(type) = eTag;
+%         end % addValue
+        
+        function addValues(obj, type, values, varargin)
             % Include event (a structure) in this tagMap object based on updateType
-            % Does this type exist?
+            p = inputParser;
+            p.addRequired('Type', @(x) (~isempty(x) && ischar(x)));
+            p.addRequired('Values', @(x) (isempty(x) || isstruct(x)));
+            p.addParamValue('UpdateType', 'merge', ...
+              @(x) any(validatestring(lower(x), ...
+              {'OnlyTags', 'Update', 'Replace', 'Merge', 'None'})));
+            p.parse(type, values, varargin{:});
+            type = p.Results.Type;
             if ~obj.GroupMap.isKey(type)
                 eTag = tagMap('Field', type);
             else
                 eTag = obj.GroupMap(type);
             end
-            % Add the event to the fieldMap
-            eTag.addValue(event, updateType, obj.PreservePrefix);
-            obj.GroupMap(type) = eTag;
-        end % addValue
-        
-        function addValues(obj, type, events, updateType)
-            % Include event (a structure) in this tagMap object based on updateType
-            parser = inputParser;
-            parser.addParamValue('PreservePrefix', false, ...
-                @(x) validateattributes(x, {'logical'}, {}));
-            parser.addParamValue('XML', '',@(x) (isempty(x) || ischar(x)));
-            for k = 1:length(events)
-                obj.addValue(type, events(k), updateType);
+
+            for k = 1:length(values)
+                eTag.addValue(values(k),p.Results.UpdateType, obj.PreservePrefix);
             end
+            obj.GroupMap(type) = eTag;
         end % addValues
         
-       function addTagMap(obj, eData, updateType)
-            % Include information of the eData tagMap object based on updateType
-            type = eData.getField();
-            if ~obj.GroupMap.isKey(type)
-                eTag = tagMap(obj.Xml, '', 'Field', type);
-            else
-                eTag = obj.GroupMap(type);
-            end
-            eTag.merge(eData, updateType);
-        end % addTagMap
+%        function addTagMap(obj, eData, updateType)
+%             % Include information of the eData tagMap object based on updateType
+%             type = eData.getField();
+%             if ~obj.GroupMap.isKey(type)
+%                 eTag = tagMap('Field', type);
+%             else
+%                 eTag = obj.GroupMap(type);
+%             end
+%             eTag.merge(eData, updateType);
+%         end % addTagMap
         
        function newMap = clone(obj)
             newMap = fieldMap();
