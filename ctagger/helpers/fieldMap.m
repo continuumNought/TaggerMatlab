@@ -130,14 +130,19 @@ classdef fieldMap < hgsetget
     end % private properties
     
     methods
-        function obj = fieldMap(xmlString, varargin)
+        function obj = fieldMap(varargin)
             % Constructor parses parameters and sets up initial data
-            if isempty(varargin)
-                obj.parseParameters(xmlString);
-            else
-                obj.parseParameters(xmlString, varargin{:});
-            end
-        end % tagMap constructor
+            parser = inputParser;
+            parser.addParamValue('PreservePrefix', false, ...
+                @(x) validateattributes(x, {'logical'}, {}));
+            parser.addParamValue('XML', '',@(x) (isempty(x) || ischar(x)));
+            parser.parse(varargin{:})
+            obj.PreservePrefix = parser.Results.PreservePrefix;
+            obj.Xml = fileread(fieldMap.DefaultXml);
+            obj.XmlSchema = fileread(fieldMap.DefaultSchema);
+            obj.mergeXml(parser.Results.XML);
+            obj.GroupMap = containers.Map('KeyType', 'char', 'ValueType', 'any');
+        end % fieldMap constructor
         
         function addValue(obj, type, event, updateType)
             % Include event (a structure) in this tagMap object based on updateType
@@ -147,7 +152,6 @@ classdef fieldMap < hgsetget
             else
                 eTag = obj.GroupMap(type);
             end
-
             % Add the event to the fieldMap
             eTag.addValue(event, updateType, obj.PreservePrefix);
             obj.GroupMap(type) = eTag;
@@ -155,6 +159,10 @@ classdef fieldMap < hgsetget
         
         function addValues(obj, type, events, updateType)
             % Include event (a structure) in this tagMap object based on updateType
+            parser = inputParser;
+            parser.addParamValue('PreservePrefix', false, ...
+                @(x) validateattributes(x, {'logical'}, {}));
+            parser.addParamValue('XML', '',@(x) (isempty(x) || ischar(x)));
             for k = 1:length(events)
                 obj.addValue(type, events(k), updateType);
             end
@@ -172,7 +180,7 @@ classdef fieldMap < hgsetget
         end % addTagMap
         
        function newMap = clone(obj)
-            newMap = fieldMap(obj.Xml);
+            newMap = fieldMap();
             newMap.PreservePrefix = obj.PreservePrefix;
             newMap.Xml = obj.Xml;
             newMap.XmlSchema = obj.XmlSchema;
@@ -185,7 +193,6 @@ classdef fieldMap < hgsetget
             newMap.GroupMap = tMap;
         end %clone  
         
-
         function fields = getFields(obj)
             fields = obj.GroupMap.keys();
         end % getFields
@@ -214,7 +221,6 @@ classdef fieldMap < hgsetget
             tMaps = obj.GroupMap.values;
         end % getMaps
         
- 
         function pPrefix = getPreservePrefix(obj)
             % Return the PreservePrefix flag (false means no tag prefix duplication)
             pPrefix = obj.PreservePrefix;
@@ -311,17 +317,6 @@ classdef fieldMap < hgsetget
             end
         end % removeMap
         
-        function reset(obj, xmlString, eStruct)
-            % Reset this object based on xmlString and event structure
-            obj.GroupMap = containers.Map('KeyType', 'char', 'ValueType', 'any');
-            obj.Xml = fileread(fieldMap.DefaultXml);
-            obj.XmlSchema = fileread(fieldMap.DefaultSchema);
-            obj.mergeXml(xmlString);
-            for k = 1:length(eStruct)
-                obj.addValue(eStruct(k), 'Merge');
-            end
-        end % reset
-        
         function setMap(obj, field, tMap)
             % Set the map associated with field to tMap
             obj.GroupMap(field) = tMap;
@@ -329,35 +324,8 @@ classdef fieldMap < hgsetget
         
     end % public methods
     
-    methods(Access = private)
-        
-        function xml = getXmlFile(xmlFile)
-            % Merge the specified hedfile with the default
-            xml = fileread(fieldMap.DefaultXml);
-            if nargin == 1 && ~isempty(xmlFile)
-                xml = tagMap.mergeHed(xml, fileread(xmlFile));
-            end
-        end % getXml
-        
-        function parseParameters(obj, xmlString, varargin)
-            % Parse parameters provided by user in constructor
-            parser = fieldMap.getParser();
-            parser.parse(xmlString, varargin{:})
-            pdata = parser.Results;
-            obj.PreservePrefix = pdata.PreservePrefix;
-            obj.reset(pdata.XmlString, '')
-        end % parseParameters
-        
-    end % private methods
     
     methods (Static = true)
-       function parser = getParser()
-            % Create a parser for blockedData
-            parser = inputParser;
-            parser.addRequired('XmlString', @(x) (isempty(x) || ischar(x)));
-            parser.addParamValue('PreservePrefix', false, ...
-                @(x) validateattributes(x, {'logical'}, {}));
-        end % getParser
         
         function baseTags = loadFieldMap(tagsFile)
             % Load a fieldMap object from tagsFile

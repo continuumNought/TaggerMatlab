@@ -74,24 +74,29 @@ function fMap = findtags(edata, varargin)
   
     % If edata.etc.tags exists, then extract tag information
     xml = '';
-    tfields = {};
+    tFields = {};
     if isfield(edata, 'etc') && isstruct(edata.etc) && ...
             isfield(edata.etc, 'tags') && isstruct(edata.etc.tags)
       if isfield(edata.etc.tags, 'xml')
            xml = edata.etc.tags.xml;
       end
-      if isfield(edata.etc.tags, 'map') 
-         tfields = fieldnames(edata.etc.tags.map);
+      if isfield(edata.etc.tags, 'map') && isstruct(edata.etc.tags.map) ...
+              && isfield(edata.etc.tags.map, 'field')
+         tFields = {edata.etc.tags.map.field};
       end
     end
-    fMap = fieldMap(xml, 'PreservePrefix', p.PreservePrefix);
+    fMap = fieldMap('XML', xml, 'PreservePrefix', p.PreservePrefix);
     if ~isempty(p.Fields)
-        tfields = intersect(p.Fields, tfields);
+        tFields = intersect(p.Fields, tFields);
     end
-    for k = 1:length(tfields)
-        eString = edata.etc.tags.map.(tfields{k});
-        eStruct = tagMap.text2Values(eString);
-        fMap.addValues(tfields{k}, eStruct, 'Merge');
+    for k = 1:length(tFields)
+        eField = edata.etc.tags.map(k).field;
+        eString =  edata.etc.tags.map(k).values;
+        if sum(strcmpi(eField, tFields)) == 0
+            continue;
+        end
+        eStruct = tagMap.text2Values([eField ';' eString]);
+        fMap.addValues(tFields{k}, eStruct, 'Merge');
     end
     
     efields = '';

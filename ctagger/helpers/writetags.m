@@ -105,12 +105,16 @@ function edata = writetags(edata, fMap, varargin)
             edata.etc.other = edata.etc;
         end
         edata.etc.tags = '';   % clear the tags
-        edata.etc.tags = struct('xml', fMap.getXml(), 'map', '');
-
-        for k = 1:length(fields)
-            edata.etc.tags.map.(fields{k}) = ...
-                fMap.getMap(fields{k}).getTextValues();
+        if isempty(fields)
+            map = '';
+        else
+            map(length(fields)) = struct('field', '', 'values', '');  
+            for k = 1:length(fields)
+                map(k).field = fields{k};
+                map(k).values = fMap.getMap(fields{k}).getTextValues();
+            end
         end
+        edata.etc.tags = struct('xml', fMap.getXml(), 'map', map);
     end
     
     % Write tags to individual events in usertags field if needed

@@ -13,9 +13,26 @@ codeValues = ['1,User response,' ...
 % Read in the HED schema
 latestHed = 'HEDSpecification1.3.xml';
 values.data.etc.tags.xml = fileread(latestHed);
-values.data.etc.tags.map.type = typeValues;
-values.data.etc.tags.map.code = codeValues;
-values.data.etc.tags.map.group = codeValues;
+map(3) = struct('field', '', 'values', '');
+map(1).field = 'type';
+map(1).values = typeValues;
+map(2).field = 'code';
+map(2).values = codeValues;
+map(3).field = 'group';
+map(3).values = codeValues;
+values.data.etc.tags.map = map;
+
+types = {'RT', 'Trigger', 'Missed'};
+eStruct = struct('field', 'type', 'values', 'def');
+tags = {'/Time-Locked Event/Stimulus/Visual/Shape/Ellipse/Circle', ...
+        '/Time-Locked Event/Stimulus/Visual/Fixation Point', ...
+        '/Time-Locked Event/Stimulus/Visual/Uniform Color/Black'};
+sE = struct('label', types, 'description', types, 'tags', '');
+sE(1).tags = tags;
+eStruct.values = sE;
+eJSON1 = savejson('', eStruct);
+values.eStruct1 = eStruct;
+values.eJSON1 = eJSON1;
 load EEGEpoch.mat;
 values.EEGEpoch = EEGEpoch;
 
@@ -103,3 +120,16 @@ dTags = findtags('');
 assertTrue(isa(dTags, 'fieldMap'));
 dFields = dTags.getFields();
 assertTrue(isempty(dFields));
+
+function testFindTags(values) %#ok<DEFNU>
+% Unit test for fieldMap getTags method
+fprintf('\nUnit tests for fieldMap getTags method\n');
+
+fprintf('It should get the right tags for fields that exist \n');
+fMap = findtags(values.data);
+tags1 = fMap.getTags('type', 'RT');
+assertEqual(length(tags1), 2);
+tags2 = fMap.getTags('type', 'Trigger');
+assertTrue(isempty(tags2));
+tags3 = fMap.getTags('code', '1');
+assertEqual(length(tags3), 2);

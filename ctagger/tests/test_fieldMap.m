@@ -26,7 +26,7 @@ values.valueMissingFields = struct('label', types);
 values.valueEmptyTags = struct('label', types, 'description', types, 'tags', '');
 values.oneValue = struct('label', 'abc type', 'description', '', 'tags', '/a/b');
 types = {'RT', 'Trigger', 'Missed'};
-eStruct = struct('field', 'type', 'events', 'def');
+eStruct = struct('field', 'type', 'values', 'def');
 tags = {'/Time-Locked Event/Stimulus/Visual/Shape/Ellipse/Circle', ...
         '/Time-Locked Event/Stimulus/Visual/Fixation Point', ...
         '/Time-Locked Event/Stimulus/Visual/Uniform Color/Black'};
@@ -54,16 +54,29 @@ codeValues = ['1,User response,' ...
 % Read in the HED schema
 latestHed = 'HEDSpecification1.3.xml';
 values.data.etc.tags.xml = fileread(latestHed);
-values.data.etc.tags.map.type = typeValues;
-values.data.etc.tags.map.code = codeValues;
-values.data.etc.tags.map.group = codeValues;
+map(3) = struct('field', '', 'values', '');
+map(1).field = 'type';
+map(1).values = typeValues;
+map(2).field = 'code';
+map(2).values = codeValues;
+map(3).field = 'group';
+map(3).values = codeValues;
+values.data.etc.tags.map = map;
 values.data.event = struct('type', {'RT', 'Trigger'}, 'code', {'1', '2'});
 
 
 function teardown(values) %#ok<INUSD,DEFNU>
 % Function executed after each test
 
-
+function testAddValue(values) %#ok<DEFNU>
+% Unit test for fieldMap adding structure events
+fprintf('\nUnit tests for fieldMap adding structure events\n');
+fprintf('It should allow adding of a single type\n');
+obj1 = fieldMap();
+assertTrue(isvalid(obj1));
+obj1.addValues('type', values.eStruct1.values, 'Merge');
+tags1 = obj1.getTags('type', 'RT');
+assertEqual(length(tags1), 3);
 
 function testValid(values) %#ok<DEFNU>
 % Unit test for fieldMap constructor valid JSON
@@ -72,7 +85,7 @@ fprintf('\nUnit tests for fieldMap valid JSON constructor\n');
 fprintf('It should create a valid fieldMap object for a valid JSON events string\n');
 [field1,  events1] = tagMap.split(values.eJSON1, true);
 assertTrue(strcmpi(field1, 'type'));
-obj1 = fieldMap(values.xml);
+obj1 = fieldMap();
 assertTrue(isvalid(obj1));
 fprintf('It should have the right number of events\n');
 obj1.addValues(field1, events1, 'Merge');
@@ -82,7 +95,7 @@ fprintf('It should create a valid object for a valid text string\n');
 testString = ['type;'  values.eventList1];
 [field2, events2] = tagMap.split(testString, false);
 assertTrue(strcmpi(field2, 'type'));
-obj2 = fieldMap(values.xml);
+obj2 = fieldMap();
 assertTrue(isvalid(obj2));
 fprintf('It should have the right number of events when there is one field\n');
 for k = 1:length(events2)
@@ -120,36 +133,36 @@ assertEqual(length(p(1).events), 2);
 
 function testEmptyOrInvalid(values) %#ok<INUSD,DEFNU>
 % Unit test for fieldMap constructor empty or invalid
-fprintf('\nUnit tests for fieldMap empty\n');
-
-fprintf('It should throw  are no arguments\n');
-f = @() fieldMap();
-assertAltExceptionThrown(f, {'MATLAB:inputArgUndefined', 'MATLAB:minrhs'});
-
-fprintf('It should output a warning if an empty string is used ---WARNING\n');
-obj1 = fieldMap('');
-assertTrue(isvalid(obj1));
-fprintf('---the resulting structure should have the right fields\n');
-dStruct1 = obj1.getStruct();
-assertTrue(isstruct(dStruct1));
-assertEqual(length(fieldnames(dStruct1)), 2);
-assertElementsAlmostEqual(sum(isfield(dStruct1, {'xml', 'map'})), 2);
-assertTrue(~isempty(dStruct1.xml));
-assertTrue(isempty(dStruct1.map));
+% fprintf('\nUnit tests for fieldMap empty\n');
+% 
+% fprintf('It should throw  are no arguments\n');
+% f = @() fieldMap();
+% assertAltExceptionThrown(f, {'MATLAB:inputArgUndefined', 'MATLAB:minrhs'});
+% 
+% fprintf('It should output a warning if an empty string is used ---WARNING\n');
+% obj1 = fieldMap('');
+% assertTrue(isvalid(obj1));
+% fprintf('---the resulting structure should have the right fields\n');
+% dStruct1 = obj1.getStruct();
+% assertTrue(isstruct(dStruct1));
+% assertEqual(length(fieldnames(dStruct1)), 2);
+% assertElementsAlmostEqual(sum(isfield(dStruct1, {'xml', 'map'})), 2);
+% assertTrue(~isempty(dStruct1.xml));
+% assertTrue(isempty(dStruct1.map));
 
 
 function testMerge(values) %#ok<DEFNU>
 % Unit test for fieldMap merge method
 fprintf('\nUnit tests for fieldMap merge\n');
 fprintf('It merge a valid fieldMap object\n');
-dTags = fieldMap('');
+dTags = fieldMap();
 dTags1 = findtags(values.EEGEpoch);
 assertEqual(length(dTags1.getMaps()), 2);
 assertEqual(length(dTags.getMaps()), 0);
 dTags.merge(dTags1, 'Merge', {});
 assertEqual(length(dTags.getMaps()), 2);
 fprintf('It should exclude the appropriate fields\n');
-dTags2 = fieldMap('');
+dTags2 = fieldMap();
 dTags2.merge(dTags1, 'Merge', {'position'});
 assertEqual(length(dTags2.getMaps()), 1);
 
@@ -186,7 +199,7 @@ assertEqual(length(keys1), length(keys2));
 function testSaveFieldMap(values) %#ok<INUSD,DEFNU>
 fprintf('\nUnit tests for saveFieldMap static method of fieldMap\n');
 fprintf('It should save a fieldMap object correctly\n');
-fMap = fieldMap('');
+fMap = fieldMap();
 fName = tempname;
 fieldMap.saveFieldMap(fName, fMap);
 bT2 = fieldMap.loadFieldMap(fName);
@@ -217,7 +230,7 @@ function testMergeXml(values) %#ok<INUSD,DEFNU>
 fprintf('\nUnit tests for mergeXml static method of tagMap\n');
 
 fprintf('It should merge XML when both tag sets are empty\n');
-obj1 = fieldMap('');
+obj1 = fieldMap();
 obj1.mergeXml('');
 xml1 = obj1.getXml;
 assertTrue(~isempty(xml1));

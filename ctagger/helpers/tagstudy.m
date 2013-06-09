@@ -116,7 +116,7 @@ function [fMap, fPaths, excluded] = tagstudy(studyFile, varargin)
     parser.addParamValue('SaveMapFile', '', ...
          @(x)(isempty(x) || (ischar(x))));
     parser.addParamValue('SelectOption', true, @islogical);
-    parser.addParamValue('Synchronize', true, @islogical);
+    parser.addParamValue('Synchronize', false, @islogical);
     parser.addParamValue('UseGui', true, @islogical);
     parser.parse(studyFile, varargin{:});
     p = parser.Results;

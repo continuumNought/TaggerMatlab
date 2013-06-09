@@ -97,20 +97,17 @@ classdef tagMap < hgsetget
     
     properties (Access = private)
         Field                % Name of field for this group of tags
-%        PreservePrefix       % If true, don't eliminate duplicate prefixes (default false)
         TagMap               % Map for matching value labels
-%         Xml                  % Tag hierarchy as an XML string
-%         XmlSchema            % String containing the XML schema
     end % private properties
     
     methods
         function obj = tagMap(varargin)
             % Constructor parses parameters and sets up initial data
-            if isempty(varargin)
-                obj.parseParameters();
-            else
-                obj.parseParameters(varargin{:});
-            end
+            parser = inputParser;
+            parser.addParamValue('Field', 'type', ...
+                @(x) (~isempty(x) && ischar(x)));
+            parser.parse(varargin{:})
+            obj.Field = parser.Results.Field;
             obj.TagMap = containers.Map('KeyType', 'char', 'ValueType', 'any');
         end % tagMap constructor
         
@@ -264,22 +261,6 @@ classdef tagMap < hgsetget
         
     end % public methods
     
-    methods(Access = private)
-         
-        function parseParameters(obj, varargin)
-            % Parse parameters provided by user in constructor
-            parser = tagMap.getParser();
-            if nargin < 1
-                parser.parse();
-            else
-                 parser.parse(varargin{:});
-            end
-            pdata = parser.Results;
-            obj.Field = pdata.Field;
-        end % parseParameters
-        
-    end % private methods
-    
     methods(Static = true)
         
         function value = createValue(elabel, edescription, etags)
@@ -354,15 +335,6 @@ classdef tagMap < hgsetget
             end
         end % values2Text
           
-        function parser = getParser()
-            % Create a parser for blockedData
-            parser = inputParser;
-            parser.addParamValue('Field', 'type', ...
-                @(x) (~isempty(x) && ischar(x)));
-            parser.addParamValue('PreservePrefix', false, ...
-                @(x) validateattributes(x, {'logical'}, {}));
-        end % getParser
-        
         function theStruct = json2Mat(json)
             % Convert a JSON object specification to a structure
             theStruct = struct('field', '', 'values', '');
@@ -426,7 +398,6 @@ classdef tagMap < hgsetget
             end
         end % reformatValue
         
- 
         function [field, values] = split(inString, useJson)
             % Parse inString into xml hed string and values structure 
             field = '';

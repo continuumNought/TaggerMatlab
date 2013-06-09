@@ -150,13 +150,13 @@ fprintf('\nUnit tests for tagdir with shooter data\n');
 
 fprintf('It should work for the shooter data with both options and GUI\n');
 fprintf('....REQUIRES USER INPUT\n');
-fprintf('PRESS the TAG BUTTON ALWAYS\n');
+fprintf('PRESS the TAG BUTTON EXCEPT EXCLUDE THE TRIAL\n');
 thisDir = [values.TestDirectory filesep values.Shooter];
 [fMap1, fPaths1] = tagdir(thisDir, 'UseGui', true, ...
     'SelectOption', true, 'Synchronize', false);
 fields1 = fMap1.getFields();
-assertEqual(length(fields1), 10);
+assertEqual(length(fields1), 9);
 type1 = fMap1.getValues('type');
-assertEqual(length(type1.getValues()), 23);
+assertEqual(length(type1), 23);
 assertEqual(length(fPaths1), 16);
 
