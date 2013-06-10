@@ -1,8 +1,8 @@
 % tagMap    object encapsulating xml tags and value labels of one type
 %
 % Usage:
-%   >>  eTags = tagMap(xmlString, values)
-%   >>  eTags = tagMap(xmlString, values, 'key1', 'value1', ...)
+%   >>  eTags = tagMap()
+%   >>  eTags = tagMap('key1', 'value1', ...)
 %
 % Description:
 % eTags = tagMap(xmlString, values) creates an object representing the 
@@ -57,6 +57,29 @@
 %     description
 %     tags
 %
+% Description of update options for addValue:
+%    'merge'         If an event with that key is not part of this
+%                     object, add it as is.
+%    'replace'       If an event with that key is not part of this
+%                     object, do nothing. Otherwise, if an event with that
+%                     key is part of this object then completely replace 
+%                     that event with the new one.
+%    'onlytags'      If an event with that key is not part of this
+%                     object, do nothing. Otherwise, if an event with that
+%                     key is part of this object, then update the tags of 
+%                     the matching event with the new ones from this event,
+%                     using the PreservePrefix value to determine how to
+%                     combine the tags.
+%    'update'         If an event with that key is not part of this
+%                     object, do nothing. Otherwise, if an event with that
+%                     key is part of this object, then update the tags of 
+%                     the matching event with the new ones from this event,
+%                     using the PreservePrefix value to determine how to
+%                     combine the tags. Also update any empty code, label
+%                     or description fields by using the values in the
+%                     input event.
+%    'none'           Don't do any updating
+%
 % Class documentation:
 % Execute the following in the MATLAB command window to view the class
 % documentation for tagMap:
@@ -90,11 +113,7 @@
 %
 
 classdef tagMap < hgsetget
-%     properties (Constant = true)
-%         DefaultXml = 'HEDSpecification1.3.xml';
-%         DefaultSchema = 'HEDSchema.xsd';
-%     end % constant
-    
+
     properties (Access = private)
         Field                % Name of field for this group of tags
         TagMap               % Map for matching value labels
@@ -155,13 +174,6 @@ classdef tagMap < hgsetget
             end
             obj.TagMap(key) = oldValue;
         end % addValue
-        
-%         function addValues(obj, values, updateType, preservePrefix)
-%             % Include event (a structure) in this tagMap object based on updateType
-%             for k = 1:length(values)
-%                 obj.addValue(values(k), updateType, preservePrefix);
-%             end
-%         end % addValues
         
         function newMap = clone(obj)
             newMap = tagMap();

@@ -14,7 +14,6 @@
 % while the |tags| field can be empty, a string or a cell array of strings.
 %
 % An example of the structure is:
-%           code: '1'
 %          label: 'RT'
 %    description: 'RT'
 %           tags: {'/Time-Locked Event/Stimulus/Visual/Shape/Ellipse/Circle' [1x54 char]}

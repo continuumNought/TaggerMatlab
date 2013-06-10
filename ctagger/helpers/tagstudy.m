@@ -23,29 +23,40 @@
 %
 % [dTags, fPaths] = tagstudy(EEG, 'key1', 'value1', ...) specifies 
 % optional name/value parameter pairs:
-%   'BaseTagsFile'   A file containing an tagMap object to be used
-%                    for initial tag information. The default is an 
-%                    tagMap object with the default HED XML and no tags.
-%   'DoSubDirs'      If true the entire inDir directory tree is searched.
-%                    If false, only the inDir directory is searched.    
-%   'OnlyType'       If true (default), only tag based on unique event types
-%                    and not on the other fields of EEG.event and
-%                    EEG.urevent.
+%   'BaseMap'        A fieldMap object or a string containing the name of
+%                    a file containing a fieldMap object to be used
+%                    for initial tag information. 
+%   'DbCredsFile'    Name of a property file containing the database
+%                    credentials. If this argument isnot provided, a
+%                    database is not used. (See notes.)
+%   'ExcludeFields'  Cell array of field names in the .event structure
+%                    to ignore during the tagging process. By default
+%                    the following fields are ignored: 'latency', ...
+%                    'epoch', 'urevent', 'hedtags', 'usertags'. The user
+%                    can over-ride these tags using this name-value
+%                    parameter.
+%   'Fields'         Cell array of field names of the fields to include
+%                    in the tagging. If this parameter is non-empty
+%                    (default), only these fields are tagged.
 %   'PreservePrefix' If false (default), tags of the same event type that
 %                    share prefixes are combined and only the most specific
 %                    is retained (e.g., /a/b/c and /a/b become just
 %                    /a/b/c). If true, then all unique tags are retained.
-%   'Synchronize'    If true (default), the ctagger GUI is run synchronously so
+%   'RewriteOption'  String indicating how tag information should be
+%                    written to the datasets. The options are 'Both',
+%                    'Individual', 'None', 'Summary'. See the notes for
+%                    additional information.
+%   'SaveMapFile'    File name for saving the final, consolidated fieldMap
+%                    object that results from the tagging process.
+%   'SelectOption'   If true (default), the user is presented with a GUI 
+%                    that allows users to select which fields to tag.
+%   'Synchronize'    If false (default), the ctagger GUI is run with
+%                    synchronization done using the MATLAB pause. If
+%                    true, synchronization is done within Java. This
+%                    latter option is usually reserved when not calling
+%                    the GUI from MATLAB.
 %                    no other MATLAB commands can be issued until this GUI
-%                    is closed. A value of false is used when this function
-%                    is being called as a menu item from another GUI.
-%   'TagFileName'    Name containing the name of the file in which to
-%                    save the consolidated tagMap object for future use.
-%   'UpdateType'     Indicates how tags are merged with initial tags if the
-%                    tagging information is to be rewritten to the EEG
-%                    files. The options are: 'merge', 'replace', 
-%                    'onlytags' (default), 'update' or 'none'.
-%   'UseGUI'         If true (default), the ctagger GUI is displayed after
+%   'UseGui'         If true (default), the ctagger GUI is displayed after
 %                    initialization.
 %
 % Description of update options:
@@ -101,7 +112,7 @@ function [fMap, fPaths, excluded] = tagstudy(studyFile, varargin)
     parser = inputParser;
     parser.addRequired('StudyFile', ...
         @(x) (~isempty(x) && exist(studyFile, 'file')));
-    parser.addParamValue('BaseMapFile', '', ...
+    parser.addParamValue('BaseMap', '', ...
         @(x)(isempty(x) || (ischar(x))));
     parser.addParamValue('DbCredsFile', '', ...
         @(x)(isempty(x) || (ischar(x))));    
@@ -140,7 +151,11 @@ function [fMap, fPaths, excluded] = tagstudy(studyFile, varargin)
     
         % Exclude the appropriate tags from baseTags
     excluded = p.ExcludeFields;
-    baseTags = fieldMap.loadFieldMap(p.BaseMapFile);
+    if isa(p.BaseMap, 'fieldMap')
+        baseTags = p.BaseMap;
+    else
+        baseTags = fieldMap.loadFieldMap(p.BaseMap);
+    end
     if ~isempty(baseTags) && ~isempty(p.Fields)
         excluded = setdiff(baseTags.getFields(), p.Fields);
     end;        

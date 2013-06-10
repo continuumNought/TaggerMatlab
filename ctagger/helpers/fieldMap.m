@@ -1,17 +1,17 @@
 % fieldMap    object encapsulating xml tags and type-tagMap association
 %
 % Usage:
-%   >>  dTags = fieldMap(xmlString)
-%   >>  dTags = fieldMap(xmlString, 'key1', 'value1', ...)
+%   >>  dTags = fieldMap()
+%   >>  dTags = fieldMap('key1', 'value1', ...)
 %
 % Description:
-% dTags = fieldMap(xmlString) creates an object representing the 
+% dTags = fieldMap() creates an object representing the 
 %    tag hierarchy for community tagging. The object knows how to merge and
 %    can produce output in either JSON or semicolon separated
 %    text format. The xmlString is an XML string with the tag hierarchy
 %    and events is a structure array that holds the events and tags.
 %
-% dTags = fieldMap(xmlString, 'key1', 'value1', ...)
+% dTags = fieldMap('key1', 'value1', ...)
 %
 %
 % where the key-value pairs are:
@@ -123,6 +123,7 @@ classdef fieldMap < hgsetget
     end % constant
     
     properties (Access = private)
+        Description          % String describing this field map
         PreservePrefix       % If true, don't eliminate duplicate prefixes (default false)
         GroupMap             % Map for matching event labels
         Xml                  % Tag hierarchy as an XML string
@@ -133,29 +134,19 @@ classdef fieldMap < hgsetget
         function obj = fieldMap(varargin)
             % Constructor parses parameters and sets up initial data
             parser = inputParser;
+            parser.addParamValue('Description', '', ...
+                @(x) (isempty(x) || ischar(x)));
             parser.addParamValue('PreservePrefix', false, ...
                 @(x) validateattributes(x, {'logical'}, {}));
             parser.addParamValue('XML', '',@(x) (isempty(x) || ischar(x)));
             parser.parse(varargin{:})
+            obj.Description = parser.Results.Description;
             obj.PreservePrefix = parser.Results.PreservePrefix;
             obj.Xml = fileread(fieldMap.DefaultXml);
             obj.XmlSchema = fileread(fieldMap.DefaultSchema);
             obj.mergeXml(parser.Results.XML);
             obj.GroupMap = containers.Map('KeyType', 'char', 'ValueType', 'any');
-        end % fieldMap constructor
-        
-%         function addValue(obj, type, event, updateType)
-%             % Include event (a structure) in this tagMap object based on updateType
-%             % Does this type exist?
-%             if ~obj.GroupMap.isKey(type)
-%                 eTag = tagMap('Field', type);
-%             else
-%                 eTag = obj.GroupMap(type);
-%             end
-%             % Add the event to the fieldMap
-%             eTag.addValue(event, updateType, obj.PreservePrefix);
-%             obj.GroupMap(type) = eTag;
-%         end % addValue
+        end % fieldMap constructor       
         
         function addValues(obj, type, values, varargin)
             % Include event (a structure) in this tagMap object based on updateType
@@ -183,6 +174,7 @@ classdef fieldMap < hgsetget
         
        function newMap = clone(obj)
             newMap = fieldMap();
+            newMap.Description = obj.Description;
             newMap.PreservePrefix = obj.PreservePrefix;
             newMap.Xml = obj.Xml;
             newMap.XmlSchema = obj.XmlSchema;
@@ -194,6 +186,10 @@ classdef fieldMap < hgsetget
             end
             newMap.GroupMap = tMap;
         end %clone  
+        
+        function description = getDescription(obj)
+            description = obj.Description;
+        end % getDescription
         
         function fields = getFields(obj)
             fields = obj.GroupMap.keys();
@@ -254,7 +250,7 @@ classdef fieldMap < hgsetget
             end
         end % getTags
         
-                function event = getValue(obj, type, key)
+        function event = getValue(obj, type, key)
             % Return the event structure corresponding to specified key
             event = '';
             if obj.GroupMap.isKey(type)
@@ -318,9 +314,13 @@ classdef fieldMap < hgsetget
                 obj.GroupMap.remove(field);
             end
         end % removeMap
+        
+        function setDescription(obj, description)
+            obj.Description = description;
+        end % setDescription
+        
     end % public methods
-    
-    
+      
     methods (Static = true)
         
         function baseTags = loadFieldMap(tagsFile)

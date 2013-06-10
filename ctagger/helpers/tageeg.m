@@ -17,9 +17,9 @@
 %
 % [EEG, fMap, excluded] = tageeg(EEG, 'key1', 'value1', ...) specifies 
 % optional name/value parameter pairs:
-%   'BaseMapFile'    A file containing a fieldMap object to be used
-%                    for initial tag information. The default is an 
-%                    fieldMap object with the default HED XML and no tags.
+%   'BaseMap'        A fieldMap object or a string containing the name of
+%                    a file containing a fieldMap object to be used
+%                    for initial tag information. 
 %   'DbCredsFile'    Name of a property file containing the database
 %                    credentials. If this argument isnot provided, a
 %                    database is not used. (See notes.)
@@ -98,8 +98,8 @@ function [EEG, fMap, excluded] = tageeg(EEG, varargin)
     % Parse the input arguments
     parser = inputParser;
     parser.addRequired('EEG', @(x) (isempty(x) || isstruct(EEG)));
-    parser.addParamValue('BaseMapFile', '', ...
-        @(x)(isempty(x) || (ischar(x))));
+    parser.addParamValue('BaseMap', '', ...
+        @(x)(isempty(x) || ischar(x) || isa(x, 'fieldMap')));
     parser.addParamValue('DbCredsFile', '', ...
         @(x)(isempty(x) || (ischar(x))));
     parser.addParamValue('ExcludeFields', ...
@@ -123,7 +123,11 @@ function [EEG, fMap, excluded] = tageeg(EEG, varargin)
     
     % Exclude the appropriate tags from baseTags
     excluded = p.ExcludeFields;
-    baseTags = fieldMap.loadFieldMap(p.BaseMapFile);
+    if isa(p.BaseMap, 'fieldMap')
+        baseTags = p.BaseMap;
+    else
+        baseTags = fieldMap.loadFieldMap(p.BaseMap);
+    end
     if ~isempty(baseTags) && ~isempty(p.Fields)
         excluded = setdiff(baseTags.getFields(), p.Fields);
     end;        

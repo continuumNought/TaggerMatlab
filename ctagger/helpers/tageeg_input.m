@@ -1,9 +1,9 @@
-function [baseMapFile,  dbCredsFile, preservePrefix, ...
+function [baseMap,  dbCredsFile, preservePrefix, ...
     rewriteOption, saveMapFile, selectOption, useGUI, cancelled] = tageeg_input()
 % GUI for input needed for tageeg
 
 % Setup the variables used by the GUI
-    baseMapFile = '';
+    baseMap = '';
     dbCredsFile = '';
     cancelled = true;
     preservePrefix = false;
@@ -201,8 +201,8 @@ function [baseMapFile,  dbCredsFile, preservePrefix, ...
     function browseTagsCallback(src, eventdata, tagsCtrl, myTitle) %#ok<INUSL>
         % Callback for browse button sets a directory for control
         [tFile, tPath] = uigetfile({'*.mat', 'MATLAB Files (*.mat)'}, myTitle);
-        baseMapFile = fullfile(tPath, tFile);
-        set(tagsCtrl, 'String', baseMapFile);
+        baseMap = fullfile(tPath, tFile);
+        set(tagsCtrl, 'String', baseMap);
     end % browseTagsCallback
 
     function dbCredsCtrlCallback(hObject, eventdata, tagsCtrl) %#ok<INUSD>
@@ -215,7 +215,7 @@ function [baseMapFile,  dbCredsFile, preservePrefix, ...
 
     function cancelCallback(src, eventdata)  %#ok<INUSD>
         % Callback for browse button sets a directory for control
-        baseMapFile = '';
+        baseMap = '';
         dbCredsFile = '';
         cancelled = true;
         preservePrefix = false;
@@ -260,9 +260,9 @@ function [baseMapFile,  dbCredsFile, preservePrefix, ...
         tagsFile = get(hObject, 'String');
         if isempty(typeMap.loadTagFile(tagsFile))           
            warndlg([ tagsFile ' does not contain an typeMap object'], 'modal');
-           set(hObject, 'String', baseMapFile);
+           set(hObject, 'String', baseMap);
         else
-            baseMapFile = tagsFile;
+            baseMap = tagsFile;
         end
     end % tagsCtrlCallback
 
