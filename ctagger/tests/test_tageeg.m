@@ -13,9 +13,14 @@ codeValues = ['1,User response,' ...
 % Read in the HED schema
 latestHed = 'HEDSpecification1.3.xml';
 values.data.etc.tags.xml = fileread(latestHed);
-values.data.etc.tags.map.type = typeValues;
-values.data.etc.tags.map.code = codeValues;
-values.data.etc.tags.map.group = codeValues;
+map(3) = struct('field', '', 'values', '');
+map(1).field = 'type';
+map(1).values = typeValues;
+map(2).field = 'code';
+map(2).values = codeValues;
+map(3).field = 'group';
+map(3).values = codeValues;
+values.data.etc.tags.map = map;
 values.data.event = struct('type', {'RT', 'Trigger'}, 'code', {'1', '2'});
 load EEGEpoch.mat;
 values.EEGEpoch = EEGEpoch;
@@ -56,26 +61,26 @@ assertTrue(isfield(y.etc, 'tags'));
 assertTrue(isfield(y.etc.tags, 'xml'));
 assertEqual(length(fieldnames(y.etc.tags)), 2);
 assertTrue(isfield(y.etc.tags, 'map'));
-assertEqual(length(fieldnames(y.etc.tags.map)), 1);
+assertEqual(length(fieldnames(y.etc.tags.map)), 2);
 fNew = fieldMap.loadFieldMap(fName);
 assertTrue(isa(fNew, 'fieldMap'));
 assertEqual(length(excluded), 6);
 delete(fName);
 
-function testUseGUI(values)  %#ok<DEFNU>
-fprintf('It should allow user to use the GUI to tag\n');
-fprintf('....REQUIRES USER INPUT\n');
-fprintf('PRESS the SUBMIT button exactly once otherwise CANCEL\n');
-fName = 'temp2.mat';
-x = values.data;
-[y, fMap, excluded] = tageeg(x, 'RewriteOption', 'both', ...
-        'UseGui', true, 'SaveMapFile', fName, 'SelectOption', false);
-assertTrue(isa(fMap, 'fieldMap'));
-fields = fMap.getFields();
-assertEqual(sum(strcmpi(fields, 'code')), 1);
-assertEqual(sum(strcmpi(fields, 'group')), 1);
-assertEqual(sum(strcmpi(fields, 'type')), 1);
-assertTrue(isfield(y.etc, 'tags'));
-assertTrue(isfield(y.etc.tags, 'xml'));
-assertEqual(length(fieldnames(y.etc.tags)), 2);
-assertEqual(length(excluded), 5);
+% function testUseGUI(values)  %#ok<DEFNU>
+% fprintf('It should allow user to use the GUI to tag\n');
+% fprintf('....REQUIRES USER INPUT\n');
+% fprintf('PRESS the SUBMIT button exactly once otherwise CANCEL\n');
+% fName = 'temp2.mat';
+% x = values.data;
+% [y, fMap, excluded] = tageeg(x, 'RewriteOption', 'both', ...
+%         'UseGui', true, 'SaveMapFile', fName, 'SelectOption', false);
+% assertTrue(isa(fMap, 'fieldMap'));
+% fields = fMap.getFields();
+% assertEqual(sum(strcmpi(fields, 'code')), 1);
+% assertEqual(sum(strcmpi(fields, 'group')), 1);
+% assertEqual(sum(strcmpi(fields, 'type')), 1);
+% assertTrue(isfield(y.etc, 'tags'));
+% assertTrue(isfield(y.etc.tags, 'xml'));
+% assertEqual(length(fieldnames(y.etc.tags)), 2);
+% assertEqual(length(excluded), 5);

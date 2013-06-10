@@ -10,38 +10,32 @@ function teardown(values) %#ok<INUSD,DEFNU>
 % Function executed after each test
 
 
-function test_tagdirEmpty(values)  %#ok<INUSD,DEFNU>
-% Unit test for tagdir function with empty directory
-fprintf('\nUnit tests for tagdir for empty directory\n');
+function test_tagstudyEmpty(values)  %#ok<INUSD,DEFNU>
+% Unit test for tagstudy function with empty directory
+fprintf('\nUnit tests for tagstudy for empty directory\n');
 
-fprintf('It should work for an empty directory\n');
-[eTags1, fPaths1, excluded1] = tagstudy('', 'UseGui', false);
-assertTrue(isa(eTags1, 'fieldMap'));
-assertTrue(isempty(fPaths1));
-fields1 = eTags1.getFields();
-assertTrue(isempty(fields1));
+fprintf('It should throw  are no arguments\n');
+f = @() tagstudy('', 'UseGui', false); 
+assertAltExceptionThrown(f, {'MATLAB:InputParser:ArgumentFailedValidation'});
 
-fprintf('It should work when there is an invalid directory\n');
-[eTags2, fPaths2, excluded2] = tagstudy('--34', 'UseGui', false);
-assertTrue(isa(eTags2, 'fieldMap'));
-assertTrue(isempty(fPaths2));
-fields2 = eTags1.getFields();
-assertTrue(isempty(fields2));
+
+fprintf('It should throw an exception if study file is invalid\n');
+f = @() tagstudy('--34', 'UseGui', false); 
+assertAltExceptionThrown(f, {'MATLAB:InputParser:ArgumentFailedValidation'});
 
 
 function test_tagValidStudy(values)  %#ok<DEFNU>
 % Unit test for tagstudy with a valid study directory
 fprintf('\nUnit tests for tagstudy valid\n');
 
-fprintf('It should work for the shooter data with both options and GUI\n');
-fprintf('....REQUIRES USER INPUT\n');
-fprintf('PRESS the TAG BUTTON EXCEPT EXCLUDE THE TRIAL\n');
+fprintf('It should work for the EEGLAB study with both options and GUI\n');
 thisStudy = [values.TestDirectory filesep values.StudyName];
 [fMap1, fPaths1, excluded1] = tagstudy(thisStudy, 'UseGui', false, ...
     'SelectOption', false);
 fields1 = fMap1.getFields();
-assertEqual(length(fields1), 9);
+assertEqual(length(fields1), 4);
 type1 = fMap1.getValues('type');
-assertEqual(length(type1), 23);
-assertEqual(length(fPaths1), 16);
+assertEqual(length(type1), 14);
+assertEqual(length(fPaths1), 10);
+assertEqual(length(excluded1), 5);
 

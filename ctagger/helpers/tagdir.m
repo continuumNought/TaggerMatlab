@@ -67,9 +67,9 @@
 %   1) If the 'RewriteOption' is either 'Both' or 'Summary', the tags
 %      are written to the dataset in the x.etc.tags field:
 %            x.etc.tags.xml
-%            x.etc.tags.map.field1
-%            x.etc.tags.map.field2 ...
-%      
+%            x.etc.tags.map(1).field
+%            x.etc.tags.map(1).values ...
+%                   ...
 %
 %   2) If the 'RewriteOption' is either 'Both' or 'Individual', the tags
 %      are also written to x.event.usertags based on the individual 
@@ -132,7 +132,7 @@ function [fMap, fPaths, excluded] = tagdir(inDir, varargin)
     if isempty(fPaths)
         warning('tagdir:nofiles', 'No files met tagging criteria\n');
     end
-    fMap = fieldMap('', 'PreservePrefix',  p.PreservePrefix);
+    fMap = fieldMap('PreservePrefix',  p.PreservePrefix);
     for k = 1:length(fPaths) % Assemble the list
         eegTemp = pop_loadset(fPaths{k});
         tMapNew = findtags(eegTemp, 'PreservePrefix', p.PreservePrefix, ...

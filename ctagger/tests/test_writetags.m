@@ -41,7 +41,7 @@ assertTrue(isfield(y1.etc, 'tags'));
 assertTrue(isfield(y1.etc.tags, 'xml'));
 assertEqual(length(fieldnames(y1.etc.tags)), 2);
 assertTrue(isfield(y1.etc.tags, 'map'));
-assertTrue(isempty(y1.etc.tags.map));
+assertTrue(~isempty(y1.etc.tags.map));
 assertTrue(~isfield(y1, 'event'));
 assertTrue(~isfield(x1, 'event'));
 

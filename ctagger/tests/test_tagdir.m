@@ -2,21 +2,6 @@ function test_suite = test_tagdir%#ok<STOUT>
 initTestSuite;
 
 function values = setup %#ok<DEFNU>
-  values = '';
-codes = {'1', '2', '3'};
-types = {'RT', 'Trigger', 'Missed'};
-eStruct = struct('hedXML', '', 'events', 'def');
-tags = {'/Time-Locked Event/Stimulus/Visual/Shape/Ellipse/Circle', ...
-        '/Time-Locked Event/Stimulus/Visual/Fixation Point', ...
-        '/Time-Locked Event/Stimulus/Visual/Uniform Color/Black'};
-sE = struct('code', codes, 'label', types, 'description', types, 'tags', '');
-sE(1).tags = tags;
-eStruct.events = sE;
-eJSON1 = savejson('', eStruct);
-values.eStruct1 = eStruct;
-values.eJSON1 = eJSON1;
-load EEGEpoch.mat;
-values.EEGEpoch = EEGEpoch;
 values.TestDirectory = 'H:\TagTestDirectories\TestDataRoot';
 values.moreEvents = 'e5, e5 label, e5 description, /a/b/c; e6,e61,e6 des';
 values.Attn = 'AttentionShiftSet';

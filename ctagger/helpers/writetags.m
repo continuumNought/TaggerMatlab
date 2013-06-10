@@ -95,9 +95,9 @@ function edata = writetags(edata, fMap, varargin)
     end
 
     % Write the etc.tags.map fields
-    fields = union(eFields, urFields);
+    eFields = intersect(union(eFields, urFields), tFields);
     
-    % Write summary if needed
+    % Write summary if needed (write all Fmap non-excluded fields
     if strcmpi(p.RewriteOption, 'Summary') || strcmpi(p.RewriteOption, 'Both')
        
         % Prepare the structure
@@ -105,13 +105,13 @@ function edata = writetags(edata, fMap, varargin)
             edata.etc.other = edata.etc;
         end
         edata.etc.tags = '';   % clear the tags
-        if isempty(fields)
+        if isempty(tFields)
             map = '';
         else
-            map(length(fields)) = struct('field', '', 'values', '');  
-            for k = 1:length(fields)
-                map(k).field = fields{k};
-                map(k).values = fMap.getMap(fields{k}).getTextValues();
+            map(length(tFields)) = struct('field', '', 'values', '');  
+            for k = 1:length(tFields)
+                map(k).field = tFields{k};
+                map(k).values = fMap.getMap(tFields{k}).getTextValues();
             end
         end
         edata.etc.tags = struct('xml', fMap.getXml(), 'map', map);

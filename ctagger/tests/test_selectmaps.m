@@ -16,13 +16,13 @@ values.xml = fileread(latestHed);
 values.type = typeValues;
 values.code = codeValues;
 values.group = codeValues;
-values.inMap1 = fieldMap(values.xml);
-values.inMap2 = fieldMap(values.xml);
+values.inMap1 = fieldMap('XML', values.xml);
+values.inMap2 = fieldMap('XML', values.xml);
 s1 = tagMap.text2Values(values.type);
-values.inMap2.addValues('type', s1, 'Merge');
+values.inMap2.addValues('type', s1);
 s2 = tagMap.text2Values(values.code);
-values.inMap2.addValues('code', s2, 'Merge');
-values.inMap2.addValues('group', s2, 'Merge');
+values.inMap2.addValues('code', s2);
+values.inMap2.addValues('group', s2);
 values.inMap3 = values.inMap2.clone();
 
 function teardown(values) %#ok<INUSD,DEFNU>
@@ -61,23 +61,29 @@ function testValidInteractive(values)  %#ok<DEFNU>
 % fprintf('\nUnit tests for selectmaps\n');
 % fprintf('These tests require user intervention\n');
 fprintf('\nUnit tests for selectmaps\n');
-fprintf('....REQUIRES USER INPUT\n');
-fprintf('PRESS the TAG BUTTON ALWAYS\n');
+
 fprintf('It should return an empty map when input map is empty\n');
 [fMap1, excluded1] = selectmaps(values.inMap1, 'SelectOption', true);
 assertTrue(isempty(excluded1));
 assertTrue(isempty(fMap1.getFields()));
 
+fprintf('....REQUIRES USER INPUT\n');
+fprintf('PRESS the TAG BUTTON ALWAYS\n');
 fprintf('It should return all fields when no Fields or selection\n');
 [fMap2, excluded2] = selectmaps(values.inMap2, 'SelectOption', true);
 assertEqual(length(values.inMap2.getFields()), length(fMap2.getFields()));
 assertTrue(isempty(excluded2));
 
 fprintf('It should correctly exclude fields when Fields are specified\n');
+fprintf('....REQUIRES USER INPUT\n');
+fprintf('PRESS the TAG BUTTON ALWAYS (should only show type)\n');
 [fMap3, excluded3] = selectmaps(values.inMap2, ...
-       'Fields', {'code', 'group'}, 'SelectOption', true); %#ok<ASGLU,NASGU>
-
+       'Fields', {'code', 'group'}, 'SelectOption', true); 
+assertTrue(sum(strcmpi(excluded3{1}, 'type')) == 1);
+assertEqual(length(fMap3.getFields()), 2);
 
 fprintf('It should correctly exclude fields when not all Fields exist\n');
 [fMap4, excluded4] = selectmaps(values.inMap3, ...
-       'Fields', {'code', 'group', 'cat'}, 'SelectOption', true); %#ok<NASGU,ASGLU>
+       'Fields', {'code', 'group', 'cat'}, 'SelectOption', true); 
+assertTrue(sum(strcmpi(excluded4{1}, 'type')) == 1);
+assertEqual(length(fMap4.getFields()), 2);

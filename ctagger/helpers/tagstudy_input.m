@@ -220,7 +220,7 @@ function [studyFile, baseMapFile, dbCredsFile, preservePrefix, ...
 
     function browseStudyCallback(src, eventdata, studyCtrl, myTitle) %#ok<INUSL>
         % Callback for browse button sets a directory for control
-        [fName, fPath] = uigetfile({'*.*t', 'All files(*.*)'}, myTitle);   
+        [fName, fPath] = uigetfile({'*.*', 'All files(*.*)'}, myTitle);   
         fName = fullfile(fPath, fName);
         if ~isempty(fName) && ischar(fName) && exist(fName, 'file')
             set(studyCtrl, 'String', fName);
@@ -243,6 +243,7 @@ function [studyFile, baseMapFile, dbCredsFile, preservePrefix, ...
         preservePrefix = false;
         rewriteCtrl = '';
         rewriteOption = 'Both';
+        saveAll = true;
         saveMapFile = '';
         selectOption = true;
         studyFile = '';
