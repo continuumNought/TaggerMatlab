@@ -67,20 +67,20 @@ assertTrue(isa(fNew, 'fieldMap'));
 assertEqual(length(excluded), 6);
 delete(fName);
 
-% function testUseGUI(values)  %#ok<DEFNU>
-% fprintf('It should allow user to use the GUI to tag\n');
-% fprintf('....REQUIRES USER INPUT\n');
-% fprintf('PRESS the SUBMIT button exactly once otherwise CANCEL\n');
-% fName = 'temp2.mat';
-% x = values.data;
-% [y, fMap, excluded] = tageeg(x, 'RewriteOption', 'both', ...
-%         'UseGui', true, 'SaveMapFile', fName, 'SelectOption', false);
-% assertTrue(isa(fMap, 'fieldMap'));
-% fields = fMap.getFields();
-% assertEqual(sum(strcmpi(fields, 'code')), 1);
-% assertEqual(sum(strcmpi(fields, 'group')), 1);
-% assertEqual(sum(strcmpi(fields, 'type')), 1);
-% assertTrue(isfield(y.etc, 'tags'));
-% assertTrue(isfield(y.etc.tags, 'xml'));
-% assertEqual(length(fieldnames(y.etc.tags)), 2);
-% assertEqual(length(excluded), 5);
+function testUseGUI(values)  %#ok<DEFNU>
+fprintf('It should allow user to use the GUI to tag\n');
+fprintf('....REQUIRES USER INPUT\n');
+fprintf('PRESS the SUBMIT button exactly once otherwise CANCEL\n');
+fName = 'temp2.mat';
+x = values.data;
+[y, fMap, excluded] = tageeg(x, 'RewriteOption', 'both', ...
+        'UseGui', true, 'SaveMapFile', fName, 'SelectOption', false);
+assertTrue(isa(fMap, 'fieldMap'));
+fields = fMap.getFields();
+assertEqual(sum(strcmpi(fields, 'code')), 1);
+assertEqual(sum(strcmpi(fields, 'group')), 1);
+assertEqual(sum(strcmpi(fields, 'type')), 1);
+assertTrue(isfield(y.etc, 'tags'));
+assertTrue(isfield(y.etc.tags, 'xml'));
+assertEqual(length(fieldnames(y.etc.tags)), 2);
+assertEqual(length(excluded), 5);

@@ -126,14 +126,16 @@ function edata = writetags(edata, fMap, varargin)
                 tags = fMap.getTags(eFields{j}, edata.event(k).(eFields{j}));
                 utags = merge_taglists(utags, tags, p.PreservePrefix);
             end
-            if ~isempty(utags)
+            if isempty(utags)
+                edata.event(k).usertags = '';
+            elseif ischar(utags)
+                edata.event(k).usertags = utags;
+            else
                  tags = utags{1};
                  for j = 2:length(utags)
                      tags = [tags ',' utags{j}]; %#ok<AGROW>
                  end
                  edata.event(k).usertags = tags;
-            else
-                edata.event(k).usertags = '';
             end
         end
     end
