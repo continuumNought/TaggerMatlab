@@ -11,13 +11,13 @@
 %    text format. The xmlString is an XML string with the tag hierarchy
 %    and events is a structure array that holds the events and tags.
 %
-% dTags = fieldMap('key1', 'value1', ...)
+% dTags = fieldMap('key1', 'value1', ...) where the key-value pairs are:
 %
-%
-% where the key-value pairs are:
-%
+%   'Description'      string describing the purpose of this field map.
 %   'PreservePrefix'   logical - if false (default) tags with matching
 %                      prefixes are merged to be the longest
+%   'XML'              XML string specifying tag hierarchy to be used.
+%
 %
 % addTags mergeOptions:
 %    'Merge'          If an event with that key is not part of this
@@ -65,24 +65,6 @@
 %            values: 1, 302, and 43. The output string is:
 %
 %            '1,1;302,302;43,43'
-%
-% After using the ctagger interface, it is recommended that users store
-% the output in EEG.etc.tags field.
-%
-%
-% eTagged =
-%
-%     field: 'type'
-%     hedXML: ''
-%     events: [1x2 struct]
-%
-% The events field is either empty of contains a structure array:
-% 
-% Example:
-%  1x2 struct array with fields:
-%     label
-%     description
-%     tags
 %
 % Class documentation:
 % Execute the following in the MATLAB command window to view the class

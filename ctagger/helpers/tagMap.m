@@ -17,8 +17,7 @@
 % where the key-value pairs are:
 %
 %   'Field'            field name corresponding to these value tags
-%   'PreservePrefix'   logical - if false (default) tags with matching
-%                      prefixes are merged to be the longest
+%
 % Notes:
 %
 % Event string format:

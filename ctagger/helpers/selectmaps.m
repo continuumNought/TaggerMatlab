@@ -2,8 +2,8 @@
 % Allow user to selectively select the fields to be used
 %
 % Usage:
-%   >>  [tMap, fPaths] = tagdir(inDir)
-%   >>  [tMap, fPaths] = tagdir(inDir, 'key1', 'value1', ...)
+%   >>  [fMap, excluded] = selectmaps(fMap)
+%   >>  [fMap, excluded] = selectmaps(fMap, 'key1', 'value1', ...)
 %
 %% Description
 % [eTags, fPaths] = tagdir(inDir)extracts a consolidated tagMap object
@@ -24,34 +24,13 @@
 %
 % [eTags, fPaths] = tagdir(eData, 'key1', 'value1', ...) specifies
 % optional name/value parameter pairs:
-%   'BaseTagsFile'   A file containing a typeMap object to be used
-%                    for initial tag information. The default is an
-%                    tagMap object with the default HED XML and no tags.
-%   'DoSubDirs'      If true the entire inDir directory tree is searched.
-%                    If false, only the inDir directory is searched.
-%   'SelectOption'   If 'type', then only tags based on the
-%                    event type field are considered. The 'select' option
-%                    (the default) causes a series of selection GUIs to be displayed.
-%                    The 'none' option causes no selection to be done.
-%   'PreservePrefix' If false (default), tags of the same event type that
-%                    share prefixes are combined and only the most specific
-%                    is retained (e.g., /a/b/c and /a/b become just
-%                    /a/b/c). If true, then all unique tags are retained.
-%   'Synchronize'    If true (default), the ctagger GUI is run synchronously so
-%                    no other MATLAB commands can be issued until this GUI
-%                    is closed. A value of false is used when this function
-%                    is being called as a menu item from another GUI.
-%   'RewriteTags'    Rewrite tags back to the data files after tag map
-%                    has been created.
-%   'TagFileName'    Name containing the name of the file in which to
-%                    save the consolidated typeMap object for future use.
-%   'UpdateType'     Indicates how tags are merged with initial tags if the
-%                    tagging information is to be rewritten to the EEG
-%                    files. The options are: 'merge', 'replace',
-%                    'onlytags' (default), 'update' or 'none'.
-%   'UseGui'         If true (default), the ctagger GUI is displayed after
-%                    initialization.
-
+%   'Fields'         Cell array of field names of the fields to include
+%                    in the tagging. If this parameter is non-empty
+%                    (default), only these fields are tagged.
+%   'SelectOption'   If true (default), the user is presented with a GUI 
+%                    that allows users to select which fields to tag.
+%
+% ----STANDRAD DOcumentation --- here
 function [fMap, excluded] = selectmaps(fMap, varargin)
 
     % Check the input arguments for validity and initialize
