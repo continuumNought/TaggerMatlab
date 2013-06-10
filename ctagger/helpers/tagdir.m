@@ -23,20 +23,19 @@
 %
 % [fMap, fPaths, excluded] = tagdir(inDir, 'key1', 'value1', ...) specifies 
 % optional name/value parameter pairs:
-%   'BaseMap'        A fieldMap object or a string containing the name of
-%                    a file containing a fieldMap object to be used
-%                    for initial tag information. 
+%   'BaseMap'        A fieldMap object or the name of a file that contains
+%                    a fieldMap object to be used for initial tag information. 
 %   'DbCredsFile'    Name of a property file containing the database
-%                    credentials. If this argument isnot provided, a
+%                    credentials. If this argument is not provided, a
 %                    database is not used. (See notes.)
 %   'DoSubDirs'      If true (default), the entire inDir directory tree is searched.
 %                    If false, only the inDir directory is searched. 
-%   'ExcludeFields'  Cell array of field names in the .event structure
-%                    to ignore during the tagging process. By default
-%                    the following fields are ignored: 'latency', ...
-%                    'epoch', 'urevent', 'hedtags', 'usertags'. The user
-%                    can over-ride these tags using this name-value
-%                    parameter.
+%   'ExcludeFields'  Cell array of field names in the .event 
+%                    and .urevent substructures to ignore during the 
+%                    tagging process. By default the following fields 
+%                    are ignored: 'latency', 'epoch', 'urevent', 'hedtags', 
+%                    and 'usertags'. The user can over-ride these 
+%                    exclusions using this name-value parameter.
 %   'Fields'         Cell array of field names of the fields to include
 %                    in the tagging. If this parameter is non-empty
 %                    (default), only these fields are tagged.
@@ -57,7 +56,6 @@
 %                    true, synchronization is done within Java. This
 %                    latter option is usually reserved when not calling
 %                    the GUI from MATLAB.
-%                    no other MATLAB commands can be issued until this GUI
 %   'UseGui'         If true (default), the ctagger GUI is displayed after
 %                    initialization.
 %

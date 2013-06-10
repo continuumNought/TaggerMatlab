@@ -6,27 +6,15 @@
 %   >>  [fMap, excluded] = selectmaps(fMap, 'key1', 'value1', ...)
 %
 %% Description
-% [eTags, fPaths] = tagdir(inDir)extracts a consolidated tagMap object
-% from the EEGLAB .set files in the directory tree inDir.
-%
-% First the events and tags from all EEGLAB .set files are extracted and
-% consolidated into a single typeMap object by merging all of the
-% existing tags. Then the ctagger GUI is displayed so that users can
-% edit/modify the tags. The GUI is launched in synchronous mode, meaning
-% that it behaves like a modal dialog and must be closed before execution
-% continues. Finally the tags for each EEG file are updated.
-%
-% The final, consolidated and edited typeMap object is returned in tMap,
-% and fPaths is a cell array containing the full path names of all of the
-% matched files that were affected. If fPaths is empty, then tMap will also
-% be empty.
+% [fMap, excluded] = selectmaps(fMap) removes the fields that are excluded
+% by the user during selection.
 %
 %
-% [eTags, fPaths] = tagdir(eData, 'key1', 'value1', ...) specifies
+% [fMap, excluded] = selectmaps(fMap, 'key1', 'value1', ...) specifies
 % optional name/value parameter pairs:
 %   'Fields'         Cell array of field names of the fields to include
-%                    in the tagging. If this parameter is non-empty
-%                    (default), only these fields are tagged.
+%                    in the tagging. If this parameter is non-empty,
+%                    only these fields are tagged.
 %   'SelectOption'   If true (default), the user is presented with a GUI 
 %                    that allows users to select which fields to tag.
 %
