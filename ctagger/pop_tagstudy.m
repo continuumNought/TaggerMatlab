@@ -1,21 +1,21 @@
 % pop_tagstudy opens ctagger GUI to tag EEGLAB study
 %
 % Usage:
-%   >>  [dTags, com] = pop_tagstudy()
+%   >>  [fMap, com] = pop_tagstudy()
 %
 % Outputs:
-%    dTags  - an dataTags object containing consolidated tags
+%    fMap   - a fieldMap object that contains the tag map information
 %    com    - string containing call to tagstudy with all parameters
 %
 % Notes:
-%  -  pop_tagstudy() is meant to be used as the callback under the 
+%  -  pop_tagstudy() is meant to be used as the callback under the
 %     EEGLAB Study menu. It is a singleton and clicking
 %     the menu item again will not create a new window if one already
 %     exists.
-%  -  The function first brings up a GUI to enter the parameters to 
+%  -  The function first brings up a GUI to enter the parameters to
 %     override the default values for tagstudy and then optionally allows
 %     the user to use the ctagger GUI to modify the tags.
-% 
+%
 % See also:
 %   eeglab, tageeg, tagdir, and eegplugin_ctagger
 %
@@ -44,35 +44,35 @@
 %
 
 
-function [dTags, com] = pop_tagstudy()    
+function [fMap, com] = pop_tagstudy()
 % Create the tagger for this EEG study
-    [studyFile, baseMap, onlyType, preservePrefix, ...
+[studyFile, baseMap, onlyType, preservePrefix, ...
     saveTagsFile, updateType, useGUI, cancelled] = tagstudyinputs();
-    if cancelled
-        dTags = '';
-        com = '';
-        return;
-    end
-    dTags = tagstudy(studyFile,'BaseMap', baseMap, ...
-                      'OnlyType', onlyType,  ...
-                      'PreservePrefix', preservePrefix, ...
-                      'Synchronize', false, 'TagFileName', saveTagsFile, ...
-                      'UpdateType', updateType, 'UseGUI', useGUI);
+if cancelled
+    fMap = '';
+    com = '';
+    return;
+end
+fMap = tagstudy(studyFile,'BaseMap', baseMap, ...
+    'OnlyType', onlyType,  ...
+    'PreservePrefix', preservePrefix, ...
+    'Synchronize', false, 'TagFileName', saveTagsFile, ...
+    'UpdateType', updateType, 'UseGUI', useGUI);
 
-    com = char(['tagstudy(''' studyFile ''', ' ...
-                '''BaseMap'', ''' baseMap ''', '...
-                '''OnlyType'', ' logical2str(onlyType) ', ' ...
-                '''PreservePrefix'', ' logical2str(preservePrefix) ', ' ...
-                '''Synchronize'', ' logical2str(false) ', ' ...
-                '''TagFileName'', ''' saveTagsFile ''', ' ...
-                '''UpdateType'', ''' updateType ''', ' ...
-                '''UseGui'', ' logical2str(useGUI) ')']);  
+com = char(['tagstudy(''' studyFile ''', ' ...
+    '''BaseMap'', ''' baseMap ''', '...
+    '''OnlyType'', ' logical2str(onlyType) ', ' ...
+    '''PreservePrefix'', ' logical2str(preservePrefix) ', ' ...
+    '''Synchronize'', ' logical2str(false) ', ' ...
+    '''TagFileName'', ''' saveTagsFile ''', ' ...
+    '''UpdateType'', ''' updateType ''', ' ...
+    '''UseGui'', ' logical2str(useGUI) ')']);
 end % pop_tagstudy
 
 function s = logical2str(b)
-    if b 
-        s = 'true';
-    else
-        s = 'false';
-    end
+if b
+    s = 'true';
+else
+    s = 'false';
+end
 end

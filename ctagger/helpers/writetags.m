@@ -10,8 +10,8 @@
 % as specified by the fMap fieldMap object, both in summary form and
 % individually.
 %
-% tMap = findtags(edata, 'key1', 'value1', ...) specifies optional name/value
-% parameter pairs:
+% edata = writetags(edata, fMap, 'key1', 'value1', ...) specifies optional
+% name/value parameter pairs:
 %
 %   'ExcludeFields'  A cell array containing the field names to exclude
 %   'Fields'         A cell array containing the field names to extract
@@ -31,9 +31,9 @@
 %   1) If the 'RewriteOption' is either 'Both' or 'Summary', the tags
 %      are written to the dataset in the x.etc.tags field:
 %            x.etc.tags.xml
-%            x.etc.tags.map.field1
-%            x.etc.tags.map.field2 ...
-%      
+%            x.etc.tags.map(1).field
+%            x.etc.tags.map(1).values ...
+%                   ...   
 %
 %   2) If the 'RewriteOption' is either 'Both' or 'Individual', the tags
 %      are also written to x.event.usertags based on the individual 
@@ -41,8 +41,6 @@
 %
 % See also: tageeg, fieldMap, and tagMap
 %
-
-%1234567890123456789012345678901234567890123456789012345678901234567890
 
 % Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013, krobbins@cs.utsa.edu
 %

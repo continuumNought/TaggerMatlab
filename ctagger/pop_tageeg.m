@@ -1,19 +1,19 @@
-% pop_tageeg 
-% Allows a user to tag an EEG structure 
+% pop_tageeg
+% Allows a user to tag an EEG structure using a GUI
 %
 % Usage:
-%   >>  [EEGOUT, com] = pop_tageeg(EEG)
+%   >>  [EEG, com] = pop_tageeg(EEG)
 %
-% [EEGOUT, com] = pop_tageeg(EEG) takes an input EEGLAB EEG structure,
+% [EEG, com] = pop_tageeg(EEG) takes an input EEGLAB EEG structure,
 % brings up a GUI to enter parameters for tageeg, and calls
-% tageeg to extracts the EEG structure's tags, if any. 
+% tageeg to extracts the EEG structure's tags, if any.
 %
 % The tageeg function may optionally connect to a community tag database.
 %
-% Note: The primary purpose of pop_tageeg to package up parameter input
+% Note: The primary purpose of pop_tageeg is to package up parameter input
 % and calling of tageeg for use as a plugin for EEGLAB (Edit menu).
 %
-% 
+%
 % See also:
 %   eeglab, tageeg, tagdir, tagstudy, and eegplugin_ctagger
 %
@@ -43,48 +43,47 @@
 %
 
 
-function [EEG, com] = pop_tageeg(EEG) 
+function [EEG, com] = pop_tageeg(EEG)
 % Create the tagger for a single EEG file
-    com = '';       
+com = '';
 
-    % Display help if inappropriate number of arguments
-    if nargin < 1 
-        help pop_tageeg;
-        return;
-    end;
+% Display help if inappropriate number of arguments
+if nargin < 1
+    help pop_tageeg;
+    return;
+end;
 
-    % Get the tagger input parameters
-    [baseMap,  dbCredsFile,  preservePrefix, rewriteOption ...
-          saveMapFile, selectOption,  useGUI, cancelled] = tageeg_input();     
-    if cancelled
-        return;
-    end
+% Get the tagger input parameters
+[baseMap,  dbCredsFile,  preservePrefix, rewriteOption ...
+    saveMapFile, selectOption,  useGUI, cancelled] = tageeg_input();
+if cancelled
+    return;
+end
 
-    % Tag the EEG structure and return the command string
-    EEG = tageeg(EEG, 'BaseMap', baseMap, ...
-                 'DbCredsFile', dbCredsFile, ...
-                 'PreservePrefix', preservePrefix, ...
-                 'RewriteOption', rewriteOption, ...
-                 'SaveMapFile', saveMapFile, ...
-                 'SelectOption', selectOption, ...
-                 'UseGUI', useGUI);
-    formatString = ['%s = tageeg(%s, ' ...
-          '''BaseMap'', ''' baseMap ''', ' ...
-          '''DbCredsFile'', ''' dbCredsFile ''', ' ...
-          '''PreservePrefix'', ' logical2str(preservePrefix) ', ' ...
-          '''RewriteOption'', ' logical2str(rewriteOption) ', ' ...
-          '''SaveMapFile'', ''' saveMapFile ''', ' ...
-          '''SelectOption'', ' logical2str(selectOption) ', ' ...
-          '''UseGui'', ' logical2str(useGUI) ')'];
-    com = sprintf(formatString, inputname(1), inputname(1));
+% Tag the EEG structure and return the command string
+EEG = tageeg(EEG, 'BaseMap', baseMap, ...
+    'DbCredsFile', dbCredsFile, ...
+    'PreservePrefix', preservePrefix, ...
+    'RewriteOption', rewriteOption, ...
+    'SaveMapFile', saveMapFile, ...
+    'SelectOption', selectOption, ...
+    'UseGUI', useGUI);
+formatString = ['%s = tageeg(%s, ' ...
+    '''BaseMap'', ''' baseMap ''', ' ...
+    '''DbCredsFile'', ''' dbCredsFile ''', ' ...
+    '''PreservePrefix'', ' logical2str(preservePrefix) ', ' ...
+    '''RewriteOption'', ' logical2str(rewriteOption) ', ' ...
+    '''SaveMapFile'', ''' saveMapFile ''', ' ...
+    '''SelectOption'', ' logical2str(selectOption) ', ' ...
+    '''UseGui'', ' logical2str(useGUI) ')'];
+com = sprintf(formatString, inputname(1), inputname(1));
 end % pop_tageeg
 
 function s = logical2str(b)
-    if b 
-        s = 'true';
-    else
-        s = 'false';
-    end
+if b
+    s = 'true';
+else
+    s = 'false';
+end
 end % logical2str
 
-  
