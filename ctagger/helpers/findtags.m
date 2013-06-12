@@ -35,8 +35,6 @@
 % See also: tageeg, tagevents, and tagMap
 %
 
-%1234567890123456789012345678901234567890123456789012345678901234567890
-
 % Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013, krobbins@cs.utsa.edu
 %
 % This program is free software; you can redistribute it and/or modify
