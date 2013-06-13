@@ -1,5 +1,5 @@
 function mergedList = merge_taglists(tList1, tList2, preservePrefix)
-% Return a merged cell array of tags
+% Return a merged cell array of tags conforming to preservePrefix
 %
 % Input:
 %    tList1        cellstr of tags or a single string or empty

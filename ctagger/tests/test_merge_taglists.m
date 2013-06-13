@@ -6,6 +6,7 @@ values.tList1 = {'/a/b', '/c/d'};
 values.tList3 = {'/a/c', '/e','/f/g'};
 values.tList2 = {'/A/C', '/E', '/f/g/h'};
 values.tList4 = {'/a/b', '/c/d', '/a/b/c'};
+values.tList5 = {'/a', '/c', '/a/b/c/d'};
 
 function teardown(values) %#ok<INUSD,DEFNU>
 % Function executed after each test
@@ -29,8 +30,8 @@ mergedList4 = merge_taglists(values.tList1, values.tList4, false);
 assertEqual(length(mergedList4), 2);
 
 fprintf('It should not remove prefixes when preservePrefix is true\n');
-mergedList5 = merge_taglists(values.tList1, values.tList4, true);
-assertEqual(length(mergedList5), 3);
+mergedList5 = merge_taglists(values.tList4, values.tList5, true);
+assertEqual(length(mergedList5), 6);
 
 fprintf('It should still work when one of the lists is empty\n');
 mergedList6 = merge_taglists(values.tList1, '', true);

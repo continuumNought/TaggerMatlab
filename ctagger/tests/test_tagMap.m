@@ -255,16 +255,16 @@ assertEqual(length(theStruct1.tags), 2);
 fprintf('It should return filled values when there are no tags\n');
 theStruct2 = tagMap.text2Value('Trigger,code 1,');
 assertEqual(length(theStruct2), 1);
-fprintf('The tags should be empty after reformatting\n');
-[rEvent2, valid2] = tagMap.reformatValue(theStruct2);
-assertTrue(valid2);
-assertTrue(isempty(rEvent2.tags));
-fprintf('It should return filled values when there is 1 tag\n');
-theStruct3 = tagMap.text2Value('Trigger,code 1,/my/tag1,');
-assertEqual(length(theStruct3), 1);
-[rEvent3, valid3] = tagMap.reformatValue(theStruct3);
-assertTrue(valid3);
-assertTrue(ischar(rEvent3.tags));
+% fprintf('The tags should be empty after reformatting\n');
+% [rEvent2, valid2] = tagMap.reformatValue(theStruct2);
+% assertTrue(valid2);
+% assertTrue(isempty(rEvent2.tags));
+% fprintf('It should return filled values when there is 1 tag\n');
+% theStruct3 = tagMap.text2Value('Trigger,code 1,/my/tag1,');
+% assertEqual(length(theStruct3), 1);
+% [rEvent3, valid3] = tagMap.reformatValue(theStruct3);
+% assertTrue(valid3);
+% assertTrue(ischar(rEvent3.tags));
 fprintf('It should return the correct number of tags when there are blank tags\n');
 theStruct4 = tagMap.text2Value('Trigger,code 2,  , /my/tag2');
 assertTrue(strcmpi(theStruct4.label, 'trigger'));
@@ -273,17 +273,17 @@ theStruct5 = tagMap.text2Value('Trigger,code 2,  , ');
 assertTrue(strcmpi(theStruct5.label, 'trigger'));
 assertTrue(isempty(theStruct5.tags));
 
-function testReformatEvent(values) %#ok<INUSD,DEFNU>
-% Unit test for tagMap reformatValue static method
-fprintf('\nUnit tests for reformatValue static method of tagMap\n');
-
-fprintf('It should be not be valid for empty events\n');
-[event, valid] = tagMap.reformatValue(''); %#ok<ASGLU>
-assertTrue(~valid);
-fprintf('It should be not be valid for blank label\n');
-event2 = struct('label', '  ', 'description', '', 'Tags', '');
-[events2a, valid2] = tagMap.reformatValue(event2); %#ok<ASGLU>
-assertTrue(~valid2);
+% function testReformatEvent(values) %#ok<INUSD,DEFNU>
+% % Unit test for tagMap reformatValue static method
+% fprintf('\nUnit tests for reformatValue static method of tagMap\n');
+% 
+% fprintf('It should be not be valid for empty events\n');
+% [event, valid] = tagMap.reformatValue(''); %#ok<ASGLU>
+% assertTrue(~valid);
+% fprintf('It should be not be valid for blank label\n');
+% event2 = struct('label', '  ', 'description', '', 'Tags', '');
+% [events2a, valid2] = tagMap.reformatValue(event2); %#ok<ASGLU>
+% assertTrue(~valid2);
 
 function testValue2Json(values) %#ok<DEFNU>
 % Unit test for tagMap static value2Json method

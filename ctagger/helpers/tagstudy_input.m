@@ -273,7 +273,7 @@ function [studyFile, baseMapFile, dbCredsFile, preservePrefix, ...
            set(rewriteCtrl, 'Value', get(rewriteCtrl, 'Min'));
        end
        rewriteCtrl = src;
-       rewriteOption = lower(get(src, 'String'));
+       rewriteOption = lower(get(src, 'Tag'));
     end % rewriteCallback
 
     function saveAllCallback(src, eventdata) %#ok<INUSD>
