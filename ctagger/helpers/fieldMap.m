@@ -5,7 +5,7 @@
 %   >>  dTags = fieldMap('key1', 'value1', ...)
 %
 % Description:
-% dTags = fieldMap() creates an object representing the 
+% dTags = fieldMap() creates an object representing the
 %    tag hierarchy for community tagging. The object knows how to merge and
 %    can produce output in either JSON or semicolon separated
 %    text format. The xmlString is an XML string with the tag hierarchy
@@ -20,26 +20,26 @@
 %
 %
 % addTags mergeOptions:
-%    'Merge'          If an event with that key is not part of this
-%                     object, add it as is. 
+%   'Merge'           If an event with that key is not part of this
+%                     object, add it as is.
 %
-%    'NoUpdate'       Don't update anything in the structure
+%   'None'            Don't update anything in the structure
 %
-%    'Replace'        If an event with that key is not part of this
+%   'Replace'         If an event with that key is not part of this
 %                     object, do nothing. Otherwise, if an event with that
-%                     key is part of this object then completely replace 
+%                     key is part of this object then completely replace
 %                     that event with the new one.
 %
-%    'TagsOnly'       If an event with that key is not part of this
+%   'OnlyTags'        If an event with that key is not part of this
 %                     object, do nothing. Otherwise, if an event with that
-%                     key is part of this object, then update the tags of 
+%                     key is part of this object, then update the tags of
 %                     the matching event with the new ones from this event,
 %                     using the PreservePrefix value to determine how to
 %                     combine the tags.
 %
-%    'Update'         If an event with that key is not part of this
+%   'Update'          If an event with that key is not part of this
 %                     object, do nothing. Otherwise, if an event with that
-%                     key is part of this object, then update the tags of 
+%                     key is part of this object, then update the tags of
 %                     the matching event with the new ones from this event,
 %                     using the PreservePrefix value to determine how to
 %                     combine the tags. Also update any empty code, label
@@ -68,14 +68,15 @@
 %
 % Class documentation:
 % Execute the following in the MATLAB command window to view the class
-% documentation for tagMap:
+% documentation for fieldMap:
 %
-%    doc tagMap
+%    doc fieldMap
 %
-% See also: findtags, tageeg, tagdir, tagstudy, fieldMap
+% See also: findtags, tageeg, tagdir, tagstudy, tagMap
 %
 
-% Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013, krobbins@cs.utsa.edu
+% Copyright (C) Kay Robbins and Thomas Rognon, UTSA, ...
+% 2011-2013, krobbins@cs.utsa.edu
 %
 % This program is free software; you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -104,7 +105,8 @@ classdef fieldMap < hgsetget
     
     properties (Access = private)
         Description          % String describing this field map
-        PreservePrefix       % If true, don't eliminate duplicate prefixes (default false)
+        PreservePrefix       % If true, don't eliminate duplicate
+                             % prefixes (default false)
         GroupMap             % Map for matching event labels
         Xml                  % Tag hierarchy as an XML string
         XmlSchema            % String containing the XML schema
@@ -125,17 +127,19 @@ classdef fieldMap < hgsetget
             obj.Xml = fileread(fieldMap.DefaultXml);
             obj.XmlSchema = fileread(fieldMap.DefaultSchema);
             obj.mergeXml(parser.Results.XML);
-            obj.GroupMap = containers.Map('KeyType', 'char', 'ValueType', 'any');
-        end % fieldMap constructor       
+            obj.GroupMap = containers.Map('KeyType', 'char', ...
+                'ValueType', 'any');
+        end % fieldMap constructor
         
         function addValues(obj, type, values, varargin)
-            % Include event (a structure) in this tagMap object based on updateType
+            % Include event (a structure) in this tagMap object based on
+            % updateType
             p = inputParser;
             p.addRequired('Type', @(x) (~isempty(x) && ischar(x)));
             p.addRequired('Values', @(x) (isempty(x) || isstruct(x)));
             p.addParamValue('UpdateType', 'merge', ...
-              @(x) any(validatestring(lower(x), ...
-              {'OnlyTags', 'Update', 'Replace', 'Merge', 'None'})));
+                @(x) any(validatestring(lower(x), ...
+                {'OnlyTags', 'Update', 'Replace', 'Merge', 'None'})));
             p.parse(type, values, varargin{:});
             type = p.Results.Type;
             if ~obj.GroupMap.isKey(type)
@@ -143,7 +147,7 @@ classdef fieldMap < hgsetget
             else
                 eTag = obj.GroupMap(type);
             end
-
+            
             for k = 1:length(values)
                 eTag.addValue(values(k), ...
                     'UpdateType', p.Results.UpdateType, ...
@@ -152,7 +156,7 @@ classdef fieldMap < hgsetget
             obj.GroupMap(type) = eTag;
         end % addValues
         
-       function newMap = clone(obj)
+        function newMap = clone(obj)
             newMap = fieldMap();
             newMap.Description = obj.Description;
             newMap.PreservePrefix = obj.PreservePrefix;
@@ -160,12 +164,12 @@ classdef fieldMap < hgsetget
             newMap.XmlSchema = obj.XmlSchema;
             newMap.Xml = obj.Xml;
             values = obj.GroupMap.values;
-            tMap = containers.Map('KeyType', 'char', 'ValueType', 'any');          
+            tMap = containers.Map('KeyType', 'char', 'ValueType', 'any');
             for k = 1:length(values)
                 tMap(values{k}.getField()) = values{k};
             end
             newMap.GroupMap = tMap;
-        end %clone  
+        end %clone
         
         function description = getDescription(obj)
             description = obj.Description;
@@ -200,7 +204,8 @@ classdef fieldMap < hgsetget
         end % getMaps
         
         function pPrefix = getPreservePrefix(obj)
-            % Return the PreservePrefix flag (false means no tag prefix duplication)
+            % Return the PreservePrefix flag (false means no tag prefix
+            % duplication)
             pPrefix = obj.PreservePrefix;
         end % getPreservePrefix
         
@@ -223,9 +228,9 @@ classdef fieldMap < hgsetget
             % Returns tag string associated with value event of field
             tags = '';
             try
-               tMap = obj.GroupMap(field);
-               eStruct = tMap.getValue(event);
-               tags = eStruct.tags;
+                tMap = obj.GroupMap(field);
+                eStruct = tMap.getValue(event);
+                tags = eStruct.tags;
             catch me %#ok<NASGU>
             end
         end % getTags
@@ -241,7 +246,7 @@ classdef fieldMap < hgsetget
         function events = getValues(obj, type)
             % Return the events as a cell array of structures
             if obj.GroupMap.isKey(type)
-               events = obj.GroupMap(type).getValues();
+                events = obj.GroupMap(type).getValues();
             else
                 events = '';
             end;
@@ -251,9 +256,10 @@ classdef fieldMap < hgsetget
             % Return a string containing the xml
             xml = obj.Xml;
         end % getXml
-          
+        
         function merge(obj, fMap, updateType, excludeFields)
-            % Combine fMap fieldMap object with this, excluding certain fields
+            % Combine fMap fieldMap object with this, excluding certain 
+            % fields
             if isempty(fMap)
                 return;
             end
@@ -278,13 +284,14 @@ classdef fieldMap < hgsetget
                 return;
             end
             try
-               fieldMap.validateXml(obj.XmlSchema, xmlMerge);
+                fieldMap.validateXml(obj.XmlSchema, xmlMerge);
             catch ex
                 warning('fieldMap:mergeXml', ['Could not merge XML ' ...
-                     ' [' ex.message ']']);
+                    ' [' ex.message ']']);
                 return;
             end
-            obj.Xml = char(edu.utsa.tagger.database.XMLGenerator.mergeXML( ...
+            obj.Xml = ...
+                char(edu.utsa.tagger.database.XMLGenerator.mergeXML( ...
                 obj.Xml, xmlMerge));
         end % mergeXml
         
@@ -300,7 +307,7 @@ classdef fieldMap < hgsetget
         end % setDescription
         
     end % public methods
-      
+    
     methods (Static = true)
         
         function baseTags = loadFieldMap(tagsFile)
@@ -320,7 +327,8 @@ classdef fieldMap < hgsetget
             end
         end % loadFieldMap
         
-        function successful = saveFieldMap(tagsFile, tagsObject) %#ok<INUSD>
+        function successful = saveFieldMap(tagsFile, ...
+                tagsObject) %#ok<INUSD>
             % Save the tagsObject variable in the tagsFile file
             successful = true;
             try
@@ -331,13 +339,14 @@ classdef fieldMap < hgsetget
             end
         end % saveTagFile
         
-                function validateXml(schema, xmlString)
-            % Validate xmlString as empty or valid XML (invalid throws exception) 
+        function validateXml(schema, xmlString)
+            % Validate xmlString as empty or valid XML (invalid throws
+            % exception)
             if isempty(xmlString)
                 return;
             end
             edu.utsa.tagger.database.XMLGenerator.validateSchemaString(...
-                                 char(xmlString), char(schema));
+                char(xmlString), char(schema));
         end % validateXml
         
     end % static methods

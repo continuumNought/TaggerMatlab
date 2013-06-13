@@ -5,12 +5,13 @@ function values = setup %#ok<DEFNU>
 types = {'RT', 'Trigger', 'Missed'};
 eStruct = struct('field', 'type', 'values', 'def');
 tags = {'/Time-Locked Event/Stimulus/Visual/Shape/Ellipse/Circle', ...
-        '/Time-Locked Event/Stimulus/Visual/Fixation Point', ...
-        '/Time-Locked Event/Stimulus/Visual/Uniform Color/Black'};
+    '/Time-Locked Event/Stimulus/Visual/Fixation Point', ...
+    '/Time-Locked Event/Stimulus/Visual/Uniform Color/Black'};
 sE = struct('label', types, 'description', types, 'tags', '');
 sE(1).tags = tags;
 eStruct.field = 'type';
 values.xml = fileread('HEDSpecification1.3.xml');
+values.xmlSchema = fileread('HEDSchema.xsd');
 eStruct.values = sE;
 values.eJSON1 = savejson('', eStruct);
 values.eStruct1 = eStruct;
@@ -28,8 +29,8 @@ values.oneValue = struct('label', 'abc type', 'description', '', 'tags', '/a/b')
 types = {'RT', 'Trigger', 'Missed'};
 eStruct = struct('field', 'type', 'values', 'def');
 tags = {'/Time-Locked Event/Stimulus/Visual/Shape/Ellipse/Circle', ...
-        '/Time-Locked Event/Stimulus/Visual/Fixation Point', ...
-        '/Time-Locked Event/Stimulus/Visual/Uniform Color/Black'};
+    '/Time-Locked Event/Stimulus/Visual/Fixation Point', ...
+    '/Time-Locked Event/Stimulus/Visual/Uniform Color/Black'};
 sE = struct('label', types, 'description', types, 'tags', '');
 sE(1).tags = tags;
 eStruct.values = sE;
@@ -44,13 +45,13 @@ values.noTagsFile = 'EEGEpoch.mat';
 values.oneTagsFile = 'fMapOne.mat';
 values.otherTagsFile = 'fMapTwo.mat';
 typeValues = ['RT,User response,' ...
-        '/Time-Locked Event/Stimulus/Visual/Shape/Ellipse/Circle,' ...
-        '/Time-Locked Event/Stimulus/Visual/Uniform Color/Black;' ...
-        'Trigger,User stimulus,,;Missed,User failed to respond,'];
+    '/Time-Locked Event/Stimulus/Visual/Shape/Ellipse/Circle,' ...
+    '/Time-Locked Event/Stimulus/Visual/Uniform Color/Black;' ...
+    'Trigger,User stimulus,,;Missed,User failed to respond,'];
 codeValues = ['1,User response,' ...
-        '/Time-Locked Event/Stimulus/Visual/Shape/Ellipse/Square,' ...
-        '/Time-Locked Event/Stimulus/Visual/Uniform Color/Blue;' ...
-        '2,User stimulus,,;3,User failed to respond,'];
+    '/Time-Locked Event/Stimulus/Visual/Shape/Ellipse/Square,' ...
+    '/Time-Locked Event/Stimulus/Visual/Uniform Color/Blue;' ...
+    '2,User stimulus,,;3,User failed to respond,'];
 % Read in the HED schema
 latestHed = 'HEDSpecification1.3.xml';
 values.data.etc.tags.xml = fileread(latestHed);
@@ -129,11 +130,11 @@ assertEqual(length(p(1).events), 2);
 function testEmptyOrInvalid(values) %#ok<INUSD,DEFNU>
 % Unit test for fieldMap constructor empty or invalid
 % fprintf('\nUnit tests for fieldMap empty\n');
-% 
+%
 % fprintf('It should throw  are no arguments\n');
 % f = @() fieldMap();
 % assertAltExceptionThrown(f, {'MATLAB:inputArgUndefined', 'MATLAB:minrhs'});
-% 
+%
 % fprintf('It should output a warning if an empty string is used ---WARNING\n');
 % obj1 = fieldMap('');
 % assertTrue(isvalid(obj1));
@@ -180,7 +181,7 @@ fprintf('It should correctly clone a fieldMap object\n');
 [field1, events1] = tagMap.split(values.eJSON1, true);
 obj1 = tagMap();
 for k = 1:length(events1)
-   obj1.addValue(events1(k));
+    obj1.addValue(events1(k));
 end
 assertTrue(strcmpi (field1, obj1.getField()));
 
@@ -223,8 +224,8 @@ tags5 = fMap.getTags('type', 'banana');
 assertTrue(isempty(tags5));
 
 function testMergeXml(values) %#ok<INUSD,DEFNU>
-% Unit test for tagMap mergeXml static method
-fprintf('\nUnit tests for mergeXml static method of tagMap\n');
+% Unit test for fieldMap mergeXml static method
+fprintf('\nUnit tests for mergeXml static method of fieldMap\n');
 
 fprintf('It should merge XML when both tag sets are empty\n');
 obj1 = fieldMap();
@@ -233,4 +234,23 @@ xml1 = obj1.getXml;
 assertTrue(~isempty(xml1));
 obj1.mergeXml(xml1);
 %assertTrue(strcmpi(strtrim(obj1.getXml()), strtrim(xml1)));
+
+function testValidateXml(values)  %#ok<DEFNU>
+% Unit test for fieldMap validateXml static method
+fprintf('\nUnit tests for valideXml static method of fieldMap\n');
+
+fprintf('It should validate empty XML\n');
+obj1 = fieldMap();
+obj1.validateXml(values.xmlSchema, '');
+
+fprintf('It should validate non-empty XML\n');
+obj1 = fieldMap();
+obj1.validateXml(values.xmlSchema, values.xml);
+
+fprintf('It should validate invalid XML and throw an exception\n');
+obj1 = fieldMap();
+assertExceptionThrown(@() error(obj1.validateXml(values.xmlSchema, ...
+    '<mismatchingtag1> invalid xml <mismatchingtag2>')), 'MATLAB:maxlhs');
+
+
 
