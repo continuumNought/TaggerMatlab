@@ -59,7 +59,7 @@ end
                 eTitle, 3);
             notified = edu.utsa.tagger.Controller.get().getNotified();
             while (~notified)
-                pause(5);
+                pause(1);
                 notified = edu.utsa.tagger.Controller.get().getNotified();
             end
             taggedList = edu.utsa.tagger.Controller.getReturnString(true);
