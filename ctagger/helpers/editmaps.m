@@ -72,20 +72,20 @@ end
         
         %----TODO merge XML
         %------TEMPORARY FIX
-        
-        if isfield(tValues, 'code')
-            fprintf(['----warning editmaps:CodeField --- Removing code' ...
-                ' field\n']);
-            tValues = rmfield(tValues, 'code');
-        end
-        if isfield(tValues, 'paths')
-            fprintf(['----warning editmaps:PathField --- Renaming path' ...
-                ' field to tags field\n']);
-            for j = 1:length(tValues)
-                tValues(j).tags = tValues(j).paths;
-            end
-            tValues = rmfield(tValues, 'paths');
-        end
+%         
+%         if isfield(tValues, 'code')
+%             fprintf(['----warning editmaps:CodeField --- Removing code' ...
+%                 ' field\n']);
+%             tValues = rmfield(tValues, 'code');
+%         end
+%         if isfield(tValues, 'paths')
+%             fprintf(['----warning editmaps:PathField --- Renaming path' ...
+%                 ' field to tags field\n']);
+%             for j = 1:length(tValues)
+%                 tValues(j).tags = tValues(j).paths;
+%             end
+%             tValues = rmfield(tValues, 'paths');
+%         end
         fMap.mergeXml(strtrim(xml));
         fMap.removeMap(field);
         fMap.addValues(field, tValues);
