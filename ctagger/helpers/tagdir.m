@@ -7,7 +7,8 @@
 %
 %% Description
 % [fMap, fPaths, excluded] = tagdir(inDir) extracts a consolidated
-% fieldMap object from the data files in the directory tree inDir.
+% fieldMap object from the data files in the directory tree inDir. The 
+% inDir must be a valid path.
 %
 % First the events and tags from all data files are extracted and
 % consolidated into a single fieldMap object by merging all of the
@@ -104,7 +105,7 @@
 function [fMap, fPaths, excluded] = tagdir(inDir, varargin)
 % Parse the input arguments
 parser = inputParser;
-parser.addRequired('InDir', @(x) (isempty(x) || ischar(x)));
+parser.addRequired('InDir', @(x) (~isempty(x) && ischar(x)));
 parser.addParamValue('BaseMap', '', ...
     @(x)(isempty(x) || (ischar(x))));
 parser.addParamValue('DbCredsFile', '', ...
@@ -127,9 +128,12 @@ parser.parse(inDir, varargin{:});
 p = parser.Results;
 
 fprintf('\n---Loading the data files to merge the tags---\n');
+fMap = '';
+excluded = '';
 fPaths = getfilelist(p.InDir, '.set', p.DoSubDirs);
 if isempty(fPaths)
     warning('tagdir:nofiles', 'No files met tagging criteria\n');
+    return;
 end
 fMap = fieldMap('PreservePrefix',  p.PreservePrefix);
 for k = 1:length(fPaths) % Assemble the list
