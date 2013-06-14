@@ -108,6 +108,9 @@ parser.addParamValue('Synchronize', false, @islogical);
 parser.addParamValue('UseGui', true, @islogical);
 parser.parse(studyFile, varargin{:});
 p = parser.Results;
+fMap = '';
+fPaths = '';
+excluded = '';
 
 % Consolidate all of the tags from the study
 [s, fPaths] = loadstudy(p.StudyFile);
@@ -117,6 +120,7 @@ fMap = findtags(s, 'ExcludeFields', p.ExcludeFields, ...
 % Merge the tags for the study from individual files
 if isempty(fPaths)
     warning('tagstudy:nofiles', 'No files in study\n');
+    return;
 end
 
 for k = 1:length(fPaths) % Assemble the list

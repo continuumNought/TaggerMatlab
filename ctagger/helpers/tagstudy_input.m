@@ -1,9 +1,10 @@
-function [studyFile, baseMapFile, dbCredsFile, preservePrefix, ...
-    rewriteOption, saveAll, saveMapFile,  selectOption, useGUI, cancelled] = tagstudy_input()
+function [studyFile, baseMap, dbCredsFile, preservePrefix, ...
+    rewriteOption, saveAll, saveMapFile,  selectOption, useGUI, ...
+    cancelled] = tagstudy_input()
 % GUI for input needed to create inputs for tagstudy function
 
 % Setup the variables used by the GUI
-    baseMapFile = '';
+    baseMap = '';
     cancelled = true;
     dbCredsFile = '';
     preservePrefix = false;
@@ -231,13 +232,13 @@ function [studyFile, baseMapFile, dbCredsFile, preservePrefix, ...
     function browseTagsCallback(src, eventdata, tagsCtrl, myTitle) %#ok<INUSL>
         % Callback for browse button sets a directory for control
         [tFile, tPath] = uigetfile({'*.mat', 'MATLAB Files (*.mat)'}, myTitle);
-        baseMapFile = fullfile(tPath, tFile);
-        set(tagsCtrl, 'String', baseMapFile);
+        baseMap = fullfile(tPath, tFile);
+        set(tagsCtrl, 'String', baseMap);
     end % browseTagsCallback
 
     function cancelCallback(src, eventdata)  %#ok<INUSD>
         % Callback for browse button sets a directory for control
-        baseMapFile = '';
+        baseMap = '';
         cancelled = true;
         dbCredsFile = '';
         preservePrefix = false;
@@ -301,7 +302,7 @@ function [studyFile, baseMapFile, dbCredsFile, preservePrefix, ...
 
     function tagsCtrlCallback(hObject, eventdata, tagsCtrl) %#ok<INUSD>
         % Callback for user directly editing directory control textbox
-        baseMapFile = get(hObject, 'String');
+        baseMap = get(hObject, 'String');
     end % tagsCtrlCallback
 
     function useGUICallback(src, eventdata) %#ok<INUSD>
