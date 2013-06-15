@@ -5,7 +5,7 @@
 %   >>  [fMap, excluded] = selectmaps(fMap)
 %   >>  [fMap, excluded] = selectmaps(fMap, 'key1', 'value1', ...)
 %
-%% Description
+% Description
 % [fMap, excluded] = selectmaps(fMap) removes the fields that are excluded
 % by the user during selection.
 %
