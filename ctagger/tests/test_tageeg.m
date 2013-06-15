@@ -6,8 +6,6 @@ typeValues = ['RT,User response,' ...
         '/Time-Locked Event/Stimulus/Visual/Shape/Ellipse/Circle,' ...
         '/Time-Locked Event/Stimulus/Visual/Uniform Color/Black;' ...
         'Trigger,User stimulus,,;Missed,User failed to respond,'];
-tMap = tagMap('Field', 'type');
-tMap.getStruct
 codeValues = ['1,User response,' ...
         '/Time-Locked Event/Stimulus/Visual/Shape/Ellipse/Square,' ...
         '/Time-Locked Event/Stimulus/Visual/Uniform Color/Blue;' ...
@@ -56,11 +54,13 @@ function testSelectTags(values)  %#ok<DEFNU>
 % Unit tests for tag_eeg selecting which fields
 fprintf('It should allow user to select the types to tag\n');
 fprintf('....REQUIRES USER INPUT\n');
-fprintf('PRESS EXCLUDE BUTTON EXACTLY ONCE OTHERWISE TAG\n');
+fprintf('PRESS EXCLUDE BUTTON ONCE FOLLOWED BY TAG\n');
+fprintf('....you should not see a tagging GUI for code\n');
+fprintf('....PRESS SUBMIT WITHOUT TAGGING FOR EACH GUI\n');
 fName = 'temp2.mat';
 x = values.data;
 [y, fMap, excluded] = tageeg(x, 'RewriteOption', 'both', ...
-        'UseGui', false, 'SaveMapFile', fName, 'SelectOption', true);
+        'UseGui', true, 'SaveMapFile', fName, 'SelectOption', true);
 assertTrue(isa(fMap, 'fieldMap'));
 assertTrue(isfield(y.etc, 'tags'));
 assertTrue(isfield(y.etc.tags, 'xml'));
@@ -88,4 +88,35 @@ assertEqual(sum(strcmpi(fields, 'type')), 1);
 assertTrue(isfield(y.etc, 'tags'));
 assertTrue(isfield(y.etc.tags, 'xml'));
 assertEqual(length(fieldnames(y.etc.tags)), 2);
+assertEqual(length(excluded), 5);
+
+
+function testReuse(values)  %#ok<DEFNU>
+fprintf('It should correctly tag a dataset multiple times\n');
+fprintf('....REQUIRES USER INPUT\n');
+fprintf('PRESS THE SUBMIT BUTTON ONCE, THEN CANCEL\n');
+fName = 'temp3.mat';
+x = values.data;
+[y1, fMap, excluded] = tageeg(x, 'RewriteOption', 'both', ...
+        'UseGui', true, 'SaveMapFile', fName, 'SelectOption', false);
+assertTrue(isa(fMap, 'fieldMap'));
+fields = fMap.getFields();
+assertEqual(sum(strcmpi(fields, 'code')), 1);
+assertEqual(sum(strcmpi(fields, 'group')), 1);
+assertEqual(sum(strcmpi(fields, 'type')), 1);
+assertTrue(isfield(y1.etc, 'tags'));
+assertTrue(isfield(y1.etc.tags, 'xml'));
+assertEqual(length(fieldnames(y1.etc.tags)), 2);
+assertEqual(length(excluded), 5);
+fprintf('Now retagging... there should be 3 values for code\n');
+fprintf('PRESS THE SUBMIT BUTTON ONCE, THEN CANCEL\n');
+fName = 'temp3.mat';
+[y2, fMap, excluded] = tageeg(y1, 'RewriteOption', 'both', ...
+        'UseGui', true, 'SaveMapFile', fName, 'SelectOption', false);
+assertEqual(sum(strcmpi(fields, 'code')), 1);
+assertEqual(sum(strcmpi(fields, 'group')), 1);
+assertEqual(sum(strcmpi(fields, 'type')), 1);
+assertTrue(isfield(y2.etc, 'tags'));
+assertTrue(isfield(y2.etc.tags, 'xml'));
+assertEqual(length(fieldnames(y2.etc.tags)), 2);
 assertEqual(length(excluded), 5);

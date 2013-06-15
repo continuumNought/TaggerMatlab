@@ -108,8 +108,7 @@ function edata = writetags(edata, fMap, varargin)
         else
             map(length(tFields)) = struct('field', '', 'values', '');  
             for k = 1:length(tFields)
-                map(k).field = tFields{k};
-                map(k).values = fMap.getMap(tFields{k}).getTextValues();
+                map(k) = fMap.getMap(tFields{k}).getStruct();
             end
         end
         edata.etc.tags = struct('xml', fMap.getXml(), 'map', map);
