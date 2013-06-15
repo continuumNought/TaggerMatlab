@@ -3,8 +3,12 @@ function response = tagdlg(fieldname, fieldValues)
 
 % Setup the variables used by the GUI
     response = 'Cancel';
+    if isempty(fieldname) || isempty(fieldValues)
+        return;
+    end
     maxLines = 10;
-    theTitle = ['How do you want to handle the ' fieldname ' field?'];
+    theTitle = ['Do you want to tag ' fieldname ' field [' ...
+                  num2str(length(fieldValues)) ' value(s)]?'];
     numFields = 1;
     if isempty(fieldValues)
         displayFields = ' ';

@@ -6,6 +6,8 @@ typeValues = ['RT,User response,' ...
         '/Time-Locked Event/Stimulus/Visual/Shape/Ellipse/Circle,' ...
         '/Time-Locked Event/Stimulus/Visual/Uniform Color/Black;' ...
         'Trigger,User stimulus,,;Missed,User failed to respond,'];
+tMap = tagMap('Field', 'type');
+tMap.getStruct
 codeValues = ['1,User response,' ...
         '/Time-Locked Event/Stimulus/Visual/Shape/Ellipse/Square,' ...
         '/Time-Locked Event/Stimulus/Visual/Uniform Color/Blue;' ...
@@ -13,14 +15,17 @@ codeValues = ['1,User response,' ...
 % Read in the HED schema
 latestHed = 'HEDSpecification1.3.xml';
 values.data.etc.tags.xml = fileread(latestHed);
-map(3) = struct('field', '', 'values', '');
-map(1).field = 'type';
-map(1).values = typeValues;
-map(2).field = 'code';
-map(2).values = codeValues;
-map(3).field = 'group';
-map(3).values = codeValues;
-values.data.etc.tags.map = map;
+values.xml = fileread(latestHed);
+values.type = typeValues;
+values.code = codeValues;
+values.group = codeValues;
+values.map1 = fieldMap('XML', values.xml);
+s1 = tagMap.text2Values(values.type);
+values.map1.addValues('type', s1);
+s2 = tagMap.text2Values(values.code);
+values.map1.addValues('code', s2);
+values.map1.addValues('group', s2);
+values.data.etc.tags = values.map1.getStruct();
 values.data.event = struct('type', {'RT', 'Trigger'}, 'code', {'1', '2'});
 load EEGEpoch.mat;
 values.EEGEpoch = EEGEpoch;
@@ -51,7 +56,7 @@ function testSelectTags(values)  %#ok<DEFNU>
 % Unit tests for tag_eeg selecting which fields
 fprintf('It should allow user to select the types to tag\n');
 fprintf('....REQUIRES USER INPUT\n');
-fprintf('PRESS the EXCLUDE BUTTON exactly once otherwise TAG\n');
+fprintf('PRESS EXCLUDE BUTTON EXACTLY ONCE OTHERWISE TAG\n');
 fName = 'temp2.mat';
 x = values.data;
 [y, fMap, excluded] = tageeg(x, 'RewriteOption', 'both', ...

@@ -28,7 +28,7 @@ values.inMap3 = values.inMap2.clone();
 function teardown(values) %#ok<INUSD,DEFNU>
 % Function executed after each test
 
-function testValid(values)  %#ok<DEFNU>
+function test_valid(values)  %#ok<DEFNU>
 % Unit test for selectmaps with no user interaction
 fprintf('\nUnit tests for selectmaps when no user interaction is required\n');
 fprintf('It should return an empty map when input map is empty\n');
@@ -42,7 +42,7 @@ assertEqual(length(values.inMap2.getFields()), length(fMap2.getFields()));
 assertTrue(isempty(excluded2));
 
 fprintf('It should correctly exclude fields when Fields are specified\n');
-[fMap3, excluded3] = selectmaps(values.inMap2, ...
+[fMap3, excluded3] = selectmaps(values.inMap2.clone(), ...
        'Fields', {'code', 'group'}, 'SelectOption', false);
 fprintf('It should work when there are multiple fields\n');
 assertEqual(length(fMap3.getFields()), 2);
@@ -55,11 +55,12 @@ assertEqual(length(fMap4.getFields()), 2);
 assertEqual(length(excluded4), 1);
 
 fprintf('It should return an empty map when input map is empty\n');
-[fMap1, excluded1] = selectmaps(values.inMap1, 'SelectOption', true);
+[fMap1, excluded1] = selectmaps(values.inMap1.clone(), 'SelectOption', true);
 assertTrue(isempty(excluded1));
 assertTrue(isempty(fMap1.getFields()));
 
-function testTagButton(values)  %#ok<DEFNU>
+
+function test_tag_button(values)  %#ok<DEFNU>
 % Unit test for selectmaps interactive use with Tag button
 fprintf('\n\nUnit tests for selectmaps interactive use with Tag button\n');
 fprintf('....REQUIRES USER INPUT\n');
@@ -69,7 +70,7 @@ fprintf('It should return all fields when no fields or selection\n');
 assertEqual(length(values.inMap2.getFields()), length(fMap2.getFields()));
 assertTrue(isempty(excluded2));
 
-function testFieldArgument(values)  %#ok<DEFNU>
+function test_field_argument(values)  %#ok<DEFNU>
 % Unit test for selectmaps with Tag button and Field argument
 fprintf('\n\nUnit tests for selectmaps interactive use with Tag button\n');
 fprintf('....REQUIRES USER INPUT\n');
@@ -89,7 +90,7 @@ fprintf('PRESS the TAG BUTTON TWICE (should only show code and group)\n');
 assertTrue(sum(strcmpi(excluded4{1}, 'type')) == 1);
 assertEqual(length(fMap4.getFields()), 2);
 
-function testExcludeButton(values)  %#ok<DEFNU>
+function test_exclude_button(values)  %#ok<DEFNU>
 % Unit test for selectmaps interactive usage with Exclude button
 fprintf('\n\nUnit tests for selectmaps interactive use with Exclude button\n');
 fprintf('It should exclude the type field from the map\n');
@@ -102,7 +103,7 @@ assertTrue(sum(strcmpi(fields2, 'type'))==0);
 assertTrue(sum(strcmpi(excluded2, 'type')) == 1);
 assertEqual(length(excluded2), 1);
 
-function testExcludeAll(values)  %#ok<DEFNU>
+function test_exclude_all(values)  %#ok<DEFNU>
 % Unit test for selectmaps interactive usage with Exclude button
 fprintf('\n\nUnit tests for selectmaps interactive excluding all\n');
 fprintf('\nIt should work when all fields are excluded\n');
@@ -113,7 +114,7 @@ fields3 = fMap3.getFields();
 assertTrue(isempty(fields3));
 assertEqual(length(excluded3), 3);
 
-function testSuccessiveUse(values)  %#ok<DEFNU>
+function test_successive_use(values)  %#ok<DEFNU>
 % Unit test for selectmaps interactive usage when same map is reused
 fprintf('\n\nUnit tests for selectmaps when map is reused\n');
 fprintf('It should exclude the type field from the map\n');

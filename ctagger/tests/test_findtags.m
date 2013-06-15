@@ -13,14 +13,19 @@ codeValues = ['1,User response,' ...
 % Read in the HED schema
 latestHed = 'HEDSpecification1.3.xml';
 values.data.etc.tags.xml = fileread(latestHed);
-map(3) = struct('field', '', 'values', '');
-map(1).field = 'type';
-map(1).values = typeValues;
-map(2).field = 'code';
-map(2).values = codeValues;
-map(3).field = 'group';
-map(3).values = codeValues;
-values.data.etc.tags.map = map;
+values.data.etc.tags.xml = fileread(latestHed);
+values.xml = fileread(latestHed);
+values.type = typeValues;
+values.code = codeValues;
+values.group = codeValues;
+values.map1 = fieldMap('XML', values.xml);
+s1 = tagMap.text2Values(values.type);
+values.map1.addValues('type', s1);
+s2 = tagMap.text2Values(values.code);
+values.map1.addValues('code', s2);
+values.map1.addValues('group', s2);
+values.data.etc.tags = values.map1.getStruct();
+values.data.event = struct('type', {'RT', 'Trigger'}, 'code', {'1', '2'});
 
 types = {'RT', 'Trigger', 'Missed'};
 eStruct = struct('field', 'type', 'values', 'def');

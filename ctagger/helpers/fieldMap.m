@@ -8,8 +8,7 @@
 % dTags = fieldMap() creates an object representing the
 %    tag hierarchy for community tagging. The object knows how to merge and
 %    can produce output in either JSON or semicolon separated
-%    text format. The xmlString is an XML string with the tag hierarchy
-%    and events is a structure array that holds the events and tags.
+%    text format. 
 %
 % dTags = fieldMap('key1', 'value1', ...) where the key-value pairs are:
 %
@@ -49,12 +48,9 @@
 % Notes:
 %
 % Event string format:
-%    Each unique event type is stored in comma separated form as
+%    Each values for a field are stored in comma separated form as
 %    label,description, tags. The specifications for the individual
-%    unique events types are separated by semicolumns. To form the
-%    string for each event, the unique type is used as the code and
-%    the name after num2str has been applied. The description
-%    is empty.  The user will then use the
+%    unique values are separated by semicolumns.
 %
 % Example 1: The unique event types in the EEG structure are 'RT' and
 %            'flash'. The output string is:
@@ -216,20 +212,20 @@ classdef fieldMap < hgsetget
             if isempty(types)
                 return;
             end
-            events = struct('field', types, 'events', '');
+            events = struct('field', types, 'values', '');
             for k = 1:length(types)
                 eTags = obj.GroupMap(types{k});
-                events(k).events = eTags.getValueStruct();
+                events(k).values = eTags.getValueStruct();
             end
             thisStruct.map = events;
         end % getStruct
         
-        function tags = getTags(obj, field, event)
-            % Returns tag string associated with value event of field
+        function tags = getTags(obj, field, value)
+            % Returns tag string associated with value  of field
             tags = '';
             try
                 tMap = obj.GroupMap(field);
-                eStruct = tMap.getValue(event);
+                eStruct = tMap.getValue(value);
                 tags = eStruct.tags;
             catch me %#ok<NASGU>
             end
@@ -243,12 +239,12 @@ classdef fieldMap < hgsetget
             end
         end % getValue
         
-        function events = getValues(obj, type)
-            % Return the events as a cell array of structures
+        function values = getValues(obj, type)
+            % Return the values as a cell array of structures
             if obj.GroupMap.isKey(type)
-                events = obj.GroupMap(type).getValues();
+                values = obj.GroupMap(type).getValues();
             else
-                events = '';
+                values = '';
             end;
         end % getValues
         

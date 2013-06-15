@@ -87,14 +87,13 @@ function fMap = findtags(edata, varargin)
     if ~isempty(p.Fields)
         tFields = intersect(p.Fields, tFields);
     end
+   
+    
     for k = 1:length(tFields)
-        eField = edata.etc.tags.map(k).field;
-        eString =  edata.etc.tags.map(k).values;
-        if sum(strcmpi(eField, tFields)) == 0
-            continue;
+        thisField = edata.etc.tags.map(k).field;
+        if sum(strcmpi(thisField, tFields) == 1)
+           fMap.addValues(thisField, edata.etc.tags.map(k).values);
         end
-        eStruct = tagMap.text2Values([eField ';' eString]);
-        fMap.addValues(tFields{k}, eStruct);
     end
     
     efields = '';

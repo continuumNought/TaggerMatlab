@@ -79,53 +79,60 @@ obj1.addValues('type', values.eStruct1.values);
 tags1 = obj1.getTags('type', 'RT');
 assertEqual(length(tags1), 3);
 
-function testValid(values) %#ok<DEFNU>
+function test_json(values) %#ok<DEFNU>
 % Unit test for fieldMap constructor valid JSON
-fprintf('\nUnit tests for fieldMap valid JSON constructor\n');
+fprintf('\nUnit tests for fieldMap valid json values\n');
 
-fprintf('It should create a valid fieldMap object for a valid JSON events string\n');
-[field1,  events1] = tagMap.split(values.eJSON1, true);
+fprintf('It should create a valid fieldMap object for a valid JSON string\n');
+[field1,  values1] = tagMap.split(values.eJSON1, true);
 assertTrue(strcmpi(field1, 'type'));
 obj1 = fieldMap();
 assertTrue(isvalid(obj1));
-fprintf('It should have the right number of events\n');
-obj1.addValues(field1, events1);
-events = obj1.getMaps();
-assertEqual(length(events), 1);
+fprintf('It should have the right number of values\n');
+obj1.addValues(field1, values1);
+values2 = obj1.getMaps();
+assertEqual(length(values2), 1);
+assertTrue(isa(values2{1}, 'tagMap'));
+
+function test_text(values) %#ok<DEFNU>
+% Unit test for fieldMap constructor valid text values
+fprintf('\nUnit tests for fieldMap valid text values\n');
 fprintf('It should create a valid object for a valid text string\n');
 testString = ['type;'  values.eventList1];
-[field2, events2] = tagMap.split(testString, false);
+[field2, values2s] = tagMap.split(testString, false);
 assertTrue(strcmpi(field2, 'type'));
 obj2 = fieldMap();
 assertTrue(isvalid(obj2));
-fprintf('It should have the right number of events when there is one field\n');
-obj2.addValues(field2, events2);
+fprintf('It should have the right number of values when there is one field\n');
+obj2.addValues(field2, values2s);
+values2 = obj2.getMaps();
+assertEqual(length(values2), 1);
+assertTrue(isa(values2{1}, 'tagMap'));
 
-events = obj2.getMaps();
-assertEqual(length(events), 1);
 fprintf('It should produce right structure when one field\n');
 dStruct = obj2.getStruct();
 assertTrue(isfield(dStruct, 'xml'));
 assertTrue(isfield(dStruct, 'map'));
 p = dStruct.map;
 assertTrue(isfield(p, 'field'));
-assertTrue(isfield(p, 'events'));
-assertEqual(length(p.events), 2);
-fprintf('It should have the right number of events with multiple fields\n');
-obj2.addValues('banana', events2);
-events = obj2.getMaps();
-assertEqual(length(events), 2);
-obj2.addValues('grapes', events2);
-events = obj2.getMaps();
-assertEqual(length(events), 3);
+assertTrue(isfield(p, 'values'));
+assertEqual(length(p.values), 2);
+
+fprintf('It should have the right number of values with multiple fields\n');
+obj2.addValues('banana', values2s);
+values3 = obj2.getMaps();
+assertEqual(length(values3), 2);
+obj2.addValues('grapes', values2s);
+values4 = obj2.getMaps();
+assertEqual(length(values4), 3);
 dStruct = obj2.getStruct();
 assertTrue(isfield(dStruct, 'xml'));
 assertTrue(isfield(dStruct, 'map'));
 p = dStruct.map;
 assertEqual(length(p), 3);
 assertTrue(isfield(p(1), 'field'));
-assertTrue(isfield(p(1), 'events'));
-assertEqual(length(p(1).events), 2);
+assertTrue(isfield(p(1), 'values'));
+assertEqual(length(p(1).values), 2);
 
 function testEmptyOrInvalid(values) %#ok<INUSD,DEFNU>
 % Unit test for fieldMap constructor empty or invalid
