@@ -40,14 +40,14 @@ for k = 1:length(fields)
 end
 
     function editmap(field)
-        % Proceed with tagging
-        eTitle = ['Tagging ' field ' values'];
+        % Proceed with tagging for field values and adjust fMap accordingly  
         tMap = fMap.getMap(field);
-        xml = fMap.getXml();
         if isempty(tMap)
             return;
         end
         tValues = strtrim(char(tMap.getJsonValues()));
+       xml = fMap.getXml();
+        eTitle = ['Tagging ' field ' values'];
         if syncThis
             taggedList = edu.utsa.tagger.Controller.showDialog( ...
                 xml, tValues, true, 0, char(eTitle), 3);
@@ -59,7 +59,7 @@ end
                 eTitle, 3);
             notified = edu.utsa.tagger.Controller.get().getNotified();
             while (~notified)
-                pause(1);
+                pause(0.5);
                 notified = edu.utsa.tagger.Controller.get().getNotified();
             end
             taggedList = edu.utsa.tagger.Controller.getReturnString(true);

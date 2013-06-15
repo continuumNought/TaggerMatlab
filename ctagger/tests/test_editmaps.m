@@ -30,14 +30,76 @@ function teardown(values) %#ok<INUSD,DEFNU>
 % Function executed after each test
 
 
-function testValid(values)  %#ok<DEFNU>
+function testSubmit(values)  %#ok<DEFNU>
 % Unit test for editmaps
-    fprintf('\nUnit tests for editmaps increase indent\n');
-    fprintf('It should work present multiple GUIs\n');
+    fprintf('\nUnit tests for editmaps normal execution\n');
+    fprintf('It should work when there is a single field\n');
     fprintf('....REQUIRES USER INPUT\n');
-    fprintf('PRESS ANY GUI BUTTON\n');
+    fprintf('PRESS SUBMIT AFTER NO CHANGES\n');
     fMap = values.map1;
     fMap1 = editmaps(fMap.clone());
     assertEqual(fMap1, values.map1);
+    
+    fprintf('It should modify the number of tags\n');
+    fprintf('....REQUIRES USER INPUT\n');
+    fprintf('PRESS SUBMIT AFTER ADDING 2 TAGS TO SOME VALUE\n');
+    fMap2 = editmaps(fMap.clone());
+    events1 = fMap.getValues('type');
+    count1 = 0;
+    for k = 1:length(events1)
+        etags = events1{k}.tags;
+        if ischar(etags) && ~isempty(etags)
+            count1 = count1 + 1;
+        else
+          count1 = count1 + length(etags);
+        end
+    end
+    fprintf('It should not modify the number of type values\n');
+    events2 = fMap2.getValues('type');
+    assertEqual(length(events2), 3);
+    
+    fprintf('It should increase the number of tags by 2\n');
+    count2 = 0;
+    for k = 1:length(events2)
+        etags = events2{k}.tags;
+        if ischar(etags) && ~isempty(etags)
+            count2 = count2 + 1;
+        else
+          count2 = count2 + length(etags);
+        end
+    end
+    assertEqual(count2, count1 + 2);
+    fprintf('It should not increase the number of type values when edited again\n');
+    fprintf('....REQUIRES USER INPUT\n');
+    fprintf('PRESS SUBMIT AFTER ADDING 3 TAGS TO SOME VALUE\n');
+    fMap3 = editmaps(fMap2);
+    events3 = fMap3.getValues('type');
+    count3 = 0;
+    for k = 1:length(events3)
+        etags = events3{k}.tags;
+        if ischar(etags) && ~isempty(etags)
+            count3 = count3 + 1;
+        else
+            count3 = count3 + length(etags);
+        end
+    end
+    assertEqual(count3, count2 + 3);
   
- 
+function testMultipleFields(values)  %#ok<DEFNU>
+% Unit test for editmaps 
+    fprintf('\nUnit tests for editmaps multiple fields\n');
+    fprintf('It should work present multiple GUIs\n');
+    fprintf('....REQUIRES USER INPUT\n');
+    fprintf('PRESS SUBMIT BUTTON WITH NO CHANGES\n');
+    fprintf('PRESS CYCLE THROUGH 3 GUIs\n');
+    fMap1 = editmaps(values.map2);
+    assertEqual(fMap1, values.map2);
+    
+function testCancel(values)  %#ok<DEFNU>
+% Unit test for editmaps
+    fprintf('\nUnit tests for editmaps cancel\n');
+    fprintf('It should work present multiple GUIs\n');
+    fprintf('....REQUIRES USER INPUT\n');
+    fprintf('PRESS CANCEL BUTTON\n');
+    fMap1 = editmaps(values.map2);
+    assertEqual(fMap1, values.map2);
