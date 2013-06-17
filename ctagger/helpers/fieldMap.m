@@ -128,8 +128,8 @@ classdef fieldMap < hgsetget
         end % fieldMap constructor
         
         function addValues(obj, type, values, varargin)
-            % Include event (a structure) in this tagMap object based on
-            % updateType
+            % Incorporate tagMap values (structure format) under field
+            % name type based on the UpdateType.
             p = inputParser;
             p.addRequired('Type', @(x) (~isempty(x) && ischar(x)));
             p.addRequired('Values', @(x) (isempty(x) || isstruct(x)));
