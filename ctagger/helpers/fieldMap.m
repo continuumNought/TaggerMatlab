@@ -12,8 +12,8 @@
 %
 % dTags = fieldMap('key1', 'value1', ...) where the key-value pairs are:
 %
-%   'Description'      string describing the purpose of this field map.
-%   'PreservePrefix'   logical - if false (default) tags with matching
+%   'Description'      String describing the purpose of this fieldMap.
+%   'PreservePrefix'   Logical if false (default) tags with matching
 %                      prefixes are merged to be the longest
 %   'XML'              XML string specifying tag hierarchy to be used.
 %
@@ -153,6 +153,7 @@ classdef fieldMap < hgsetget
         end % addValues
         
         function newMap = clone(obj)
+            % Create a copy (newMap) of the fieldMap
             newMap = fieldMap();
             newMap.Description = obj.Description;
             newMap.PreservePrefix = obj.PreservePrefix;
@@ -168,25 +169,28 @@ classdef fieldMap < hgsetget
         end %clone
         
         function description = getDescription(obj)
+            % Return a string describing the purpose of the fieldMap
             description = obj.Description;
         end % getDescription
         
         function fields = getFields(obj)
+            % Return the field names of the fieldMap
             fields = obj.GroupMap.keys();
         end % getFields
         
         function jString = getJson(obj)
-            % Return a JSON string version of the tagMap object
+            % Return a JSON string version of the fieldMap
             jString = savejson('', obj.getStruct());
         end % getJson
         
         function jString = getJsonEvents(obj)
-            % Return a JSON string version of the tagMap object
+            % Return the events as a JSON string version of the fieldMap
             jString = tagMap.events2Json(obj.TagMap.values);
         end % getJson
         
         function tMap = getMap(obj, field)
-            % Return the tagMap object associated with field or empty
+            % Return a tagMap object associated with the field name field
+            % of the fieldMap 
             if ~obj.GroupMap.isKey(field)
                 tMap = '';
             else
@@ -195,18 +199,18 @@ classdef fieldMap < hgsetget
         end % getMap
         
         function tMaps = getMaps(obj)
-            % Returns all of the tagMap objects as a cell array
+            % Returns all of the tagMap objects as a cell array of the 
+            % fieldMap
             tMaps = obj.GroupMap.values;
         end % getMaps
         
         function pPrefix = getPreservePrefix(obj)
-            % Return the PreservePrefix flag (false means no tag prefix
-            % duplication)
+            % Return the logical PreservePrefix flag of the fieldMap 
             pPrefix = obj.PreservePrefix;
         end % getPreservePrefix
         
         function thisStruct = getStruct(obj)
-            % Return this object as a structure array
+            % Return the fieldMap as a structure array 
             thisStruct = struct('xml', obj.Xml, 'map', '');
             types = obj.GroupMap.keys();
             if isempty(types)
@@ -221,7 +225,8 @@ classdef fieldMap < hgsetget
         end % getStruct
         
         function tags = getTags(obj, field, value)
-            % Returns tag string associated with value  of field
+            % Return a tag string associated with the field name of the
+            % fieldMap 
             tags = '';
             try
                 tMap = obj.GroupMap(field);
@@ -232,7 +237,8 @@ classdef fieldMap < hgsetget
         end % getTags
         
         function event = getValue(obj, type, key)
-            % Return the event structure corresponding to specified key
+            % Return the event structure corresponding to a specified type
+            % and key of the fieldMap 
             event = '';
             if obj.GroupMap.isKey(type)
                 event = obj.GroupMap(type).getValue(key);
@@ -240,7 +246,8 @@ classdef fieldMap < hgsetget
         end % getValue
         
         function values = getValues(obj, type)
-            % Return the values as a cell array of structures
+            % Return the tagMap values as a cell array of structures
+            % associated with the type of the fieldMap 
             if obj.GroupMap.isKey(type)
                 values = obj.GroupMap(type).getValues();
             else
@@ -249,13 +256,13 @@ classdef fieldMap < hgsetget
         end % getValues
         
         function xml = getXml(obj)
-            % Return a string containing the xml
+            % Return a string containing the xml of the fieldMap 
             xml = obj.Xml;
         end % getXml
         
         function merge(obj, fMap, updateType, excludeFields)
-            % Combine fMap fieldMap object with this, excluding certain 
-            % fields
+            % Combine fMap fieldMap object with this based on the 
+            % updateType, excluding certain fields 
             if isempty(fMap)
                 return;
             end
@@ -275,7 +282,7 @@ classdef fieldMap < hgsetget
         end % merge
         
         function mergeXml(obj, xmlMerge)
-            % Merge the xml string with obj.HedXML if valid
+            % Merge the xml string xmlMerge with obj.HedXML if valid
             if isempty(xmlMerge)
                 return;
             end
@@ -292,13 +299,14 @@ classdef fieldMap < hgsetget
         end % mergeXml
         
         function removeMap(obj, field)
-            % Remove the fields specified by fieldSet from the fieldMap
+            % Remove the field names specified in field from the fieldMap
             if ~isempty(field)
                 obj.GroupMap.remove(field);
             end
         end % removeMap
         
         function setDescription(obj, description)
+            % Set the description of the fieldMap
             obj.Description = description;
         end % setDescription
         
@@ -307,7 +315,7 @@ classdef fieldMap < hgsetget
     methods (Static = true)
         
         function baseTags = loadFieldMap(tagsFile)
-            % Load a fieldMap object from tagsFile
+            % Load a fieldMap from a file tagsFile
             baseTags = '';
             try
                 t = load(tagsFile);
@@ -325,7 +333,7 @@ classdef fieldMap < hgsetget
         
         function successful = saveFieldMap(tagsFile, ...
                 tagsObject) %#ok<INUSD>
-            % Save the tagsObject variable in the tagsFile file
+            % Save the fieldMap tagsObject in a file tagsFile
             successful = true;
             try
                 eval([inputname(2) '= tagsObject;']);
