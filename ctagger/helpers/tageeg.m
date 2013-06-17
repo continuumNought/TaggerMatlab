@@ -134,10 +134,24 @@ if p.SelectOption
     [fMap, exc] = selectmaps(fMap, 'Fields', p.Fields);
     excluded = union(excluded, exc);
 end
+%----- If database file is not empty,
+%------Open the database credentials, make a connection to database
+%----------If this fails, bring up a dialog --- database connection
+%          failed --- do you want to continue without the database.
+%          usingDB = false;
+%----------If connection is successful
+% -----------  Merge the XML from the database into fMap
+%--------------usingDB = true;
+% ------------ Close the connection
 if p.UseGui
     fMap = editmaps(fMap, 'PreservePrefix', p.PreservePrefix, ...
         'Synchronize', p.Synchronize);
 end
+%------If usingDB
+%--------- open connection to database
+%----------If connection fails --- output a warning message and skip rest
+% ----------------  Merge the XML from fMap into the database
+% ----------------  Close the connection 
 
 % Save the fieldmap
 if ~isempty(p.SaveMapFile) && ~fieldMap.saveFieldMap(p.SaveMapFile, fMap)

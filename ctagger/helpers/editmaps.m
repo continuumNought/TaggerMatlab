@@ -46,7 +46,7 @@ end
             return;
         end
         tValues = strtrim(char(tMap.getJsonValues()));
-       xml = fMap.getXml();
+        xml = fMap.getXml();
         eTitle = ['Tagging ' field ' values'];
         if syncThis
             taggedList = edu.utsa.tagger.Controller.showDialog( ...
