@@ -134,6 +134,11 @@ if p.SelectOption
     [fMap, exc] = selectmaps(fMap, 'Fields', p.Fields);
     excluded = union(excluded, exc);
 end
+
+if ~isempty(p.DbCredsFile)
+    
+    
+end
 %----- If database file is not empty,
 %------Open the database credentials, make a connection to database
 %----------If this fails, bring up a dialog --- database connection
