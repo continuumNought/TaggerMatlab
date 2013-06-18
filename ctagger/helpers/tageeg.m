@@ -136,8 +136,23 @@ if p.SelectOption
 end
 
 if ~isempty(p.DbCredsFile)
-    
-    
+    try
+        DB = edu.utsa.tagger.database.TagsDBManager(p.DbCredsFile);
+        dbXML = char(DB.generateXML());
+        fMap.mergeXml(dbXML);
+        usingDB = true;
+        DB.close();
+    catch ME %#ok<NASGU>
+        choice = questdlg(['Would you like to continue without the' ...
+            ' database?'], 'Yes', 'No');
+        switch choice
+            case 'Yes'
+                % Do nothing
+            case 'No'
+                % Return from the function
+                return;
+        end
+    end
 end
 %----- If database file is not empty,
 %------Open the database credentials, make a connection to database
@@ -152,11 +167,21 @@ if p.UseGui
     fMap = editmaps(fMap, 'PreservePrefix', p.PreservePrefix, ...
         'Synchronize', p.Synchronize);
 end
+if usingDB
+    try
+        DB.getDBCon();
+        DB.generateMergedXML(fMap.getXml());
+        DB.close();
+    catch ME
+        warning('ctagger:connectionfailed', ME.message);
+    end
+end
+
 %------If usingDB
 %--------- open connection to database
 %----------If connection fails --- output a warning message and skip rest
 % ----------------  Merge the XML from fMap into the database
-% ----------------  Close the connection 
+% ----------------  Close the connection
 
 % Save the fieldmap
 if ~isempty(p.SaveMapFile) && ~fieldMap.saveFieldMap(p.SaveMapFile, fMap)
