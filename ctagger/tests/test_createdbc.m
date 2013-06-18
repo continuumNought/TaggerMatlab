@@ -2,27 +2,25 @@ function test_suite = test_createdbc%#ok<STOUT>
 initTestSuite;
 
 function tStruct  = setup %#ok<DEFNU>
-tStruct = struct('configPath', fullfile(pwd, 'dbcreds.txt'), 'dbname', ...
-    'ctagger', 'hostname', 'localhost', 'port', '5432', 'username', ...
-    'postgres', 'password', 'admin');
+tStruct = struct('credPath', fullfile(pwd, 'dbcreds.txt'), ...
+    'scriptPath', which('tags.sql'), 'dbname', 'ctagger', 'hostname', ...
+    'localhost', 'port', '5432', 'username', 'postgres', 'password', ...
+    'admin', 'DB', []);
 edu.utsa.tagger.database.TagsDBManager.createCredentials(...
-    tStruct.configPath, tStruct.dbname, tStruct.hostname, tStruct.port, ...
+    tStruct.credPath, tStruct.dbname, tStruct.hostname, tStruct.port, ...
     tStruct.username, tStruct.password);
+tStruct.DB = edu.utsa.tagger.database.TagsDBManager(tStruct.credPath);
 
 function teardown(tStruct) %#ok<DEFNU>
 % Function executed after each test
-delete(tStruct.configPath);
+delete(tStruct.credPath);
+tStruct.DB.teardownDatabase();
 
-function testValid()  %#ok<DEFNU>
+function testValid(tStruct)  %#ok<DEFNU>
 % Unit test for createdb
 fprintf('\nUnit tests for createdb\n');
 fprintf('It should create a database from property file\n');
-fprintf('....REQUIRES USER INPUT\n');
-fprintf('PRESS SUBMIT AFTER PATH \n');
-credPath = dbcreds();
-scriptFilePath = which('tags.sql');
-assertTrue(~isempty(credPath));
-createdb(credPath, scriptFilePath);
-DB = edu.utsa.tagger.database.TagsDBManager(credPath);
-assertTrue(~isempty(DB.getDBCon));
-DB.close();
+createdbc(tStruct.credPath, tStruct.scriptPath);
+% Get connection for created db 
+assertTrue(~isempty(tStruct.DB.getDBCon()));
+
