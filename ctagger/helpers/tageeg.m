@@ -138,6 +138,7 @@ end
 if ~isempty(p.DbCredsFile)
     try
         DB = edu.utsa.tagger.database.TagsDBManager(p.DbCredsFile);
+        DB.getDBCon();
         dbXML = char(DB.generateXML());
         fMap.mergeXml(dbXML);
         usingDB = true;
@@ -170,7 +171,8 @@ end
 if usingDB
     try
         DB.getDBCon();
-        DB.generateMergedXML(fMap.getXml());
+        mergedXML = DB.generateMergedXML(fMap.getXml());
+        DB.initializeFromXML(mergedXML);
         DB.close();
     catch ME
         warning('ctagger:connectionfailed', ME.message);

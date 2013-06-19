@@ -3,7 +3,7 @@ initTestSuite;
 
 function tStruct  = setup %#ok<DEFNU>
 tStruct = struct('credPath', fullfile(pwd, 'dbcreds.txt'), ...
-    'scriptPath', which('tags.sql'), 'dbname', 'ctagger', 'hostname', ...
+    'scriptPath', 'tags.sql', 'dbname', 'ctagger', 'hostname', ...
     'localhost', 'port', '5432', 'username', 'postgres', 'password', ...
     'admin', 'DB', []);
 edu.utsa.tagger.database.TagsDBManager.createCredentials(...
@@ -21,6 +21,6 @@ function testValid(tStruct)  %#ok<DEFNU>
 fprintf('\nUnit tests for createdb\n');
 fprintf('It should create a database from property file\n');
 createdbc(tStruct.credPath, tStruct.scriptPath);
-% Get connection for created db 
+% Get connection for created db
 assertTrue(~isempty(tStruct.DB.getDBCon()));
 
