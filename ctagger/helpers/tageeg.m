@@ -171,8 +171,7 @@ end
 if usingDB
     try
         DB.getDBCon();
-        mergedXML = DB.generateMergedXML(fMap.getXml());
-        DB.initializeFromXML(mergedXML);
+        DB.generateMergedXML(fMap.getXml());
         DB.close();
     catch ME
         warning('ctagger:connectionfailed', ME.message);
