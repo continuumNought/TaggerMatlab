@@ -4,23 +4,11 @@ function createdbc(credPath, sqlFile, varargin)
 parser = inputParser;
 parser.addRequired('credPath', @(x) (~isempty(x) && ischar(x)));
 parser.addRequired('sqlFile', @(x) (~isempty(x) && ischar(x)));
-parser.addOptional('xml','HEDSpecification1.3.xml',  @(x) ...
-    (~isempty(x) && ischar(x)));
-parser.addOptional('xmlSchema', 'HEDSchema.xsd',  @(x) ...
-    (~isempty(x) && ischar(x)));
-parser.parse(credPath, sqlFile, varargin{:});
+parser.parse(credPath, sqlFile);
 p = parser.Results;
-xmlString = fileread(p.xml);
-xmlSchemaString = fileread(p.xmlSchema);
-sqlFilePath = which(p.sqlFile);
-if ~isempty(xmlString)
-    edu.utsa.tagger.database.XMLGenerator.validateSchemaString(...
-        xmlString, xmlSchemaString);
-end
-DB = edu.utsa.tagger.database.TagsDBManager(parser.Results.credPath);
-DB.setupDatabase(sqlFilePath);
+DB = edu.utsa.tagger.database.TagsDBManager(p.credPath);
+DB.setupDatabase(which(p.sqlFile));
 DB.getDBCon();
-DB.initializeFromXML(xmlString);
 DB.close();
 end
 

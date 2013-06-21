@@ -139,13 +139,14 @@ if ~isempty(p.DbCredsFile)
     try
         DB = edu.utsa.tagger.database.TagsDBManager(p.DbCredsFile);
         DB.getDBCon();
+        originalJSON = fMap.getJson;
         dbXML = char(DB.generateXML());
         fMap.mergeXml(dbXML);
         usingDB = true;
         DB.close();
     catch ME %#ok<NASGU>
-        choice = questdlg(['Would you like to continue without the' ...
-            ' database?'], 'Yes', 'No');
+        choice = questdlg(['Database connection failed. Would you like' ... 
+            ' to continue without the database?'], 'Yes', 'No');
         switch choice
             case 'Yes'
                 % Do nothing
@@ -170,8 +171,10 @@ if p.UseGui
 end
 if usingDB
     try
-        DB.getDBCon();
-        DB.generateMergedXML(fMap.getXml());
+        updatedJSON = fMap.getJson();        
+        edu.utsa.tagger.database.TagsUpdate.updateDatabase(...
+            p.DbCredsFile, fMap.getXml(), originalJSON, updatedJSON, ...
+            'both', p.PreservePrefix, false);
         DB.close();
     catch ME
         warning('ctagger:connectionfailed', ME.message);
