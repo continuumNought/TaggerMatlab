@@ -1,20 +1,15 @@
-% tagMap    object encapsulating xml tags and value labels of one type
+% tagMap    object encapsulating the tags and value labels of one type
 %
 % Usage:
-%   >>  eTags = tagMap()
-%   >>  eTags = tagMap('key1', 'value1', ...)
+%   >>  tMap = tagMap()
+%   >>  tMap = tagMap('key1', 'value1', ...)
 %
 % Description:
-% eTags = tagMap(xmlString, values) creates an object representing the 
-%    tag hierarchy for community tagging. The object knows how to merge and
-%    can produce output in either JSON or semicolon separated
-%    text format. The xmlString is an XML string with the tag hierarchy
-%    and values is a structure array that holds the values and tags.
+% tMap = tagMap() creates an object that holds the associations of
+% tags and values for one type or group name. By default the name
+% of the field or type is 'type'.
 %
-% eTags = tagMap(xmlString, values, 'key1', 'value1', ...)
-%
-%
-% where the key-value pairs are:
+% tMap = tagMap('key1', 'value1') where the key-value pair is:
 %
 %   'Field'            field name corresponding to these value tags
 %
@@ -122,7 +117,7 @@ classdef tagMap < hgsetget
         end % tagMap constructor
         
         function addValue(obj, value, varargin)
-            % Incorporate the value (structure) in this tagMap object based on updateType
+            % Add the value (structure) in this object based on updateType
             p = inputParser;
             p.addRequired('Value', @(x) (isempty(x) || ...
                 tagMap.validateValue(value)));

@@ -1,16 +1,16 @@
 % fieldMap    object encapsulating xml tags and type-tagMap association
 %
 % Usage:
-%   >>  dTags = fieldMap()
-%   >>  dTags = fieldMap('key1', 'value1', ...)
+%   >>  fTags = fieldMap()
+%   >>  fTags = fieldMap('key1', 'value1', ...)
 %
 % Description:
-% dTags = fieldMap() creates an object representing the
+% fTags = fieldMap() creates an object representing the
 %    tag hierarchy for community tagging. The object knows how to merge and
 %    can produce output in either JSON or semicolon separated
 %    text format. 
 %
-% dTags = fieldMap('key1', 'value1', ...) where the key-value pairs are:
+% fTags = fieldMap('key1', 'value1', ...) where the key-value pairs are:
 %
 %   'Description'      String describing the purpose of this fieldMap.
 %   'PreservePrefix'   Logical if false (default) tags with matching
@@ -128,8 +128,7 @@ classdef fieldMap < hgsetget
         end % fieldMap constructor
         
         function addValues(obj, type, values, varargin)
-            % Incorporate tagMap values (structure format) under field
-            % name type based on the UpdateType.
+            % Add values (structure format) to tagMap for type
             p = inputParser;
             p.addRequired('Type', @(x) (~isempty(x) && ischar(x)));
             p.addRequired('Values', @(x) (isempty(x) || isstruct(x)));
@@ -183,14 +182,13 @@ classdef fieldMap < hgsetget
             jString = savejson('', obj.getStruct());
         end % getJson
         
-        function jString = getJsonEvents(obj)
-            % Return the events as a JSON string version of the fieldMap
-            jString = tagMap.events2Json(obj.TagMap.values);
-        end % getJson
+        function jString = getJsonValues(obj)
+            % Return a JSON string representation of the tag maps
+            jString = tagMap.values2Json(obj.GroupMap.values);
+        end % getJsonValues
         
         function tMap = getMap(obj, field)
-            % Return a tagMap object associated with the field name field
-            % of the fieldMap 
+            % Return a tagMap object associated field name 
             if ~obj.GroupMap.isKey(field)
                 tMap = '';
             else
@@ -199,8 +197,7 @@ classdef fieldMap < hgsetget
         end % getMap
         
         function tMaps = getMaps(obj)
-            % Returns all of the tagMap objects as a cell array of the 
-            % fieldMap
+            % Return the tagMap objects as a cell array 
             tMaps = obj.GroupMap.values;
         end % getMaps
         
@@ -225,8 +222,7 @@ classdef fieldMap < hgsetget
         end % getStruct
         
         function tags = getTags(obj, field, value)
-            % Return a tag string associated with the field name of the
-            % fieldMap 
+            % Return the tag string associated with (field name, value)
             tags = '';
             try
                 tMap = obj.GroupMap(field);
@@ -236,18 +232,16 @@ classdef fieldMap < hgsetget
             end
         end % getTags
         
-        function event = getValue(obj, type, key)
-            % Return the event structure corresponding to a specified type
-            % and key of the fieldMap 
-            event = '';
+        function value = getValue(obj, type, key)
+            % Return value structure for specified type and key 
+            value = '';
             if obj.GroupMap.isKey(type)
-                event = obj.GroupMap(type).getValue(key);
+                value = obj.GroupMap(type).getValue(key);
             end
         end % getValue
         
         function values = getValues(obj, type)
-            % Return the tagMap values as a cell array of structures
-            % associated with the type of the fieldMap 
+            % Return values for type as a cell array of structures
             if obj.GroupMap.isKey(type)
                 values = obj.GroupMap(type).getValues();
             else
@@ -261,8 +255,7 @@ classdef fieldMap < hgsetget
         end % getXml
         
         function merge(obj, fMap, updateType, excludeFields)
-            % Combine fMap fieldMap object with this based on the 
-            % updateType, excluding certain fields 
+            % Combine this object with the fMap fieldMap 
             if isempty(fMap)
                 return;
             end
@@ -299,7 +292,7 @@ classdef fieldMap < hgsetget
         end % mergeXml
         
         function removeMap(obj, field)
-            % Remove the field names specified in field from the fieldMap
+            % Remove the tag map associated with specified field name
             if ~isempty(field)
                 obj.GroupMap.remove(field);
             end
