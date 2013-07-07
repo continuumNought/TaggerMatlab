@@ -27,7 +27,7 @@
 %   'BaseMap'        A fieldMap object or the name of a file that contains
 %                    a fieldMap object to be used to initialize tag
 %                    information.
-%   'DbCredsFile'    Name of a property file containing the database
+%   'DbCreds'        Name of a property file containing the database
 %                    credentials. If this argument is not provided, a
 %                    database is not used. (See notes.)
 %   'DoSubDirs'      If true (default), the entire inDir directory tree is
@@ -108,7 +108,7 @@ parser = inputParser;
 parser.addRequired('InDir', @(x) (~isempty(x) && ischar(x)));
 parser.addParamValue('BaseMap', '', ...
     @(x)(isempty(x) || (ischar(x))));
-parser.addParamValue('DbCredsFile', '', ...
+parser.addParamValue('DbCreds', '', ...
     @(x)(isempty(x) || (ischar(x))));
 parser.addParamValue('DoSubDirs', true, @islogical);
 parser.addParamValue('ExcludeFields', ...

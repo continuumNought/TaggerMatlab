@@ -20,7 +20,7 @@
 %   'BaseMap'        A fieldMap object or the name of a file that contains
 %                    a fieldMap object to be used to initialize tag
 %                    information.
-%   'DbCredsFile'    Name of a property file containing the database
+%   'DbCreds'        Name of a property file containing the database
 %                    credentials. If this argument is not provided, a
 %                    database is not used. (See notes.)
 %   'ExcludeFields'  A cell array of field names in the .event and .urevent
@@ -98,7 +98,7 @@ parser = inputParser;
 parser.addRequired('EEG', @(x) (isempty(x) || isstruct(EEG)));
 parser.addParamValue('BaseMap', '', ...
     @(x)(isempty(x) || ischar(x) || isa(x, 'fieldMap')));
-parser.addParamValue('DbCredsFile', '', ...
+parser.addParamValue('DbCreds', '', ...
     @(x)(isempty(x) || (ischar(x))));
 parser.addParamValue('ExcludeFields', ...
     {'latency', 'epoch', 'urevent', 'hedtags', 'usertags'}, ...
