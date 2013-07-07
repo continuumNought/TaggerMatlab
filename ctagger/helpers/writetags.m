@@ -2,15 +2,15 @@
 % Write tags to a structure from the field map information
 %
 % Usage:
-%   >>  edata = writetags(edata, fMap)
-%   >>  edata = writetags(edata, fMap, 'key1', 'value1', ...)
+%   >>  eData = writetags(eData, fMap)
+%   >>  eData = writetags(eData, fMap, 'key1', 'value1', ...)
 %
 % Description:
-% edata = writetags(edata, fMap) inserts the tags in the edata structure
+% eData = writetags(eData, fMap) inserts the tags in the eData structure
 % as specified by the fMap fieldMap object, both in summary form and
 % individually.
 %
-% edata = writetags(edata, fMap, 'key1', 'value1', ...) specifies optional
+% eData = writetags(eData, fMap, 'key1', 'value1', ...) specifies optional
 % name/value parameter pairs:
 %
 %   'ExcludeFields'  A cell array containing the field names to exclude
@@ -63,17 +63,17 @@
 % $Initial version $
 %
 
-function edata = writetags(edata, fMap, varargin)
+function eData = writetags(eData, fMap, varargin)
     % Parse the input arguments
     parser = inputParser;
-    parser.addRequired('edata', @(x) (isempty(x) || isstruct(x)));
+    parser.addRequired('eData', @(x) (isempty(x) || isstruct(x)));
     parser.addRequired('fMap', @(x) (~isempty(x) && isa(x, 'fieldMap')));
     parser.addParamValue('ExcludeFields', {}, @(x) (iscellstr(x)));
     parser.addParamValue('PreservePrefix', false, @islogical);
     parser.addParamValue('RewriteOption', 'Both', ...
           @(x) any(validatestring(lower(x), ...
           {'Both', 'Individual', 'None', 'Summary'})));
-    parser.parse(edata, fMap, varargin{:});
+    parser.parse(eData, fMap, varargin{:});
     p = parser.Results;
     
     % Do nothing if option is 'none'
@@ -84,12 +84,12 @@ function edata = writetags(edata, fMap, varargin)
     % Prepare the values to be written
     tFields = setdiff(fMap.getFields(), p.ExcludeFields);
     eFields = {};
-    if isfield(edata, 'event') && isstruct(edata.event)
-        eFields = intersect(fieldnames(edata.event), tFields);
+    if isfield(eData, 'event') && isstruct(eData.event)
+        eFields = intersect(fieldnames(eData.event), tFields);
     end
     urFields = {};
-    if isfield(edata, 'urevent') && isstruct(edata.urevent)
-        urFields = intersect(fieldnames(edata.urevent), tFields);
+    if isfield(eData, 'urevent') && isstruct(eData.urevent)
+        urFields = intersect(fieldnames(eData.urevent), tFields);
     end
 
     % Write the etc.tags.map fields
@@ -99,10 +99,10 @@ function edata = writetags(edata, fMap, varargin)
     if strcmpi(p.RewriteOption, 'Summary') || strcmpi(p.RewriteOption, 'Both')
        
         % Prepare the structure
-        if isfield(edata, 'etc') && ~isstruct(edata.etc)
-            edata.etc.other = edata.etc;
+        if isfield(eData, 'etc') && ~isstruct(eData.etc)
+            eData.etc.other = eData.etc;
         end
-        edata.etc.tags = '';   % clear the tags
+        eData.etc.tags = '';   % clear the tags
         if isempty(tFields)
             map = '';
         else
@@ -111,28 +111,28 @@ function edata = writetags(edata, fMap, varargin)
                 map(k) = fMap.getMap(tFields{k}).getStruct();
             end
         end
-        edata.etc.tags = struct('xml', fMap.getXml(), 'map', map);
+        eData.etc.tags = struct('xml', fMap.getXml(), 'map', map);
     end
     
     % Write tags to individual events in usertags field if needed
-    if isfield(edata, 'event') && (strcmpi(p.RewriteOption, 'Both') ...
+    if isfield(eData, 'event') && (strcmpi(p.RewriteOption, 'Both') ...
             || strcmpi(p.RewriteOption, 'Individual'))
-        for k = 1:length(edata.event)
+        for k = 1:length(eData.event)
             utags = {};
             for j = 1:length(eFields)
-                tags = fMap.getTags(eFields{j}, edata.event(k).(eFields{j}));
+                tags = fMap.getTags(eFields{j}, eData.event(k).(eFields{j}));
                 utags = merge_taglists(utags, tags, p.PreservePrefix);
             end
             if isempty(utags)
-                edata.event(k).usertags = '';
+                eData.event(k).usertags = '';
             elseif ischar(utags)
-                edata.event(k).usertags = utags;
+                eData.event(k).usertags = utags;
             else
                  tags = utags{1};
                  for j = 2:length(utags)
                      tags = [tags ',' utags{j}]; %#ok<AGROW>
                  end
-                 edata.event(k).usertags = tags;
+                 eData.event(k).usertags = tags;
             end
         end
     end
