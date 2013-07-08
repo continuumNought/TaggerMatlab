@@ -2,7 +2,8 @@ function test_suite = test_tagdir%#ok<STOUT>
 initTestSuite;
 
 function values = setup %#ok<DEFNU>
-values.TestDirectory = 'H:\TagTestDirectories\TestDataRoot';
+% values.TestDirectory = 'H:\TagTestDirectories\TestDataRoot';
+values.TestDirectory = fullfile(pwd, filesep, 'testData');
 values.moreEvents = 'e5, e5 label, e5 description, /a/b/c; e6,e61,e6 des';
 values.Attn = 'AttentionShiftSet';
 values.BCI2000 = 'BCI2000Set';
@@ -31,7 +32,7 @@ assertTrue(isempty(fPaths2));
 fields2 = eTags1.getFields();
 assertTrue(isempty(fields2));
 
-function test_tagdirEEGLAB(values)  %#ok<DEFNU>
+% function test_tagdirEEGLAB(values)  %#ok<DEFNU>
 % Unit test for tagdir for EEGLAB sample data
 % fprintf('\nUnit tests for tagdir with EEGLAB data\n');
 % 

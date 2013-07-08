@@ -1,4 +1,4 @@
-function createdbc(credPath, sqlFile, varargin)
+function createdbc(credPath, sqlFile)
 % Takes a property file containing the database credentials and a sql
 % file and creates a community tagger database.
 parser = inputParser;

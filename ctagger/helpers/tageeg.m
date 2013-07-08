@@ -135,9 +135,10 @@ if p.SelectOption
     excluded = union(excluded, exc);
 end
 
-if ~isempty(p.DbCredsFile)
+usingDB = false;
+if ~isempty(p.DbCreds)
     try
-        DB = edu.utsa.tagger.database.TagsDBManager(p.DbCredsFile);
+        DB = edu.utsa.tagger.database.TagsDBManager(p.DbCreds);
         DB.getDBCon();
         originalJSON = fMap.getJson;
         dbXML = char(DB.generateXML());
@@ -173,7 +174,7 @@ if usingDB
     try
         updatedJSON = fMap.getJson();        
         edu.utsa.tagger.database.TagsUpdate.updateDatabase(...
-            p.DbCredsFile, fMap.getXml(), originalJSON, updatedJSON, ...
+            p.DbCreds, fMap.getXml(), originalJSON, updatedJSON, ...
             'both', p.PreservePrefix, false);
         DB.close();
     catch ME
