@@ -175,7 +175,7 @@ if usingDB
         updatedJSON = fMap.getJson();        
         edu.utsa.tagger.database.TagsUpdate.updateDatabase(...
             p.DbCreds, fMap.getXml(), originalJSON, updatedJSON, ...
-            'both', p.PreservePrefix, false);
+            'label', p.PreservePrefix, false);
         DB.close();
     catch ME
         warning('ctagger:connectionfailed', ME.message);
