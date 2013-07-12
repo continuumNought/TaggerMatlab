@@ -191,9 +191,10 @@ end
 
 if usingDB
     try
-        updatedJSON = fMap.getJson();        
+        updatedJSON = fMap.getJson(); 
+        dbCon = DB.getDBCon();
         edu.utsa.tagger.database.TagsUpdate.updateDatabase(...
-            p.DbCreds, fMap.getXml(), originalJSON, updatedJSON, ...
+            dbCon, fMap.getXml(), originalJSON, updatedJSON, ...
             'label', p.PreservePrefix, false);
         DB.close();
     catch ME
