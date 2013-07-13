@@ -1,0 +1,6 @@
+#Mon Jul 08 14:55:49 CDT 2013
+port=5432
+hostname=localhost
+password=admin
+dbname=ctagger
+username=postgres

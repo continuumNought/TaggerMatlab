@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding="utf-8"?>
+
+<toc version="2.0">
+<!-- First tocitem specifies top level in Help browser Contents pane -->
+<!-- This can be a roadmap page, as shown below, or a content page -->
+    <tocitem target="ctagger_product_page.html">EEGVIS
+        <!-- Nest tocitems to create hierarchical entries in  Contents-->
+        <!-- To include icons, use the following syntax for tocitems: -->
+        <!-- <tocitem target="foo.html" image="HelpIcon.NAME"> -->
+        <!-- Title-of-Section </tocitem> -->
+        <!-- where NAME is one of the following (use capital letters): -->
+        <!-- FUNCTION, USER_GUIDE, EXAMPLES, BLOCK, GETTING_STARTED, -->
+        <!-- DEMOS, RELEASE_NOTES --> 
+        <!-- Icon images used for these entries are also stored in -->
+        <!-- matlabroot/toolbox/matlab/icons -->
+        <!-- A Getting Started Guide usually comes first -->
+        <tocitem target="ctagger_getting_started.html" image="HelpIcon.GETTING_STARTED">
+            Getting Started
+            <tocitem target="ctagger_system_requirements.html">System Requirements
+            </tocitem>
+            <tocitem target="ctagger_features.html">Features
+            </tocitem>
+        </tocitem>
+     <!-- User Guide comes next -->
+        <tocitem target="http://venom.cs.utsa.edu/dmz/techrep/2011/CS-TR-2011-018.pdf" 
+                 image="$toolbox/matlab/icons/webicon.gif">Technical Report
+        </tocitem>
+     <!-- Function reference next -->
+     <!-- First item is page describing function categories, if any -->
+        <tocitem target="ctagger_functions_by_cat.html" 
+                 image="HelpIcon.FUNCTION">Function Reference
+            <!-- List category with link to anchor in above page -->
+            <tocitem target="ctagger_functions_by_cat.html#1">Top-level tagging functions 
+                <tocitem target="findtags_help.html" image="HelpIcon.FUNCTION">findtags</tocitem>
+                <tocitem target="tagdir_help.html" image="HelpIcon.FUNCTION">tagdir</tocitem>
+                <tocitem target="tageeg_help.html" image="HelpIcon.FUNCTION">tageeg</tocitem> 
+                <tocitem target="tagevents_help.html" image="HelpIcon.FUNCTION">tagevents</tocitem>
+                <tocitem target="tagstudy_help.html" image="HelpIcon.FUNCTION">tagstudy</tocitem>
+            </tocitem>
+            <tocitem target="ctagger_functions_by_cat.html#2">The eventTags object 
+                <tocitem target="eventTags_overview_help.html" image="HelpIcon.FUNCTION">Overview</tocitem>   
+                <tocitem target="eventTags_addEvent_help.html" image="HelpIcon.FUNCTION">The addEvent method</tocitem> 
+                <tocitem target="eventTags_get_methods_help.html" image="HelpIcon.FUNCTION">Get methods</tocitem>
+                <tocitem target="eventTags_static_methods_help.html" image="HelpIcon.FUNCTION">Static method</tocitem> 
+            </tocitem>
+            <tocitem target="ctagger_functions_by_cat.html#3">Other helper functions
+                <tocitem target="getfilelist_help.html" image="HelpIcon.FUNCTION">getfilelist</tocitem>   
+                <tocitem target="mergetaglists_help.html" image="HelpIcon.FUNCTION">mergetaglists</tocitem>
+                <tocitem target="tagdirinputs_help.html" image="HelpIcon.FUNCTION">tagdirinputs</tocitem>
+                <tocitem target="tageeginputs_help.html" image="HelpIcon.FUNCTION">tageeginputs</tocitem>   
+                <tocitem target="tagstudyinputs_help.html" image="HelpIcon.FUNCTION">tagstudyinputs</tocitem>   
+            </tocitem>            
+            <!-- <...> -->
+        </tocitem>
+        <!-- Optional Release Notes file -->
+        <tocitem target="ctagger_release_notes.html" 
+            image="HelpIcon.RELEASE_NOTES">Release Notes
+        </tocitem>
+        <!-- Optional List of Examples, with hyperlinks to examples in other files -->
+        <!-- Optional Function Reference by category comes next -->
+       <!-- <tocreference target="helpfuncbycat.xml" 
+                      image="HelpIcon.FUNCTION">
+        </tocreference> -->
+        
+        <!-- Optional link or links to your or other Web sites -->
+        <tocitem target="http://visual.cs.utsa.edu/ctagger" 
+                 image="$toolbox/matlab/icons/webicon.gif">
+        EegVis Toolbox Home page
+        </tocitem>
+    </tocitem>
+</toc>
