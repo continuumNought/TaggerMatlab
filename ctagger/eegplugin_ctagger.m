@@ -79,7 +79,9 @@ function vers = eegplugin_ctagger(fig, trystrs, catchstrs)
     finalcmd = '[EEG LASTCOM] = pop_tageeg(EEG);';
     ifeegcmd = 'if ~isempty(LASTCOM) && ~isempty(EEG)';
     savecmd = '[ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET);';
-    finalcmd =  [trystrs.no_check finalcmd ifeegcmd savecmd 'end;' catchstrs.add_to_hist];
+    redrawcmd = 'eeglab redraw;';
+    finalcmd =  [trystrs.no_check finalcmd ifeegcmd savecmd ...
+        redrawcmd 'end;' catchstrs.add_to_hist];
     uimenu(parentMenu, 'Label', 'Tag current EEG', 'Callback', finalcmd, ...
         'Separator', 'on');
     
