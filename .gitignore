@@ -33,6 +33,8 @@ procominfinity1.00/*
 *.mat
 *.set
 *.html
+ctagger/tests/testData/*
+!ctagger/tests/testData.zip
 !ctagger/html/index.html
 !ctagger/*
 ctagger/html/*.html
