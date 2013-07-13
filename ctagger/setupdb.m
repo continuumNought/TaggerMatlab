@@ -1,11 +1,16 @@
-%% First execute the general ctagger setup to make paths are set
-fprintf('Executing setup.m to set the paths\n');
-setup;
-   
-%% Now call the GUI to get the credentials
-credPath = createcreds();
+%% Run this script to set up your credentials file and/or database
+
+%% Call the GUI to get the credentials
+credPath = dbcreds();
 fprintf('Your credentials path is: %s\n', credPath);
-  
+if isempty(credPath)
+    return;
+end
+%% Do you want to create the database?
+reply = input('Do you want to create a database ? Y/N [Y]: ', 's');
+if isempty(reply) || ~strcmpi(reply, 'Y')
+    return;
+end
 %% Now creating a database manager
 try
      DB = edu.utsa.tagger.database.TagsDBManager(credPath);    
@@ -18,9 +23,12 @@ fprintf('Database manager created\n');
 try
     dbScript = char(which('tags.sql'));
     DB.setupDatabase(dbScript);
-    fprintf('Database successfully created...');
+    fprintf('Database successfully created...\n');
 catch me   % if database already exists, creation fails and warning is output
     warning('setupdb:creationfailed', me.message);
-    DB.close();
 end
-DB.close();
+% Be sure to close the database
+try
+    DB.close();
+catch me
+end
