@@ -35,13 +35,14 @@ assertTrue(~isfield(EEG1.etc, 'tags'));
 assertTrue(~isfield(EEG1.event(1), 'usertags'));
 assertTrue(isempty(com));
 
-fprintf('\nIt should  okay button is pressed\n');
+fprintf('\nIt should return a command when tagged\n');
 fprintf('SET TO USE GUI\n');
 fprintf('SET NOT TO PRESERVE PREFIX\n');
 fprintf('EXCLUDE POSITION FIELD\n');
+fprintf('PRESS THE OKAY BUTTON\n');
 fprintf('SELECT TWO OVERLAPPING TAGS FOR ONE VALUE OF TYPE FIELD\n'); 
-fprintf('PRESS the OKAY BUTTON\n');
+fprintf('PRESS the SUBMIT BUTTON\n');
 [EEG1, com] = pop_tageeg(values.EEGEpoch);
 assertTrue(isfield(EEG1.etc, 'tags'));
 assertTrue(isfield(EEG1.event(1), 'usertags'));
-assertTrue(isempty(com));
+assertTrue(~isempty(com));

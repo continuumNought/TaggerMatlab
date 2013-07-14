@@ -1,14 +1,9 @@
 function test_suite = test_tagdir%#ok<STOUT>
 initTestSuite;
 
-function values = setup %#ok<DEFNU>
+function values = setup %#ok<STOUT,DEFNU>
 % values.TestDirectory = 'H:\TagTestDirectories\TestDataRoot';
-values.TestDirectory = fullfile(pwd, filesep, 'testData');
-values.moreEvents = 'e5, e5 label, e5 description, /a/b/c; e6,e61,e6 des';
-values.Attn = 'AttentionShiftSet';
-values.BCI2000 = 'BCI2000Set';
-values.EEGLAB = 'EEGLABSet';
-values.Shooter = 'ShooterSet';
+setup_tests;
 
 function teardown(values) %#ok<INUSD,DEFNU>
 % Function executed after each test
@@ -16,21 +11,14 @@ function teardown(values) %#ok<INUSD,DEFNU>
 
 function test_tagdirEmpty(values)  %#ok<INUSD,DEFNU>
 % Unit test for tagdir function with empty directory
+fprintf('\nBe sure to edit setup_tests.m before running this test\n');
 fprintf('\nUnit tests for tagdir for empty directory\n');
 
-fprintf('It should work for an empty directory\n');
-[eTags1, fPaths1] = tagdir('', 'UseGui', false);
-assertTrue(isa(eTags1, 'fieldMap'));
-assertTrue(isempty(fPaths1));
-fields1 = eTags1.getFields();
-assertTrue(isempty(fields1));
 
-fprintf('It should work when there is an invalid directory\n');
+fprintf('It should work when there is an invalid directory---WARNING\n');
 [eTags2, fPaths2] = tagdir('--34', 'UseGui', false);
-assertTrue(isa(eTags2, 'fieldMap'));
 assertTrue(isempty(fPaths2));
-fields2 = eTags1.getFields();
-assertTrue(isempty(fields2));
+assertTrue(isempty(eTags2));
 
 % function test_tagdirEEGLAB(values)  %#ok<DEFNU>
 % Unit test for tagdir for EEGLAB sample data
@@ -137,8 +125,8 @@ fprintf('\nUnit tests for tagdir with shooter data\n');
 fprintf('It should work for the shooter data with both options and GUI\n');
 fprintf('....REQUIRES USER INPUT\n');
 fprintf('PRESS the TAG BUTTON EXCEPT EXCLUDE THE TRIAL\n');
-thisDir = [values.TestDirectory filesep values.Shooter];
-[fMap1, fPaths1] = tagdir(thisDir, 'UseGui', true, ...
+[fMap1, fPaths1] = tagdir([values.testroot filesep values.shooterdir], ...
+    'UseGui', true, ...
     'SelectOption', true, 'Synchronize', false);
 fields1 = fMap1.getFields();
 assertEqual(length(fields1), 9);

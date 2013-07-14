@@ -82,12 +82,13 @@ fprintf('PRESS the TAG BUTTON TWICE (should only show code and group)\n');
 assertTrue(sum(strcmpi(excluded3{1}, 'type')) == 1);
 assertEqual(length(fMap3.getFields()), 2);
 
-fprintf('\nIt should correctly exclude fields when not all Fields exist\n');
+function test_field_argument_no_exist(values)  %#ok<DEFNU>
+fprintf('\n\nIt should correctly exclude fields when not all Fields exist\n');
 fprintf('....REQUIRES USER INPUT\n');
 fprintf('PRESS the TAG BUTTON TWICE (should only show code and group)\n');
 [fMap4, excluded4] = selectmaps(values.inMap2.clone(), ...
        'Fields', {'code', 'group', 'cat'}, 'SelectOption', true); 
-assertTrue(sum(strcmpi(excluded4{1}, 'type')) == 1);
+assertTrue(sum(strcmpi(excluded4(:), 'type')) == 1);
 assertEqual(length(fMap4.getFields()), 2);
 
 function test_exclude_button(values)  %#ok<DEFNU>
@@ -95,7 +96,7 @@ function test_exclude_button(values)  %#ok<DEFNU>
 fprintf('\n\nUnit tests for selectmaps interactive use with Exclude button\n');
 fprintf('It should exclude the type field from the map\n');
 fprintf('....REQUIRES USER INPUT\n');
-fprintf('PRESS EXCLUDE BUTTON FOR TYPE\n');
+fprintf('PRESS EXCLUDE BUTTON FOR TYPE AND TAG BUTTON FOR CODE AND GROUP\n');
 [fMap2, excluded2] = selectmaps(values.inMap2, 'SelectOption', true);
 fields2 = fMap2.getFields();
 assertEqual(length(fields2), 2);

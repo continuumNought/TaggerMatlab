@@ -52,7 +52,7 @@ delete(fName);
 
 function testSelectTags(values)  %#ok<DEFNU>
 % Unit tests for tag_eeg selecting which fields
-fprintf('It should allow user to select the types to tag\n');
+fprintf('\n\nIt should allow user to select the types to tag\n');
 fprintf('....REQUIRES USER INPUT\n');
 fprintf('PRESS EXCLUDE BUTTON ONCE FOLLOWED BY TAG\n');
 fprintf('....you should not see a tagging GUI for code\n');
@@ -73,7 +73,7 @@ assertEqual(length(excluded), 6);
 delete(fName);
 
 function testUseGUI(values)  %#ok<DEFNU>
-fprintf('It should allow user to use the GUI to tag\n');
+fprintf('\n\nIt should allow user to use the GUI to tag\n');
 fprintf('....REQUIRES USER INPUT\n');
 fprintf('PRESS the SUBMIT button exactly once otherwise CANCEL\n');
 fName = 'temp2.mat';
@@ -92,7 +92,7 @@ assertEqual(length(excluded), 5);
 
 
 function testReuse(values)  %#ok<DEFNU>
-fprintf('It should correctly tag a dataset multiple times\n');
+fprintf('\n\nIt should correctly tag a dataset multiple times\n');
 fprintf('....REQUIRES USER INPUT\n');
 fprintf('PRESS THE SUBMIT BUTTON ONCE, THEN CANCEL\n');
 fName = 'temp3.mat';
@@ -112,7 +112,7 @@ fprintf('Now retagging... there should be 3 values for code\n');
 fprintf('PRESS THE SUBMIT BUTTON ONCE, THEN CANCEL\n');
 fName = 'temp3.mat';
 [y2, fMap, excluded] = tageeg(y1, 'RewriteOption', 'both', ...
-        'UseGui', true, 'SaveMapFile', fName, 'SelectOption', false);
+        'UseGui', true, 'SaveMapFile', fName, 'SelectOption', false); %#ok<ASGLU>
 assertEqual(sum(strcmpi(fields, 'code')), 1);
 assertEqual(sum(strcmpi(fields, 'group')), 1);
 assertEqual(sum(strcmpi(fields, 'type')), 1);

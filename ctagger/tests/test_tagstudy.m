@@ -1,10 +1,9 @@
 function test_suite = test_tagstudy%#ok<STOUT>
 initTestSuite;
 
-function values = setup %#ok<DEFNU>
+function values = setup %#ok<STOUT,DEFNU>
 % Function executed after each test
-values.TestDirectory = 'H:\TagTestDirectories\Study\5subjects';
-values.StudyName = 'n400clustedit.study';
+setup_tests;
 
 function teardown(values) %#ok<INUSD,DEFNU>
 % Function executed after each test
@@ -28,14 +27,14 @@ function test_tagValidStudy(values)  %#ok<DEFNU>
 % Unit test for tagstudy with a valid study directory
 fprintf('\nUnit tests for tagstudy valid\n');
 
-fprintf('It should work for the EEGLAB study with both options and GUI\n');
-thisStudy = [values.TestDirectory filesep values.StudyName];
+fprintf('It should work for the EEGLAB study with both options and GUI off\n');
+thisStudy = [values.studydir filesep values.studyname];
 [fMap1, fPaths1, excluded1] = tagstudy(thisStudy, 'UseGui', false, ...
     'SelectOption', false);
 fields1 = fMap1.getFields();
 assertEqual(length(fields1), 4);
 type1 = fMap1.getValues('type');
-assertEqual(length(type1), 14);
+assertEqual(length(type1), 13);
 assertEqual(length(fPaths1), 10);
 assertEqual(length(excluded1), 5);
 

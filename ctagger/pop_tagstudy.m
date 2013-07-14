@@ -43,7 +43,6 @@
 % Initial version
 %
 
-
 function [fMap, com] = pop_tagstudy()
 % Create the tagger for this EEG study
 [studyFile, baseMap, dbCredsFile,  preservePrefix, ...

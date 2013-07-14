@@ -81,7 +81,7 @@ function vers = eegplugin_ctagger(fig, trystrs, catchstrs)
     savecmd = '[ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, CURRENTSET);';
     redrawcmd = 'eeglab redraw;';
     finalcmd =  [trystrs.no_check finalcmd ifeegcmd savecmd ...
-        redrawcmd 'end;' catchstrs.add_to_hist];
+                 redrawcmd 'end;' catchstrs.add_to_hist];
     uimenu(parentMenu, 'Label', 'Tag current EEG', 'Callback', finalcmd, ...
         'Separator', 'on');
     
@@ -101,11 +101,11 @@ function vers = eegplugin_ctagger(fig, trystrs, catchstrs)
            'Separator', 'on', 'userdata', 'startup:on');
     
     % Add tagging of current study 
-    studyMenu = findobj(fig, 'Label', 'Study');
-    finalcmd = '[~, ~, LASTCOM] = pop_tagstudy();';
+    %studyMenu = findobj(fig, 'Label', 'Study');
+    finalcmd = '[~, LASTCOM] = pop_tagstudy();';
     finalcmd =  [trystrs.no_check finalcmd catchstrs.add_to_hist];
-    uimenu(studyMenu, 'Label', 'Tag EEG Study', 'Callback', finalcmd, ...
-        'Separator', 'on', 'userdata', 'study:on');
+    uimenu(dirMenu, 'Label', 'Tag EEG Study', 'Callback', finalcmd, ...
+        'Separator', 'on', 'userdata', 'startup:on');
 
     
     
