@@ -26,8 +26,6 @@ To tag:
 Other:
       Change font size by hovering over top menu and clicking +/-
 
-Right now deletion is allowed on everything......this can be turned off and 
-on but configuration of this has been turned off.
 
 Release notes:
 1)  The tag counts are not fully working in the database. However, the
@@ -38,11 +36,15 @@ Release notes:
     does not have this restriction.
 4)  tagdir assumes that the data is in the form of .set files. The user
     configuration of this will soon be implemented.
-5)  There is a memory leak that appears occassionally when a large number 
+5)  Drag-and-drop on the CTAGGER GUI has been removed.
+6)  The GUI currently allows users to add and remove tags anywhere 
+    in the hierarchy. Permissions have been implemented, but are not
+    connected to the MATLAB portion.
+7)  There is a memory leak that appears occassionally when a large number 
     of figures/GUIs are created over a period of time during testing. 
     CTAGGER may not be releasing all resources when figure windows are 
     closed. We are continuing to try to track this down. If you get a 
     "Java is out of memory" error, you will need to close MATLAB and
     restart.
 
-    issue down. 
+  

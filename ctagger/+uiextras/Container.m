@@ -421,8 +421,8 @@ classdef Container < hgsetget
             %onChildAddedEvent  Callback that fires when a child is added to a container.
             
             % Find child in Children
-            child = double(eventData.Child);
-            if ismember( child, obj.Children_ )
+            child = eventData.Child;
+            if ismember( double( child ), obj.Children_ )
                 return % not *really* being added
             end
             
@@ -443,8 +443,7 @@ classdef Container < hgsetget
             
             % We also need to ignore legends as they are positioned by
             % their associated axes.
-            if isa( eventData.Child, 'axes' ) ...
-                    && strcmpi( get( child, 'Tag' ), 'legend' )
+            if isLegendOrColorbar( eventData.Child )
                 return;
             end
             
@@ -484,12 +483,8 @@ classdef Container < hgsetget
         function onChildBeingDestroyedEvent( obj, source, eventData ) %#ok<INUSD>
             %onChildBeingDestroyedEvent  Callback that fires when a container child is destroyed.
             
-            % Guard against comparing HG objects with doubles (the
-            % Children_ array contains doubles).
-            source = double(source);
-
             % Find child in Children
-            [dummy, loc] = ismember( source, obj.Children_ ); %#ok<ASGLU>
+            [dummy, loc] = ismember( double( source ), obj.Children_ ); %#ok<ASGLU>
             
             % Remove element from Children
             obj.Children_(loc,:) = [];
@@ -515,7 +510,7 @@ classdef Container < hgsetget
             end
             
             % Find child in Children
-            [dummy, loc] = ismember( source, obj.Children_ ); %#ok<ASGLU>
+            [dummy, loc] = ismember( double( source ), obj.Children_ ); %#ok<ASGLU>
             
             % Remove element from Children
             obj.Children_(loc,:) = [];
@@ -535,6 +530,13 @@ end % classdef
 
 % -------------------------------------------------------------------------
 
+function result = isLegendOrColorbar( child )
+% Determine whether an object is a legend or colorbar
+tag = lower(get( child, 'Tag' ));
+result = (isa( child, 'axes' ) && ismember(tag, {'legend', 'colorbar'}) );
+end % isLegendOrColorbar
+
+
 % Helper functions to work around a bug in R2009a and earlier
 
 function ok = isBeforeR2009b()
@@ -547,7 +549,6 @@ end
 ok = ( matlabVersionDate <= datenum( '15-Jan-2009', 'dd-mmm-yyyy' ) );
 end
 
-
 function helpDeleteChild( src, evt, obj )
 obj.onChildBeingDestroyedEvent( src, evt );
 end % helpDeleteChild
@@ -555,6 +556,3 @@ end % helpDeleteChild
 function helpReparentChild( src, evt, obj )
 obj.onChildParentChangedEvent( src, evt );
 end % helpReparentChild
-
-
-        
