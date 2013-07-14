@@ -37,7 +37,7 @@ assertTrue(useGUI);
 assertTrue(~cancelled);
 
 fprintf('....REQUIRES USER INPUT\n');
-fprintf('PRESS the OKAY BUTTON AFTER SELECTING ALL FILES\n');
+fprintf('PRESS the OKAY BUTTON AFTER SETTING ALL FILE PATHS\n');
 [studyFile,baseMapFile, dbCredsFile, preservePrefix, ...
     rewriteOption, saveAll, saveMapFile, selectOption, useGUI, cancelled] =  ...
     tagstudy_input();

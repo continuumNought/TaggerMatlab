@@ -3,11 +3,12 @@ initTestSuite;
 
 function testValid()  %#ok<DEFNU>
 % Unit test for dbcreds
-    fprintf('\nUnit tests for dbcreds increase indent\n');
-    fprintf('It should work present multiple GUIs\n');
+    fprintf('\nUnit tests for dbcreds creation\n');
+    fprintf('It should create a property file\n');
     fprintf('....REQUIRES USER INPUT\n');
-    fprintf('PRESS SUBMIT AFTER PATH \n');
+    fprintf('PRESS OKAY AFTER ENTERING SAVE PROP PATH \n');
     configProps = dbcreds();
     assertTrue(~isempty(configProps));
+    assertTrue(exist(configProps, 'file') ~= 0);
   
  

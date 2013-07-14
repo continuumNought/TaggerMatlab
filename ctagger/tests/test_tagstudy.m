@@ -28,7 +28,7 @@ function test_tagValidStudy(values)  %#ok<DEFNU>
 fprintf('\nUnit tests for tagstudy valid\n');
 
 fprintf('It should work for the EEGLAB study with both options and GUI off\n');
-thisStudy = [values.studydir filesep values.studyname];
+thisStudy = [values.testroot filesep values.studydir filesep values.studyname];
 [fMap1, fPaths1, excluded1] = tagstudy(thisStudy, 'UseGui', false, ...
     'SelectOption', false);
 fields1 = fMap1.getFields();
