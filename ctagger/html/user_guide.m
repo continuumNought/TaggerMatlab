@@ -1,5 +1,0 @@
-%% CTAGGER Package User Guide
-%
-%% 
-%
-%
