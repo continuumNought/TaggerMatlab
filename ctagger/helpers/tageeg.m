@@ -174,9 +174,10 @@ if usingDB
     try
         updatedJSON = fMap.getJson(); 
         dbCon = DB.getDBCon();
-        edu.utsa.tagger.database.TagsUpdate.updateDatabase(...
-            dbCon, fMap.getXml(), originalJSON, updatedJSON, ...
-            'label', p.PreservePrefix, false);
+        edu.utsa.tagger.database.TagsUpdate.updateXML(dbCon, ...
+            fMap.getXml());
+        edu.utsa.tagger.database.TagsUpdate.updateTagCount(dbCon, ...
+            originalJSON, updatedJSON);
         DB.close();
     catch ME
         warning('ctagger:connectionfailed', ME.message);
