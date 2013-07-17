@@ -131,64 +131,13 @@ if ~isempty(baseTags) && ~isempty(p.Fields)
 end;
 fMap.merge(baseTags, 'Merge', excluded);
 if p.SelectOption
+    fprintf('\n---Now select the fields you want to tag---\n');
     [fMap, exc] = selectmaps(fMap, 'Fields', p.Fields);
     excluded = union(excluded, exc);
 end
 
-usingDB = false;
-if ~isempty(p.DbCreds)
-    try
-        DB = edu.utsa.tagger.database.TagsDBManager(p.DbCreds);
-        DB.getDBCon();
-        originalJSON = fMap.getJson;
-        dbXML = char(DB.generateXML());
-        fMap.mergeXml(dbXML);
-        usingDB = true;
-        DB.close();
-    catch ME %#ok<NASGU>
-        choice = questdlg(['Database connection failed. Would you like' ... 
-            ' to continue without the database?'], 'Yes', 'No');
-        switch choice
-            case 'Yes'
-                % Do nothing
-            case 'No'
-                % Return from the function
-                return;
-        end
-    end
-end
-%----- If database file is not empty,
-%------Open the database credentials, make a connection to database
-%----------If this fails, bring up a dialog --- database connection
-%          failed --- do you want to continue without the database.
-%          usingDB = false;
-%----------If connection is successful
-% -----------  Merge the XML from the database into fMap
-%--------------usingDB = true;
-% ------------ Close the connection
-if p.UseGui
-    fMap = editmaps(fMap, 'PreservePrefix', p.PreservePrefix, ...
-        'Synchronize', p.Synchronize);
-end
-if usingDB
-    try
-        updatedJSON = fMap.getJson(); 
-        dbCon = DB.getDBCon();
-        edu.utsa.tagger.database.TagsUpdate.updateXML(dbCon, ...
-            fMap.getXml());
-        edu.utsa.tagger.database.TagsUpdate.updateTagCount(dbCon, ...
-            originalJSON, updatedJSON);
-        DB.close();
-    catch ME
-        warning('ctagger:connectionfailed', ME.message);
-    end
-end
-
-%------If usingDB
-%--------- open connection to database
-%----------If connection fails --- output a warning message and skip rest
-% ----------------  Merge the XML from fMap into the database
-% ----------------  Close the connection
+fMap = editMapDb(fMap, 'DbCreds', p.DbCreds, 'PreservePrefix', ...
+    p.PreservePrefix, 'Synchronize', p.Synchronize, 'UseGui', p.UseGui);
 
 % Save the fieldmap
 if ~isempty(p.SaveMapFile) && ~fieldMap.saveFieldMap(p.SaveMapFile, fMap)

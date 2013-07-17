@@ -145,11 +145,9 @@ if p.SelectOption
     [fMap, exc] = selectmaps(fMap, 'Fields', p.Fields);
     excluded = union(excluded, exc);
 end
-if p.UseGui
-    fprintf('\n---Now choose tags for each field value---\n');
-    fMap = editmaps(fMap, 'PreservePrefix', p.PreservePrefix, ...
-        'Synchronize', p.Synchronize);
-end
+
+fMap = editMapDb(fMap, 'DbCreds', p.DbCreds, 'PreservePrefix', ...
+    p.PreservePrefix, 'Synchronize', p.Synchronize, 'UseGui', p.UseGui);
 
 % Save the tags file for next step
 if ~isempty(p.SaveMapFile) && ~fieldMap.saveFieldMap(p.SaveMapFile, fMap)

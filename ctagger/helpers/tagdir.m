@@ -160,47 +160,8 @@ if p.SelectOption
     excluded = union(excluded, exc);
 end
 
-usingDB = false;
-if ~isempty(p.DbCreds)
-    try
-        DB = edu.utsa.tagger.database.TagsDBManager(p.DbCreds);
-        DB.getDBCon();
-        originalJSON = fMap.getJson;
-        dbXML = char(DB.generateXML());
-        fMap.mergeXml(dbXML);
-        usingDB = true;
-        DB.close();
-    catch ME %#ok<NASGU>
-        choice = questdlg(['Database connection failed. Would you like' ... 
-            ' to continue without the database?'], 'Yes', 'No');
-        switch choice
-            case 'Yes'
-                % Do nothing
-            case 'No'
-                % Return from the function
-                return;
-        end
-    end
-end
-
-if p.UseGui
-    fprintf('\n---Now choose tags for each field value---\n');
-    fMap = editmaps(fMap, 'PreservePrefix', p.PreservePrefix, ...
-        'Synchronize', p.Synchronize);
-end
-
-if usingDB
-    try
-        updatedJSON = fMap.getJson(); 
-        dbCon = DB.getDBCon();
-        edu.utsa.tagger.database.TagsUpdate.updateDatabase(...
-            dbCon, fMap.getXml(), originalJSON, updatedJSON, ...
-            'label', p.PreservePrefix, false);
-        DB.close();
-    catch ME
-        warning('ctagger:connectionfailed', ME.message);
-    end
-end
+fMap = editMapDb(fMap, 'DbCreds', p.DbCreds, 'PreservePrefix', ...
+    p.PreservePrefix, 'Synchronize', p.Synchronize, 'UseGui', p.UseGui);
 
 % Save the tags file for next step
 if ~isempty(p.SaveMapFile) && ~fieldMap.saveFieldMap(p.SaveMapFile, ...
