@@ -38,7 +38,7 @@ end
 
 if usingDB
     try
-        updatedJSON = fMap.getJson();
+        updatedJSON = fMap.getJsonValues();
         dbCon = DB.getDBCon();
         edu.utsa.tagger.database.TagsUpdate.updateXML(dbCon, ...
             fMap.getXml());

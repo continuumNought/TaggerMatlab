@@ -352,6 +352,9 @@ classdef tagMap < hgsetget
             if isempty(values)
                 eText = '';
             else
+                if isa(values{1}, 'tagMap')
+                    values = values{1}.getValues();
+                end
                 eText = tagMap.value2Json(values{1});
                 for k = 2:length(values)
                     eText = [eText ',' tagMap.value2Json(values{k})]; %#ok<AGROW>
