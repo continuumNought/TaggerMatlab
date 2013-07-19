@@ -14,7 +14,7 @@ if ~isempty(p.DbCreds)
     try
         DB = edu.utsa.tagger.database.TagsDBManager(p.DbCreds);
         DB.getDBCon();
-        %         originalJSON = fMap.getJson;
+        originalJSON = fMap.getJsonValues();
         dbXML = char(DB.generateXML());
         fMap.mergeXml(dbXML);
         usingDB = true;
@@ -43,7 +43,7 @@ if usingDB
         edu.utsa.tagger.database.TagsUpdate.updateXML(dbCon, ...
             fMap.getXml());
         edu.utsa.tagger.database.TagsUpdate.updateTagCount(dbCon, ...
-            updatedJSON);
+            originalJSON, updatedJSON, true);
         DB.close();
     catch ME
         warning('ctagger:connectionfailed', ME.message);
