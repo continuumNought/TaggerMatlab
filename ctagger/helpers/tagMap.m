@@ -312,25 +312,6 @@ classdef tagMap < hgsetget
             values = theStruct.values;
         end % split
         
-        %         function eJson = value2Json(value)
-        %             % Convert a value structure to a JSON string
-        %             tags = value.tags;
-        %             if isempty(tags)
-        %                 tagString = '';
-        %             elseif ischar(tags)
-        %                 tagString = ['"' tags '"'];
-        %             else
-        %                 tagString = ['"' tags{1} '"'];
-        %                 for j = 2:length(value.tags)
-        %                     tagString = [tagString ',' '"' tags{j} '"']; %#ok<AGROW>
-        %                 end
-        %             end
-        %             tagString = ['[' tagString ']'];
-        %             eJson = ['{"label":"' value.label ...
-        %                 '","description":"' value.description '","tags":' ...
-        %                 tagString '}'];
-        %         end % value2Json
-        
         function eJson = value2Json(value)
             % Convert a value structure to a JSON string
             tags = value.tags;
@@ -371,9 +352,6 @@ classdef tagMap < hgsetget
             if isempty(values)
                 eText = '';
             else
-                if isa(values{1}, 'tagMap')
-                    values = values{1}.getValues();
-                end
                 eText = tagMap.value2Json(values{1});
                 for k = 2:length(values)
                     eText = [eText ',' tagMap.value2Json(values{k})]; %#ok<AGROW>

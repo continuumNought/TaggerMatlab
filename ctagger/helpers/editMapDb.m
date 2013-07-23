@@ -14,11 +14,11 @@ if ~isempty(p.DbCreds)
     try
         DB = edu.utsa.tagger.database.TagsDBManager(p.DbCreds);
         DB.getDBCon();
-        originalJSON = fMap.getJsonValues();
         dbXML = char(DB.generateXML());
         fMap.mergeXml(dbXML);
         usingDB = true;
         DB.close();
+        oldfMap = fMap.clone();
     catch ME %#ok<NASGU>
         choice = questdlg(['Database connection failed. Would you like' ...
             ' to continue without the database?'], 'Yes', 'No');
@@ -38,12 +38,21 @@ end
 
 if usingDB
     try
-        updatedJSON = fMap.getJsonValues();
         dbCon = DB.getDBCon();
         edu.utsa.tagger.database.TagsUpdate.updateXML(dbCon, ...
             fMap.getXml());
-        edu.utsa.tagger.database.TagsUpdate.updateTagCount(dbCon, ...
-            originalJSON, updatedJSON, true);
+        keys = fMap.getFields();
+        numKeys = length(keys);
+        for a = 1:numKeys
+            oldtMap = oldfMap.getMap(keys{a});
+            newtMap = fMap.getMap(keys{a});
+            oldValues = oldtMap.getValues();
+            newValues = newtMap.getValues();
+            oldJSON = oldtMap.values2Json(oldValues);
+            newJSON = newtMap.values2Json(newValues);
+            edu.utsa.tagger.database.TagsUpdate.updateTagCount(dbCon, ...
+                oldJSON, newJSON, true);
+        end
         DB.close();
     catch ME
         warning('ctagger:connectionfailed', ME.message);
