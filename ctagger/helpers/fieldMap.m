@@ -288,7 +288,7 @@ classdef fieldMap < hgsetget
             end
             obj.Xml = ...
                 char(edu.utsa.tagger.database.XMLGenerator.mergeXML( ...
-                obj.Xml, xmlMerge));
+                xmlMerge, obj.Xml));
         end % mergeXml
         
         function removeMap(obj, field)
