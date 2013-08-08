@@ -1,0 +1,47 @@
+TypeID,Type,SubtypeID,Subtype,VariantID,Variant,FixedTag,Description
+1,Vehicle Event,1,Pertubation,1,Force from Left,/Vehicle Event / Perturbation / Force from Left,Perturbation magnitude is negative
+1,Vehicle Event,1,Pertubation,2,Force from Right,/Vehicle Event / Perturbation / Force from Right,Perturbation magnitude is positive
+2,Scenario Event,1,Start Scenario,1,No Scenario Condition Indicator,/Scenario Event / Start Scenario / No Scenario Condition Indicator,Verification for scenario without complexity counter-balancing
+2,Scenario Event,1,Start Scenario,2,Scenario Condition Indicator A,/Scenario Event / Start Scenario / Scenario Condition Indicator A,Verification for scenario complexity counter-balancing sequence A
+2,Scenario Event,1,Start Scenario,3,Scenario Condition Indicator B,/Scenario Event / Start Scenario / Scenario Condition Indicator B,Verification for scenario complexity counter-balancing sequence B
+2,Scenario Event,1,Start Scenario,4,Scenario Condition Indicator C,Scenario Event / Start Scenario / Scenario Condition Indicator C,Verification for scenario complexity counter-balancing sequence C
+2,Scenario Event,1,Start Scenario,5,Scenario Condition Indicator D,Scenario Event / Start Scenario / Scenario Condition Indicator D,Verification for scenario complexity counter-balancing sequence D
+2,Scenario Event,2,Vehicle Passing,1,Travel Lane Blocked,Scenario Event / Vehicle Passing / Travel Lane Blocked,Up to 3 vehicles drive north in the rightmost lane
+2,Scenario Event,2,Vehicle Passing,2,Oncoming Traffic,Scenario Event / Vehicle Passing / Oncoming Traffic,Up to 12 vehicles drive south
+2,Scenario Event,2,Vehicle Passing,3,Traffic Slalom,Scenario Event / Vehicle Passing / Traffic Slalom,"3 vehicles drive north in a triangle (1 in Left lane, 2 in Right lane)"
+2,Scenario Event,2,Vehicle Passing,4,Overtake Front,Scenario Event / Vehicle Passing / Overtake Front,Up to 3 vehicles appear in front of the subject in the left northbound lane
+2,Scenario Event,2,Vehicle Passing,5,Overtake Behind,Scenario Event / Vehicle Passing / Overtake Behind,Up to 2 vehicles appear behind the subject then drive past him
+2,Scenario Event,3,Vehicle Crossing,1,From Driver Side Fast,Scenario Event / Vehicle Crossing / From Driver Side Fast,Up to 3 vehicles cross the road from west to east
+2,Scenario Event,3,Vehicle Crossing,2,From Driver Side Slow,Scenario Event / Vehicle Crossing / From Driver Side Slow,2 vehicles cross the road from west to east (with trailing vehicle pause)
+2,Scenario Event,4,Pedestrian Passing,1,Travel Direction Far Side,Scenario Event / Pedestrian Passing / Travel Direction Far Side,"Up to 4 pedestrians walk, south to north, along the west side of the road"
+2,Scenario Event,4,Pedestrian Passing,2,Oncoming Far Side,Scenario Event / Pedestrian Passing / Oncoming Far Side,"Up to 4 pedestrians walk, north to south, along the west side of the road"
+2,Scenario Event,4,Pedestrian Passing,3,Travel Direction Near Side,Scenario Event / Pedestrian Passing / Travel Direction Near Side,"Up to 4 pedestrians walk, south to north, along the east side of the road"
+2,Scenario Event,4,Pedestrian Passing,4,Oncoming Near Side,Scenario Event / Pedestrian Passing / Oncoming Near Side,"Up to 4 pedestrians walk, north to south, along the east side of the road"
+2,Scenario Event,5,Pedestrian Crossing,1,Driver Side,Scenario Event / Pedestrian Crossing / Driver Side,"Up to 3 pedestrians walk west to east, across the road"
+2,Scenario Event,6,Road Sign,1,Speed Limit 25 MPH,Scenario Event / Road Sign / Speed Limit 25 MPH,Assigned speed 
+2,Scenario Event,6,Road Sign,2,Speed Limit 45 MPH,Scenario Event / Road Sign / Speed Limit 45 MPH,Assigned speed 
+2,Scenario Event,7,Construction Zone,1,Barrell and Cone,Scenario Event / construction Zone / Barrel and Cone,Barrels followed by a series of cones blocking the passing lane
+3,Environmental Event,1,Mission Boundary,1,Mission Start,Environmental Event / Mission Boundary / Mission Start,Marks the beginning of the event data (enables trimming of simulation data prior to this mark)
+3,Environmental Event,1,Mission Boundary,2,Mission End,Environmental Event / Mission Boundary / Mission End,Marks the end of the event data (enables trimming of simulation data after to this mark)
+3,Environmental Event,2,Tile Change,0,Tile Complexity 0,Environmental Event / Tile Change / Tile Complexity 0,Latin Square section undefined
+3,Environmental Event,2,Tile Change,1,Tile Complexity 1,Environmental Event / Tile Change / Tile Complexity 1,"Latin Square section = High Perturbation Complexity, High Visual Complexity"
+3,Environmental Event,2,Tile Change,2,Tile Complexity 2,Environmental Event / Tile Change / Tile Complexity 2,"Latin Square section = High Perturbation Complexity, Low Visual Complexity"
+3,Environmental Event,2,Tile Change,3,Tile Complexity 3,Environmental Event / Tile Change / Tile Complexity 3,"Latin Square section = Low Perturbation Complexity, High Visual Complexity"
+3,Environmental Event,2,Tile Change,4,Tile Complexity 4,Environmental Event / Tile Change / Tile Complexity 4,"Latin Square section = Low Perturbation Complexity, Low Visual Complexity"
+3,Environmental Event,2,Road Curvature Change,1,Road is straight,Environmental Event / Road Curvature Change / Road is Straight,Road segment ahead is straight
+3,Environmental Event,2,Road Curvature Change,2,Road curves Left,Environmental Event / Road Curvature Change / Road Curves Left,Road segment ahead curves left
+3,Environmental Event,2,Road Curvature Change,3,Road Curves Right,Environmental Event / Road Curvature Change / Road curves Right,Road segment ahead curves right
+4,Behavioral Event,1,Halt,0,None,Behavioral Event / Halt ,Vehicle stops
+4,Behavioral Event,2,Lane Shift,1,Within Lane,Behavioral Event / Lane Shift / Within Lane,Vehicle moves from outside lane to within lane
+4,Behavioral Event,2,Lane Shift,2,Right of Lane,Behavioral Event / Lane Shift / Right of Lane,Vehicle moves from within lane to right of lane
+4,Behavioral Event,2,Lane Shift,3,Left of Lane,Behavioral Event / Lane Shift / Left of Lane,Vehicle moves from within lane to left of lane
+4,Behavioral Event,3,Driver Correction,0,None,Behavioral Event / Driver Correction,Subject responded t othe perturbation by steering into the force by a steer angle > 4 degrees
+4,Behavioral Event,4,Collision,1,Near Miss,Behavioral Event / Collision / Near Miss,Subject's vehicle approached another entity within 1 meter
+4,Behavioral Event,4,Collision,2,Hit,Behavioral Event / Collision / Hit,Subject's vehicle intersected with another entity (passed through)
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+, ,,,,,,

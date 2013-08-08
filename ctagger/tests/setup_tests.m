@@ -13,3 +13,5 @@ values.studyname = 'n400clustedit.study';
 values.shooterdir = 'ShooterSet';
 values.BCI2000dir = 'BCI2000Set';
 values.EEGLAB = 'EEGLABSet';
+values.efile1 = 'BCIT2.csv';
+values.efile2 = 'BCIT1.csv';
