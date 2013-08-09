@@ -13,9 +13,7 @@ usingDB = false;
 if ~isempty(p.DbCreds)
     try
         DB = edu.utsa.tagger.database.TagsDBManager(p.DbCreds);
-        DB.getDBCon();
-        dbXML = char(DB.generateXML());
-        fMap.mergeXml(dbXML);
+        fMap.mergeDBXml(DB.getDBCon());
         usingDB = true;
         DB.close();
         oldfMap = fMap.clone();

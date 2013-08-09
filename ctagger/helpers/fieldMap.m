@@ -275,7 +275,7 @@ classdef fieldMap < hgsetget
         end % merge
         
         function mergeXml(obj, xmlMerge)
-            % Merge the xml string xmlMerge with obj.HedXML if valid
+            % Merge the xml string xmlMerge with obj.XML if valid
             if isempty(xmlMerge)
                 return;
             end
@@ -286,12 +286,17 @@ classdef fieldMap < hgsetget
                     ' [' ex.message ']']);
                 return;
             end
-%             obj.Xml = ...
-%                 char(edu.utsa.tagger.database.XMLGenerator.mergeXML( ...
-%                 xmlMerge, obj.Xml));
-           obj.Xml = ...
+            obj.Xml = ...
                 char(edu.utsa.tagger.database.XMLGenerator.mergeXML( ...
                 obj.Xml, xmlMerge));
+        end % mergeXml
+        
+        function mergeDBXml(obj, dbCon)
+            % Merge obj.XML with the database xml if valid
+            obj.Xml = ...
+                char(...
+                edu.utsa.tagger.database.XMLGenerator.generateMergedXML(...
+                dbCon, obj.Xml));
         end % mergeXml
         
         function removeMap(obj, field)
