@@ -72,7 +72,7 @@ function fMap = gettags(filename, varargin)
     [keys, headers, descriptions] = getevents(p.FileName); %#ok<ASGLU>
     
     fMap = fieldMap('PreservePrefix', p.PreservePrefix);
-    tMap = tagMap('Field', 'NonOrthongonal'); 
+    tMap = tagMap('Field', 'NonOrthogonal'); 
     for k = 1:length(keys)
         value = struct('label', keys{k}, 'description', ...
             descriptions{k}, tags, '');
