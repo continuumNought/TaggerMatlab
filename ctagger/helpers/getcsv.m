@@ -1,42 +1,36 @@
-% getevents
+% getcsv
 % Create a fieldMap object for the existing tags in a data structure
 %
 % Usage:
-%   >>  tMap = findtags(edata)
-%   >>  tMap = findtags(edata, 'key1', 'value1', ...)
+%   >> [codes, headers, descriptions] = getcsv(filename)
+%   >> [codes, headers, descriptions] = getcsv('key1', 'value1', ...)
 %
 % Description:
-% tMap = findtags(edata) extracts a fieldMap object representing the
-% events and their tags for the structure.
+% [codes, headers, descriptions] = getcsv(filename) assumes that all of the 
+% columns of the comma-separated file represented by filename contain
+% event codes that should be appended with separators '|' to form a 
+% single event code. The codes variable contains a cell string array
+% containing these consolidate event codes. The headers is a cell string
+% array containing the first row of the file, which is assume to contain
+% headers. The descriptions is a cell array of the same length as
+% codes and contains empty strings.
 %
-% [keys, headers, descriptions] = getevents(file, 'key1', 'value1', ...) specifies optional name/value
-% parameter pairs:
+% [codes, headers, descriptions] = getevents(file, 'key1', 'value1', ...) 
+% specifies optional name/value parameter pairs:
 %
-%   'ExcludeFields'  A cell array containing the field names to exclude
-%   'Fields'         A cell array containing the field names to extract
-%                    tags for.
-%   'PreservePrefix' If false (default), tags of the same event type that
-%                    share prefixes are combined and only the most specific
-%                    is retained (e.g., /a/b/c and /a/b become just
-%                    /a/b/c). If true, then all unique tags are retained.
-%     parser.addRequired('FileName', @(x) (~isempty(x) && ischar(x)));
-%     parser.addParamValue('Delimiter', '|', @(x) (ischar(x)));
-%     parser.addParamValue('EventColumns', [], ...
-%         @(x)(isnumeric(x) && (isscalar(x) || isvector(x))));
-%     parser.addParamValue('DescriptionColumn', 0, ...
-%         @(x)(isnumeric(x) && isscalar(x)));
-% Notes:
-%   The ddata structure should have its events encoded as a structure
-%   array edata.events. The findtags will also examinate a edata.urevents
-%   structure array if it exists. 
-%
-%   Tags are assumed to be stored in the edata.etc structure as follows:
-%
-%    edata.etc.tags.xml
-%    edata.etc.tags.map
-%       ...
-%
-% See also: tageeg, tagevents, and tagMap
+%   'Delimiter'      A string containing the delimiter separating event
+%                    code components. 
+%   'DescriptionColumns'   A non-negative integer specifying the column 
+%                    that corresponds to the event code description.
+%                    Users should provide detailed documentation of
+%                    exactly what this code means with respect to the
+%                    particular experiment.
+%   'EventColumns'   Either a non-negative integer or a vector of positive
+%                    integers specifying the column(s) that correspond
+%                    to event code components. If the value is 0, then
+%                    getcsv assumes that all columns correspond to event
+%                    codes.
+% See also: getevents and tagMap
 %
 
 % Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013, krobbins@cs.utsa.edu
@@ -55,24 +49,22 @@
 % along with this program; if not, write to the Free Software
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 %
-% $Log: getevents.m,v $
+% $Log: getcsv.m,v $
 % $Revision: 1.0 10-Aug-2013 08:13:44 krobbins $
 % $Initial version $
 %
 
-function [keys, headers, descriptions] = getevents(filename, varargin)
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
+function [codes, headers, descriptions] = getcsv(filename, varargin)
     parser = inputParser;
     parser.addRequired('FileName', @(x) (~isempty(x) && ischar(x)));
     parser.addParamValue('Delimiter', '|', @(x) (ischar(x)));
-    parser.addParamValue('EventColumns', [], ...
-        @(x)(isnumeric(x) && (isscalar(x) || isvector(x))));
     parser.addParamValue('DescriptionColumn', 0, ...
-        @(x)(isnumeric(x) && isscalar(x)));
+        @(x)(isnumeric(x) && (isscalar(x) || isempty(x))));
+    parser.addParamValue('EventColumns', 0, ...
+        @(x)(isnumeric(x) && (isscalar(x) || isvector(x))));
     parser.parse(filename, varargin{:});
     p = parser.Results;
-    keys = {};
+    codes = {};
     headers = {};
     descriptions = {};
     values = linesplit(p.FileName);
@@ -80,28 +72,22 @@ function [keys, headers, descriptions] = getevents(filename, varargin)
         return;
     end
     headers = values{1};
-    keys = cell(length(values) - 1, 1);
+    if p.EventColumns == 0
+        p.EventColumns = 1:length(headers);
+    end
+    codes = cell(length(values) - 1, 1);
     descriptions = cell(length(values) - 1, 1);
     for k = 2:length(values);
-        [keys{k-1}, descriptions{k-1}] = makekey(values{k}, p.Delimiter);
+        codes{k-1} = getkey(values{k}, p.EventColumns, p.Delimiter);
+        descriptions{k-1} = getdescript(values{k}, p.DescriptionColumn);
     end
     for k = 1:length(headers)   
-        fprintf('k=%d, header= %s\n', k, length(headers{k}));
+        fprintf('k=%d, header= %s\n', k, headers{k});
     end
-    for k = 1:length(keys)
-        fprintf('k=%d, key= %s\n', k, keys{k});
+    for k = 1:length(codes)
+        fprintf('k=%d, key= %s\n', k, codes{k});
     end
-%     header = linesplit(fid);
-%     if isempty(header)
-%         return;
-%     elseif isempty(p.EventColumns)
-%         eColumns = 1:length(header);
-%     end
-%     keys
-% 
-% fclose(fid);
-
-end
+end %getcsv
 
 function values = linesplit(filename)
     values = {};
@@ -117,11 +103,19 @@ function values = linesplit(filename)
     fclose(fid);
 end % linesplit  
 
-function [key, description] = makekey(value, delimiter)
-   key = value{1};
-   description = '';
-   for j = 2:length(value)
-       key = [key delimiter value{j}]; %#ok<AGROW>
+function key = getkey(value, cols, delimiter)
+   v = value(cols);
+   key = v{1};
+   for j = 2:length(v)
+       key = [key delimiter v{j}]; %#ok<AGROW>
    end
 end % makekey
+
+function description = getdescript(value, col)
+   if col == 0
+       description = '';
+   else
+       description = value{col};
+   end
+end % getdescript
 

@@ -38,10 +38,3 @@ TypeID,Type,SubtypeID,Subtype,VariantID,Variant,FixedTag,Description
 4,Behavioral Event,3,Driver Correction,0,None,Behavioral Event / Driver Correction,Subject responded t othe perturbation by steering into the force by a steer angle > 4 degrees
 4,Behavioral Event,4,Collision,1,Near Miss,Behavioral Event / Collision / Near Miss,Subject's vehicle approached another entity within 1 meter
 4,Behavioral Event,4,Collision,2,Hit,Behavioral Event / Collision / Hit,Subject's vehicle intersected with another entity (passed through)
-,,,,,,,
-,,,,,,,
-,,,,,,,
-,,,,,,,
-,,,,,,,
-,,,,,,,
-, ,,,,,,
