@@ -6,23 +6,16 @@
 %   >>  fMap = tagcsv(filename, 'key1', 'value1', ...)
 %
 %% Description
-% [fMap, fPaths, excluded] = tagcsv(inDir) extracts a consolidated
-% fieldMap object from the data files in the directory tree inDir. The 
-% inDir must be a valid path.
-%
-% First the events and tags from all data files are extracted and
-% consolidated into a single fieldMap object by merging all of the
-% existing tags. Then the user is presented with a GUI for choosing
-% which fields to tag. The ctagger GUI is displayed so that users can
+% fMap = tagcsv(filename) extracts a fieldMap object from the csv
+% file and then presents a GUI for choosing which fields to tag. 
+% The ctagger GUI is displayed so that users can
 % edit/modify the tags. The GUI is launched in asynchronous mode.
-% Finally the tags are rewritten to the data files.
+% Finally the tags are rewritten to the csv file.
 %
-% The final, consolidated and edited fieldMap object is returned in fMap,
-% and fPaths is a cell array containing the full path names of all of the
-% matched files that were affected. If fPaths is empty, then fMap will
-% not containing any tag information.
+% The final, consolidated and edited fieldMap object is returned in fMap. 
+% If fPaths is empty, then fMap will not contain any tag information.
 %
-% [fMap, fPaths, excluded] = tagcsv(inDir, 'key1', 'value1', ...) specifies
+% fMap = tagcsv(inDir, 'key1', 'value1', ...) specifies
 % optional name/value parameter pairs:
 %   'BaseMap'        A fieldMap object or the name of a file that contains
 %                    a fieldMap object to be used to initialize tag
@@ -30,18 +23,18 @@
 %   'DbCreds'        Name of a property file containing the database
 %                    credentials. If this argument is not provided, a
 %                    database is not used. (See notes.)
-%   'DoSubDirs'      If true (default), the entire inDir directory tree is
-%                    searched. If false, only the inDir directory is
-%                    searched.
-%   'ExcludeFields'  A cell array of field names in the .event and .urevent
-%                    substructures to ignore during the tagging process. By
-%                    default the following subfields of the event structure
-%                    are ignored: .latency, .epoch, .urevent, .hedtags, and
-%                    .usertags. The user can over-ride these tags using
-%                    this name-value parameter.
-%   'Fields'         A cell array of field names of the fields to include
-%                    in the tagging. If this parameter is non-empty, only
-%                    these fields are tagged.
+%   'Delimiter'      A string containing the delimiter separating event
+%                    code components.
+%   'DescriptionColumn'   A non-negative integer specifying the column 
+%                    that corresponds to the event code description.
+%                    Users should provide detailed documentation of
+%                    exactly what this code means with respect to the
+%                    particular experiment.
+%   'EventColumns'   Either a non-negative integer or a vector of positive
+%                    integers specifying the column(s) that correspond
+%                    to event code components. If the value is 0, then
+%                    findcsvtags assumes that all columns correspond to event
+%                    codes.
 %   'PreservePrefix' If false (default), tags for the same field value that
 %                    share prefixes are combined and only the most specific
 %                    is retained (e.g., /a/b/c and /a/b become just
@@ -59,6 +52,10 @@
 %                    synchronization is done within Java. This latter
 %                    option is usually reserved when not calling the GUI
 %                    from MATLAB.
+%   'TagsColumn'     A non-negative integer specifying the column 
+%                    that corresponds to the tags that are currently
+%                    assigned to the event code combination of that
+%                    row of the csv file.
 %   'UseGui'         If true (default), the CTAGGER GUI is displayed after
 %                    initialization.
 %
@@ -104,81 +101,76 @@
 %
 function fMap = tagcsv(filename, varargin)
 % Parse the input arguments
-parser = inputParser;
-parser.addRequired('FileName', @(x) (~isempty(x) && ischar(x)));
-parser.addParamValue('BaseMap', '', ...
-    @(x)(isempty(x) || (ischar(x))));
-parser.addParamValue('DbCreds', '', ...
-    @(x)(isempty(x) || (ischar(x))));
-parser.addParamValue('DoSubDirs', true, @islogical);
-parser.addParamValue('ExcludeFields', ...
-    {'latency', 'epoch', 'urevent', 'hedtags', 'usertags'}, ...
-    @(x) (iscellstr(x)));
-parser.addParamValue('Fields', {}, @(x) (iscellstr(x)));
-parser.addParamValue('PreservePrefix', false, @islogical);
-parser.addParamValue('RewriteOption', 'both', ...
-    @(x) any(validatestring(lower(x), ...
-    {'Both', 'Individual', 'None', 'Summary'})));
-parser.addParamValue('SaveMapFile', '', ...
-    @(x)(isempty(x) || (ischar(x))));
-parser.addParamValue('SelectOption', true, @islogical);
-parser.addParamValue('Synchronize', false, @islogical);
-parser.addParamValue('UseGui', true, @islogical);
-parser.parse(filename, varargin{:});
-p = parser.Results;
+    parser = inputParser;
+    parser.addRequired('FileName', @(x) (~isempty(x) && ischar(x)));
+    parser.addParamValue('BaseMap', '', ...
+        @(x)(isempty(x) || (ischar(x))));
+    parser.addParamValue('DbCreds', '', ...
+        @(x)(isempty(x) || (ischar(x))));
+    parser.addParamValue('Delimiter', '|', @(x) (ischar(x)));
+    parser.addParamValue('DescriptionColumn', 0, ...
+        @(x)(isnumeric(x) && (isscalar(x) || isempty(x))));
+    parser.addParamValue('EventColumns', 0, ...
+        @(x)(isnumeric(x) && (isscalar(x) || isvector(x))));
+    parser.addParamValue('PreservePrefix', false, @islogical);
+    parser.addParamValue('RewriteOption', 'both', ...
+        @(x) any(validatestring(lower(x), ...
+        {'Both', 'Individual', 'None', 'Summary'})));
+    parser.addParamValue('SaveMapFile', '', ...
+        @(x)(isempty(x) || (ischar(x))));
+    parser.addParamValue('SelectOption', true, @islogical);
+    parser.addParamValue('Synchronize', false, @islogical);
+    parser.addParamValue('TagsColumn', 0, ...
+        @(x)(isnumeric(x) && (isscalar(x) || isempty(x))));
+    parser.addParamValue('UseGui', true, @islogical);
+    parser.parse(filename, varargin{:});
+    p = parser.Results;
 
-fprintf('\n---Loading the event file to merge tags---\n');
-fMap = '';
-excluded = '';
-[keys, headers, descriptions] = getevents(p.FileName);
-
-fMap = fieldMap('PreservePrefix',  p.PreservePrefix);
-for k = 1:length(fPaths) % Assemble the list
-    eegTemp = pop_loadset(fPaths{k});
-    tMapNew = findtags(eegTemp, 'PreservePrefix', p.PreservePrefix, ...
-        'ExcludeFields', p.ExcludeFields, 'Fields', p.Fields);
-    fMap.merge(tMapNew, 'Merge', p.ExcludeFields);
-end
-% Exclude the appropriate tags from baseTags
-excluded = p.ExcludeFields;
-if isa(p.BaseMap, 'fieldMap')
-    baseTags = p.BaseMap;
-else
-    baseTags = fieldMap.loadFieldMap(p.BaseMap);
-end
-if ~isempty(baseTags) && ~isempty(p.Fields)
-    excluded = setdiff(baseTags.getFields(), p.Fields);
-end;
-fMap.merge(baseTags, 'Merge', excluded);
-
-if p.SelectOption
-    fprintf('\n---Now select the fields you want to tag---\n');
-    [fMap, exc] = selectmaps(fMap, 'Fields', p.Fields);
-    excluded = union(excluded, exc);
-end
-
-fMap = editMapDb(fMap, 'DbCreds', p.DbCreds, 'PreservePrefix', ...
-    p.PreservePrefix, 'Synchronize', p.Synchronize, 'UseGui', p.UseGui);
-
-% Save the tags file for next step
-if ~isempty(p.SaveMapFile) && ~fieldMap.saveFieldMap(p.SaveMapFile, ...
-        fMap)
-    warning('tagcsv:invalidFile', ...
-        ['Couldn''t save fieldMap to ' p.SaveMapFile]);
-end
-
-if isempty(fPaths) || strcmpi(p.RewriteOption, 'none')
-    return;
-end
-
-% Rewrite all of the EEG files with updated tag information
-fprintf(['\n---Now rewriting the tags to the individual data' ...
-    ' files---\n']);
-for k = 1:length(fPaths) % Assemble the list
-    teeg = pop_loadset(fPaths{k});
-    teeg = writetags(teeg, fMap, 'ExcludeFields', excluded, ...
+    fprintf('\n---Loading the csv event file to merge tags---\n');
+    fMap = fieldMap('PreservePrefix',  p.PreservePrefix);
+    [events, type] = findcsvtags(filename, 'Delimiter', p.Delimiter, ...
+        'DescriptionColumn', p.DescriptionColumn, ...
+        'EventColumns', p.EventColumns, ...
         'PreservePrefix', p.PreservePrefix, ...
-        'RewriteOption', p.RewriteOption);
-    pop_saveset(teeg, 'filename', fPaths{k});
-end
+        'TagsColumn', p.TagsColumn);
+    if isempty(type)
+        return;
+    end
+
+    for k = 1:length(events) % Assemble the list
+        fMap.addValues(type, events{k});
+    end
+   
+    if isa(p.BaseMap, 'fieldMap')
+        baseTags = p.BaseMap;
+    else
+        baseTags = fieldMap.loadFieldMap(p.BaseMap);
+    end
+    
+    fMap.merge(baseTags, 'Merge', {}, fMap.getFields());
+
+    fMap = editMapDb(fMap, 'DbCreds', p.DbCreds, 'PreservePrefix', ...
+        p.PreservePrefix, 'Synchronize', p.Synchronize, 'UseGui', p.UseGui);
+
+    % Save the tags file for next step
+    if ~isempty(p.SaveMapFile) && ~fieldMap.saveFieldMap(p.SaveMapFile, ...
+            fMap)
+        warning('tagcsv:invalidFile', ...
+            ['Couldn''t save fieldMap to ' p.SaveMapFile]);
+    end
+
+%     if isempty(fPaths) || strcmpi(p.RewriteOption, 'none')
+%         return;
+%     end
+% 
+%     % Rewrite all of the EEG files with updated tag information
+%     fprintf(['\n---Now rewriting the tags to the individual data' ...
+%         ' files---\n']);
+%     for k = 1:length(fPaths) % Assemble the list
+%         teeg = pop_loadset(fPaths{k});
+%         teeg = writetags(teeg, fMap, 'ExcludeFields', excluded, ...
+%             'PreservePrefix', p.PreservePrefix, ...
+%             'RewriteOption', p.RewriteOption);
+%         pop_saveset(teeg, 'filename', fPaths{k});
+%     end
 end % tagcsv

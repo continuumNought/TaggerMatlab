@@ -1,4 +1,4 @@
-function test_suite = test_csvtags%#ok<STOUT>
+function test_suite = test_findcsvtags%#ok<STOUT>
 initTestSuite;
 
 function values = setup %#ok<STOUT,DEFNU>
@@ -9,69 +9,61 @@ function teardown(values) %#ok<INUSD,DEFNU>
 % Function executed after each test
 
 
-% function test_csvtagsEmpty(values)  %#ok<INUSD,DEFNU>
-% % Unit test for csvtags function with empty directory
+% function test_findcsvtagsEmpty(values)  %#ok<INUSD,DEFNU>
+% % Unit test for findcsvtags function with empty directory
 % fprintf('\nBe sure to edit setup_tests.m before running this test\n');
-% fprintf('\nUnit tests for csvtags for empty directory\n');
+% fprintf('\nUnit tests for findcsvtags for empty directory\n');
 % 
 % 
 % fprintf('It should work when there is an invalid directory---WARNING\n');
-% [eTags2, fPaths2] = csvtags('--34', 'UseGui', false);
+% [eTags2, fPaths2] = findcsvtags('--34', 'UseGui', false);
 % assertTrue(isempty(fPaths2));
 % assertTrue(isempty(eTags2));
 
 function test_basic(values)  %#ok<DEFNU>
-%Unit test for csvtags for basic arguments
-fprintf('\nUnit tests for csvtags with no optional\n');
+%Unit test for findcsvtags for basic arguments
+fprintf('\nUnit tests for findcsvtags with no optional\n');
 
 fprintf('It should work with only the filename as an argument\n');
-[tMap1, headers1] = csvtags(values.efile2);
-assertTrue(isa(tMap1, 'tagMap'));
-assertEqual(length(headers1), 3);
-codes1 = tMap1.getLabels();
-assertEqual(length(codes1), 36);
-values1 = tMap1.getValues();
-assertEqual(length(values1), 36);
-assertTrue(isfield(values1{1}, 'label'));
-assertTrue(isfield(values1{1}, 'tags'));
-assertTrue(isfield(values1{1}, 'description'));
+[events1, type1] = findcsvtags(values.efile2);
+assertTrue(isa(events1, 'cell'));
+assertTrue(ischar(type1));
+assertEqual(length(events1), 36);
+assertTrue(isfield(events1{1}, 'label'));
+assertTrue(isfield(events1{1}, 'tags'));
+assertTrue(isfield(events1{1}, 'description'));
 
 
 fprintf('It should return an empty tagMap if the file has one line\n');
-[tMap2, headers2] = csvtags(values.onerow);
-assertTrue(isempty(tMap2.getLabels()));
-assertEqual(length(headers2), 4);
+[events2, type2] = findcsvtags(values.onerow);
+assertTrue(isempty(events2));
+assertFalse(isempty(type2));
 
 function test_badfile(values)  %#ok<DEFNU>
-%Unit test for csvtags for basic arguments
-fprintf('\nUnit tests for csvtags with bad file name\n');
-fprintf('It should throw an exception when the file doesn''t exist\n');
-f = @() csvtags(values.badfile);
-assertAltExceptionThrown(f, {'MATLAB:FileIO:InvalidFid'});
+%Unit test for findcsvtags for basic arguments
+fprintf('\nUnit tests for findcsvtags with bad file name\n');
+fprintf('It should not throw an exception when the file doesn''t exist\n');
+[events, type] = findcsvtags(values.badfile);
+assertTrue(isempty(events));
+assertTrue(isempty(type));
 
 function test_arguments(values)  %#ok<DEFNU>
-%Unit test for csvtags for basic arguments
+%Unit test for findcsvtags for basic arguments
 fprintf('\nIt should give same answer when key columns specified explicitly\n');
-[tMap1, headers1] = csvtags(values.efile2);
+[events1, type1] = findcsvtags(values.efile2);
 fprintf('It should work explicit event codes\n');
-[tMap2, headers2] = csvtags(values.efile2,  'EventColumns', 1:3);
-keys1 = tMap1.getLabels();
-keys2 = tMap2.getLabels();
-assertEqual(length(keys2), length(keys1));
-assertEqual(length(headers2), length(headers1));
-for k = 1:length(keys1)
-    assertTrue(strcmpi(keys1{k}, keys2{k}));
+[events2, type2] = findcsvtags(values.efile2,  'EventColumns', 1:3);
+assertEqual(length(events2), length(events1));
+for k = 1:length(events1)
+    assertTrue(strcmpi(events1{k}.label, events2{k}.label));
 end
-for k = 1:length(headers1)
-    assertTrue(strcmpi(tMap1.getField(), tMap1.getField()));
-end
+assertTrue(strcmpi(type1, type2));
 
 fprintf('It should give work when key and description columns are specified explicitly\n');
-[tMap3, headers3] = ...
-    csvtags(values.efile1, 'EventColumns', [1, 3, 5], 'DescriptionColumn', 8);
-keys3 = tMap3.getLabels();
-assertEqual(length(keys3), length(keys1));
-assertEqual(length(headers3), 8);
-for k = 1:length(keys1)
-    assertTrue(strcmpi(keys1{k}, keys3{k}));
+[events3, type3] = ...
+    findcsvtags(values.efile1, 'EventColumns', [1, 3, 5], 'DescriptionColumn', 8);
+assertEqual(length(events3), length(events1));
+for k = 1:length(events1)
+    assertTrue(strcmpi(events1{k}.label, events3{k}.label));
 end
+assertTrue(strcmpi(type1, type3));

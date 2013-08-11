@@ -254,7 +254,7 @@ classdef fieldMap < hgsetget
             xml = obj.Xml;
         end % getXml
         
-        function merge(obj, fMap, updateType, excludeFields)
+        function merge(obj, fMap, updateType, excludeFields, includeFields)
             % Combine this object with the fMap fieldMap 
             if isempty(fMap)
                 return;
@@ -262,6 +262,7 @@ classdef fieldMap < hgsetget
             obj.mergeXml(fMap.getXml);
             fields = fMap.getFields();
             fields = setdiff(fields, excludeFields);
+            fields = intersect(fields, includeFields);
             for k = 1:length(fields)
                 type = fields{k};
                 tMap = fMap.getMap(type);
