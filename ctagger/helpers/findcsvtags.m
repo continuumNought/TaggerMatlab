@@ -3,7 +3,7 @@
 %
 % Usage:
 %   >> [tMap, headers] = csvtags(filename)
-%   >> [tMap, headers] = csvtags('key1', 'value1', ...)
+%   >> [tMap, headers] = csvtags(filename, 'key1', 'value1', ...)
 %
 % Description:
 % tMap = csvtags(filename) assumes that all of the 

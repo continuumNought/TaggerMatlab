@@ -1,12 +1,12 @@
-% tagevents
-% Allows a user to tag an entire tree directory of similar EEG .set files.
+% tagcsv
+% Allows a user to tag a csv file of event code specifications
 %
 % Usage:
-%   >>  [fMap, fPaths, excluded] = tagevents(inDir)
-%   >>  [fMap, fPaths, excluded] = tagevents(inDir, 'key1', 'value1', ...)
+%   >>  fMap = tagcsv(filename)
+%   >>  fMap = tagcsv(filename, 'key1', 'value1', ...)
 %
 %% Description
-% [fMap, fPaths, excluded] = tagevents(inDir) extracts a consolidated
+% [fMap, fPaths, excluded] = tagcsv(inDir) extracts a consolidated
 % fieldMap object from the data files in the directory tree inDir. The 
 % inDir must be a valid path.
 %
@@ -22,7 +22,7 @@
 % matched files that were affected. If fPaths is empty, then fMap will
 % not containing any tag information.
 %
-% [fMap, fPaths, excluded] = tagevents(inDir, 'key1', 'value1', ...) specifies
+% [fMap, fPaths, excluded] = tagcsv(inDir, 'key1', 'value1', ...) specifies
 % optional name/value parameter pairs:
 %   'BaseMap'        A fieldMap object or the name of a file that contains
 %                    a fieldMap object to be used to initialize tag
@@ -98,11 +98,11 @@
 % along with this program; if not, write to the Free Software
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 %
-% $Log: tagevents.m,v $
+% $Log: tagcsv.m,v $
 % $Revision: 1.0 21-Apr-2013 09:25:25 krobbins $
 % $Initial version $
 %
-function fMap = tagevents(filename, varargin)
+function fMap = tagcsv(filename, varargin)
 % Parse the input arguments
 parser = inputParser;
 parser.addRequired('FileName', @(x) (~isempty(x) && ischar(x)));
@@ -163,7 +163,7 @@ fMap = editMapDb(fMap, 'DbCreds', p.DbCreds, 'PreservePrefix', ...
 % Save the tags file for next step
 if ~isempty(p.SaveMapFile) && ~fieldMap.saveFieldMap(p.SaveMapFile, ...
         fMap)
-    warning('tagevents:invalidFile', ...
+    warning('tagcsv:invalidFile', ...
         ['Couldn''t save fieldMap to ' p.SaveMapFile]);
 end
 
@@ -181,4 +181,4 @@ for k = 1:length(fPaths) % Assemble the list
         'RewriteOption', p.RewriteOption);
     pop_saveset(teeg, 'filename', fPaths{k});
 end
-end % tagevents
+end % tagcsv
