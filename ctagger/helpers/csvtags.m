@@ -1,12 +1,12 @@
-% getcsv
+% findcsvtags
 % Create a fieldMap object for the existing tags in a data structure
 %
 % Usage:
-%   >> [codes, headers, descriptions] = getcsv(filename)
-%   >> [codes, headers, descriptions] = getcsv('key1', 'value1', ...)
+%   >> fMap = findcsvtags(filename)
+%   >> fMap = findcsvtags('key1', 'value1', ...)
 %
 % Description:
-% [codes, headers, descriptions] = getcsv(filename) assumes that all of the 
+% fMap = findcsvtags(filename) assumes that all of the 
 % columns of the comma-separated file represented by filename contain
 % event codes that should be appended with separators '|' to form a 
 % single event code. The codes variable contains a cell string array
@@ -20,7 +20,7 @@
 %
 %   'Delimiter'      A string containing the delimiter separating event
 %                    code components. 
-%   'DescriptionColumns'   A non-negative integer specifying the column 
+%   'DescriptionColumn'   A non-negative integer specifying the column 
 %                    that corresponds to the event code description.
 %                    Users should provide detailed documentation of
 %                    exactly what this code means with respect to the
@@ -28,7 +28,7 @@
 %   'EventColumns'   Either a non-negative integer or a vector of positive
 %                    integers specifying the column(s) that correspond
 %                    to event code components. If the value is 0, then
-%                    getcsv assumes that all columns correspond to event
+%                    findcsvtags assumes that all columns correspond to event
 %                    codes.
 % See also: getevents and tagMap
 %
@@ -49,12 +49,12 @@
 % along with this program; if not, write to the Free Software
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 %
-% $Log: getcsv.m,v $
+% $Log: findcsvtags.m,v $
 % $Revision: 1.0 10-Aug-2013 08:13:44 krobbins $
 % $Initial version $
 %
 
-function [codes, headers, descriptions] = getcsv(filename, varargin)
+function [codes, headers, descriptions] = findcsvtags(filename, varargin)
     parser = inputParser;
     parser.addRequired('FileName', @(x) (~isempty(x) && ischar(x)));
     parser.addParamValue('Delimiter', '|', @(x) (ischar(x)));
@@ -87,7 +87,7 @@ function [codes, headers, descriptions] = getcsv(filename, varargin)
     for k = 1:length(codes)
         fprintf('k=%d, key= %s\n', k, codes{k});
     end
-end %getcsv
+end %findcsvtags
 
 function values = linesplit(filename)
     values = {};
