@@ -28,9 +28,6 @@ TypeID,Type,SubtypeID,Subtype,VariantID,Variant,FixedTag,Description
 3,Environmental Event,2,Tile Change,2,Tile Complexity 2,Environmental Event / Tile Change / Tile Complexity 2,"Latin Square section = High Perturbation Complexity, Low Visual Complexity"
 3,Environmental Event,2,Tile Change,3,Tile Complexity 3,Environmental Event / Tile Change / Tile Complexity 3,"Latin Square section = Low Perturbation Complexity, High Visual Complexity"
 3,Environmental Event,2,Tile Change,4,Tile Complexity 4,Environmental Event / Tile Change / Tile Complexity 4,"Latin Square section = Low Perturbation Complexity, Low Visual Complexity"
-3,Environmental Event,2,Road Curvature Change,1,Road is straight,Environmental Event / Road Curvature Change / Road is Straight,Road segment ahead is straight
-3,Environmental Event,2,Road Curvature Change,2,Road curves Left,Environmental Event / Road Curvature Change / Road Curves Left,Road segment ahead curves left
-3,Environmental Event,2,Road Curvature Change,3,Road Curves Right,Environmental Event / Road Curvature Change / Road curves Right,Road segment ahead curves right
 4,Behavioral Event,1,Halt,0,None,Behavioral Event / Halt ,Vehicle stops
 4,Behavioral Event,2,Lane Shift,1,Within Lane,Behavioral Event / Lane Shift / Within Lane,Vehicle moves from outside lane to within lane
 4,Behavioral Event,2,Lane Shift,2,Right of Lane,Behavioral Event / Lane Shift / Right of Lane,Vehicle moves from within lane to right of lane

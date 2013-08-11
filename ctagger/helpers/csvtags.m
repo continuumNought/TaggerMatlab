@@ -1,19 +1,18 @@
-% findcsvtags
-% Create a fieldMap object for the existing tags in a data structure
+% csvtags
+% Create a tagMap object for the existing an event/tag map in a csv file.
 %
 % Usage:
-%   >> fMap = findcsvtags(filename)
-%   >> fMap = findcsvtags('key1', 'value1', ...)
+%   >> [tMap, headers] = csvtags(filename)
+%   >> [tMap, headers] = csvtags('key1', 'value1', ...)
 %
 % Description:
-% fMap = findcsvtags(filename) assumes that all of the 
+% tMap = csvtags(filename) assumes that all of the 
 % columns of the comma-separated file represented by filename contain
 % event codes that should be appended with separators '|' to form a 
-% single event code. The codes variable contains a cell string array
-% containing these consolidate event codes. The headers is a cell string
+% single event code. The tMap variable contains tagMap object with the
+% event/tag map information. The headers is a cell string
 % array containing the first row of the file, which is assume to contain
-% headers. The descriptions is a cell array of the same length as
-% codes and contains empty strings.
+% headers. 
 %
 % [codes, headers, descriptions] = getevents(file, 'key1', 'value1', ...) 
 % specifies optional name/value parameter pairs:
@@ -28,8 +27,12 @@
 %   'EventColumns'   Either a non-negative integer or a vector of positive
 %                    integers specifying the column(s) that correspond
 %                    to event code components. If the value is 0, then
-%                    findcsvtags assumes that all columns correspond to event
+%                    csvtags assumes that all columns correspond to event
 %                    codes.
+%   'TagsColumn'     A non-negative integer specifying the column 
+%                    that corresponds to the tags that are currently
+%                    assigned to the event code combination of that
+%                    row of the csv file.
 % See also: getevents and tagMap
 %
 
@@ -49,12 +52,12 @@
 % along with this program; if not, write to the Free Software
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 %
-% $Log: findcsvtags.m,v $
+% $Log: csvtags.m,v $
 % $Revision: 1.0 10-Aug-2013 08:13:44 krobbins $
 % $Initial version $
 %
 
-function [codes, headers, descriptions] = findcsvtags(filename, varargin)
+function [tMap, headers] = csvtags(filename, varargin)
     parser = inputParser;
     parser.addRequired('FileName', @(x) (~isempty(x) && ischar(x)));
     parser.addParamValue('Delimiter', '|', @(x) (ischar(x)));
@@ -62,11 +65,13 @@ function [codes, headers, descriptions] = findcsvtags(filename, varargin)
         @(x)(isnumeric(x) && (isscalar(x) || isempty(x))));
     parser.addParamValue('EventColumns', 0, ...
         @(x)(isnumeric(x) && (isscalar(x) || isvector(x))));
+    parser.addParamValue('PreservePrefix', false, ...
+        @(x) validateattributes(x, {'logical'}, {}));
+    parser.addParamValue('TagsColumn', 0, ...
+        @(x)(isnumeric(x) && (isscalar(x) || isempty(x))));
     parser.parse(filename, varargin{:});
     p = parser.Results;
-    codes = {};
     headers = {};
-    descriptions = {};
     values = linesplit(p.FileName);
     if isempty(values)
         return;
@@ -75,28 +80,32 @@ function [codes, headers, descriptions] = findcsvtags(filename, varargin)
     if p.EventColumns == 0
         p.EventColumns = 1:length(headers);
     end
-    codes = cell(length(values) - 1, 1);
-    descriptions = cell(length(values) - 1, 1);
+    type = getkey(headers, p.EventColumns, p.Delimiter);
+    tMap = tagMap('Field', type);
+    fprintf('length values = %d\n', length(values));
     for k = 2:length(values);
-        codes{k-1} = getkey(values{k}, p.EventColumns, p.Delimiter);
-        descriptions{k-1} = getdescript(values{k}, p.DescriptionColumn);
+        v = struct('label', ...
+                    getkey(values{k}, p.EventColumns, p.Delimiter), ...
+                    'description', ...
+                    getval(values{k}, p.DescriptionColumn), ...
+                    'tags', getval(values{k}, p.TagsColumn));
+        tMap.addValue(v, 'PreservePrefix', p.PreservePrefix);
+        fprintf('%d: %s\n', k, v.label);
     end
     for k = 1:length(headers)   
         fprintf('k=%d, header= %s\n', k, headers{k});
     end
-    for k = 1:length(codes)
-        fprintf('k=%d, key= %s\n', k, codes{k});
-    end
-end %findcsvtags
+   
+end %csvtags
 
 function values = linesplit(filename)
     values = {};
     fid = fopen(filename);
     lineNum = 0;
     tline = fgetl(fid);
-    while ischar(tline)
-        fprintf('tline=%s\n', tline);
+    while ischar(tline)   
         lineNum = lineNum + 1;
+        fprintf('%d: tline=%s\n', lineNum, tline);
         values{lineNum} = strtrim(regexp(tline, ',', 'split')); %#ok<AGROW>
         tline = fgetl(fid);
     end
@@ -111,11 +120,11 @@ function key = getkey(value, cols, delimiter)
    end
 end % makekey
 
-function description = getdescript(value, col)
+function val = getval(value, col)
    if col == 0
-       description = '';
+       val = '';
    else
-       description = value{col};
+       val = value{col};
    end
 end % getdescript
 
