@@ -159,13 +159,13 @@ function fMap = tagcsv(filename, varargin)
             ['Couldn''t save fieldMap to ' p.SaveMapFile]);
     end
 
-%     if isempty(fPaths) || strcmpi(p.RewriteOption, 'none')
-%         return;
-%     end
-% 
-%     % Rewrite all of the EEG files with updated tag information
-%     fprintf(['\n---Now rewriting the tags to the individual data' ...
-%         ' files---\n']);
+    if strcmpi(p.RewriteOption, 'none')
+        return;
+    end
+
+    % Rewrite the tag file with updated tag information
+    fprintf(['\n---Now rewriting the tags to the individual data' ...
+        ' files---\n']);
 %     for k = 1:length(fPaths) % Assemble the list
 %         teeg = pop_loadset(fPaths{k});
 %         teeg = writetags(teeg, fMap, 'ExcludeFields', excluded, ...

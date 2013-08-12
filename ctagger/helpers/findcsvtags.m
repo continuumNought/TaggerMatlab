@@ -74,7 +74,7 @@ function [events, type] = findcsvtags(filename, varargin)
     p = parser.Results;
     type = '';
     events = {};
-    values = linesplit(p.FileName);
+    values = splitcsv(p.FileName);
     if isempty(values)
        warning('findscvtags:invalidFile', ...
             ['Input file ' p.FileName ' does not exist or is invalid']);
@@ -101,24 +101,6 @@ function [events, type] = findcsvtags(filename, varargin)
     end
    
 end %findcsvtags
-
-function values = linesplit(filename)
-    try 
-        values = {};
-        fid = fopen(filename);
-        lineNum = 0;
-        tline = fgetl(fid);
-        while ischar(tline)   
-            lineNum = lineNum + 1;
-            fprintf('%d: tline=%s\n', lineNum, tline);
-            values{lineNum} = strtrim(regexp(tline, ',', 'split')); %#ok<AGROW>
-            tline = fgetl(fid);
-        end
-        fclose(fid);
-    catch ME %#ok<NASGU>
-        values = {};
-    end    
-end % linesplit  
 
 function key = getkey(value, cols, delimiter)
    v = value(cols);
