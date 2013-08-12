@@ -262,7 +262,9 @@ classdef fieldMap < hgsetget
             obj.mergeXml(fMap.getXml);
             fields = fMap.getFields();
             fields = setdiff(fields, excludeFields);
-            fields = intersect(fields, includeFields);
+            if ~isempty(includeFields)
+                fields = intersect(fields, includeFields);
+            end
             for k = 1:length(fields)
                 type = fields{k};
                 tMap = fMap.getMap(type);

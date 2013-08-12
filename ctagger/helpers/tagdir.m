@@ -108,8 +108,7 @@ function [fMap, fPaths, excluded] = tagdir(inDir, varargin)
     parser.addRequired('InDir', @(x) (~isempty(x) && ischar(x)));
     parser.addParamValue('BaseMap', '', ...
         @(x)(isempty(x) || (ischar(x))));
-    parser.addParamValue('DbCreds', '', ...
-        @(x)(isempty(x) || (ischar(x))));
+    parser.addParamValue('DbCreds', '', @(x)(ischar(x)));
     parser.addParamValue('DoSubDirs', true, @islogical);
     parser.addParamValue('ExcludeFields', ...
         {'latency', 'epoch', 'urevent', 'hedtags', 'usertags'}, ...
@@ -119,8 +118,7 @@ function [fMap, fPaths, excluded] = tagdir(inDir, varargin)
     parser.addParamValue('RewriteOption', 'both', ...
         @(x) any(validatestring(lower(x), ...
         {'Both', 'Individual', 'None', 'Summary'})));
-    parser.addParamValue('SaveMapFile', '', ...
-        @(x)(isempty(x) || (ischar(x))));
+    parser.addParamValue('SaveMapFile', '', @(x)(ischar(x)));
     parser.addParamValue('SelectOption', true, @islogical);
     parser.addParamValue('Synchronize', false, @islogical);
     parser.addParamValue('UseGui', true, @islogical);
@@ -140,7 +138,7 @@ function [fMap, fPaths, excluded] = tagdir(inDir, varargin)
         eegTemp = pop_loadset(fPaths{k});
         tMapNew = findtags(eegTemp, 'PreservePrefix', p.PreservePrefix, ...
             'ExcludeFields', p.ExcludeFields, 'Fields', p.Fields);
-        fMap.merge(tMapNew, 'Merge', p.ExcludeFields);
+        fMap.merge(tMapNew, 'Merge', p.ExcludeFields, p.Fields);
     end
     % Exclude the appropriate tags from baseTags
     excluded = p.ExcludeFields;

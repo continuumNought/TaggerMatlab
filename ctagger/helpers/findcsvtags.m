@@ -2,20 +2,22 @@
 % Creates an event structure for the existing an event/tag map in a csv file.
 %
 % Usage:
-%   >> [events, type] = findcsvtags(filename)
-%   >> [events, type] = findcsvtags(filename, 'key1', 'value1', ...)
+%   >> [values, events, type] = findcsvtags(filename)
+%   >> [values, events, type] = findcsvtags(filename, 'key1', 'value1', ...)
 %
 % Description:
-% [events, type] = findcsvtags(filename) assumes that all of the 
+% [values, events, type] = findcsvtags(filename) assumes that all of the 
 % columns of the comma-separated file represented by filename contain
 % event codes that should be appended with separators '|' to form a 
-% single event code. The events variable is a cell array of event 
+% single event code. The values variable holds a cell array of cell
+% strings. Each cell string contains the tokens of a single line of the
+% csv file filename. The events variable is a cell array of event 
 % structures (i.e., structures with label, description, and tags fields). 
 % The type is a string corresponding to the concatenation of the
 % header columns corresponding to the event codes separated by the 
 % delimiter.
 %  
-% [events, type] = getevents(file, 'key1', 'value1', ...) 
+% [values, events, type] = getevents(file, 'key1', 'value1', ...) 
 % specifies optional name/value parameter pairs:
 %
 %   'Delimiter'      A string containing the delimiter separating event
@@ -58,7 +60,7 @@
 % $Initial version $
 %
 
-function [events, type] = findcsvtags(filename, varargin)
+function [values, events, type] = findcsvtags(filename, varargin)
     parser = inputParser;
     parser.addRequired('FileName', @(x) (~isempty(x) && ischar(x)));
     parser.addParamValue('Delimiter', '|', @(x) (ischar(x)));
@@ -85,8 +87,6 @@ function [events, type] = findcsvtags(filename, varargin)
         p.EventColumns = 1:length(headers);
     end
     type = getkey(headers, p.EventColumns, p.Delimiter);
-   
-    fprintf('length values = %d\n', length(values));
     events = cell(length(values)-1, 1);
     for k = 2:length(values);
         events{k-1} = struct('label', ...
@@ -94,12 +94,7 @@ function [events, type] = findcsvtags(filename, varargin)
                     'description', ...
                     getval(values{k}, p.DescriptionColumn), ...
                     'tags', getval(values{k}, p.TagsColumn));
-        fprintf('%d: %s\n', k, events{k-1}.label);
     end
-    for k = 1:length(headers)   
-        fprintf('k=%d, header= %s\n', k, headers{k});
-    end
-   
 end %findcsvtags
 
 function key = getkey(value, cols, delimiter)

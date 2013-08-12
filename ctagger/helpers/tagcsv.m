@@ -39,9 +39,8 @@
 %                    share prefixes are combined and only the most specific
 %                    is retained (e.g., /a/b/c and /a/b become just
 %                    /a/b/c). If true, then all unique tags are retained.
-%   'RewriteOption'  A string indicating how tag information should be
-%                    written to the datasets. The options are 'Both',
-%                    'Individual', 'None', and 'Summary'.
+%   'RewriteFile'    File name of tagged csv file with the result of tags
+%                    written in the file.
 %   'SaveMapFile'    A string representing the file name for saving the
 %                    final, consolidated fieldMap object that results from
 %                    the tagging process.
@@ -113,11 +112,8 @@ function fMap = tagcsv(filename, varargin)
     parser.addParamValue('EventColumns', 0, ...
         @(x)(isnumeric(x) && (isscalar(x) || isvector(x))));
     parser.addParamValue('PreservePrefix', false, @islogical);
-    parser.addParamValue('RewriteOption', 'both', ...
-        @(x) any(validatestring(lower(x), ...
-        {'Both', 'Individual', 'None', 'Summary'})));
-    parser.addParamValue('SaveMapFile', '', ...
-        @(x)(isempty(x) || (ischar(x))));
+    parser.addParamValue('RewriteFile', '', @(x)(ischar(x)));
+    parser.addParamValue('SaveMapFile', '', @(x)(ischar(x)));
     parser.addParamValue('SelectOption', true, @islogical);
     parser.addParamValue('Synchronize', false, @islogical);
     parser.addParamValue('TagsColumn', 0, ...
@@ -125,10 +121,8 @@ function fMap = tagcsv(filename, varargin)
     parser.addParamValue('UseGui', true, @islogical);
     parser.parse(filename, varargin{:});
     p = parser.Results;
-
-    fprintf('\n---Loading the csv event file to merge tags---\n');
     fMap = fieldMap('PreservePrefix',  p.PreservePrefix);
-    [events, type] = findcsvtags(filename, 'Delimiter', p.Delimiter, ...
+    [fValues, events, type] = findcsvtags(filename, 'Delimiter', p.Delimiter, ...
         'DescriptionColumn', p.DescriptionColumn, ...
         'EventColumns', p.EventColumns, ...
         'PreservePrefix', p.PreservePrefix, ...
@@ -159,18 +153,12 @@ function fMap = tagcsv(filename, varargin)
             ['Couldn''t save fieldMap to ' p.SaveMapFile]);
     end
 
-    if strcmpi(p.RewriteOption, 'none')
+    if isempty(p.RewriteFile)
         return;
     end
-
-    % Rewrite the tag file with updated tag information
-    fprintf(['\n---Now rewriting the tags to the individual data' ...
-        ' files---\n']);
-%     for k = 1:length(fPaths) % Assemble the list
-%         teeg = pop_loadset(fPaths{k});
-%         teeg = writetags(teeg, fMap, 'ExcludeFields', excluded, ...
-%             'PreservePrefix', p.PreservePrefix, ...
-%             'RewriteOption', p.RewriteOption);
-%         pop_saveset(teeg, 'filename', fPaths{k});
-%     end
+    writetagscsv(fMap, p.RewriteFile, 'Delimiter', p.Delimiter, ...
+        'DescriptionColumn', p.DescriptionColumn, ...
+        'EventColumns', p.EventColumns, ...
+        'OriginalValues', fValues, 'PreservePrefix', p.PreservePrefix, ...
+        'TagsColumn', p.TagsColumn);
 end % tagcsv

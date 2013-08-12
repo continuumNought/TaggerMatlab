@@ -160,11 +160,11 @@ dTags = fieldMap();
 dTags1 = findtags(values.EEGEpoch);
 assertEqual(length(dTags1.getMaps()), 2);
 assertEqual(length(dTags.getMaps()), 0);
-dTags.merge(dTags1, 'Merge', {});
+dTags.merge(dTags1, 'Merge', {}, {});
 assertEqual(length(dTags.getMaps()), 2);
 fprintf('It should exclude the appropriate fields\n');
 dTags2 = fieldMap();
-dTags2.merge(dTags1, 'Merge', {'position'});
+dTags2.merge(dTags1, 'Merge', {'position'}, {});
 assertEqual(length(dTags2.getMaps()), 1);
 
 function testLoadFieldMap(values) %#ok<DEFNU>
