@@ -82,6 +82,7 @@ function writetagscsv(tMap, filename, varargin)
     parser.parse(tMap, filename, varargin{:});
     p = parser.Results;
     
+    
 %     % Do nothing if option is 'none'
 %     if strcmpi(p.RewriteOption, 'None')
 %         return;

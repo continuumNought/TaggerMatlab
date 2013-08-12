@@ -30,7 +30,9 @@ fprintf('\nUnit tests for tagcsv with no write\n');
 
 fprintf('It should work with only the filename as an argument\n');
 fMap1 = tagcsv(values.efile2);
-[events1, type1] = findcsvtags(values.efile2);
+obj1 = csvMap(values.efile2);
+events1 = obj1.getEvents();
+type1 = obj1.getType();
 types = fMap1.getFields();
 assertEqual(length(types), 1);
 assertTrue(strcmpi(type1, types{1}));

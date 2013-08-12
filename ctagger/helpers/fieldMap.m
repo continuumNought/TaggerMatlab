@@ -128,10 +128,11 @@ classdef fieldMap < hgsetget
         end % fieldMap constructor
         
         function addValues(obj, type, values, varargin)
-            % Add values (structure format) to tagMap for type
+            % Add values (structure or cell format) to tagMap for type
             p = inputParser;
             p.addRequired('Type', @(x) (~isempty(x) && ischar(x)));
-            p.addRequired('Values', @(x) (isempty(x) || isstruct(x)));
+            p.addRequired('Values', ...
+                @(x) (isempty(x) || isstruct(x) || iscell(x)));
             p.addParamValue('UpdateType', 'merge', ...
                 @(x) any(validatestring(lower(x), ...
                 {'OnlyTags', 'Update', 'Replace', 'Merge', 'None'})));
@@ -143,12 +144,21 @@ classdef fieldMap < hgsetget
                 eTag = obj.GroupMap(type);
             end
             
-            for k = 1:length(values)
-                eTag.addValue(values(k), ...
-                    'UpdateType', p.Results.UpdateType, ...
-                    'PreservePrefix', obj.PreservePrefix);
+            if iscell(values)
+                for k = 1:length(values)
+                    eTag.addValue(values{k}, ...
+                        'UpdateType', p.Results.UpdateType, ...
+                        'PreservePrefix', obj.PreservePrefix);
+                end
+            else
+                for k = 1:length(values)
+                    eTag.addValue(values(k), ...
+                        'UpdateType', p.Results.UpdateType, ...
+                        'PreservePrefix', obj.PreservePrefix);
+                end
             end
             obj.GroupMap(type) = eTag;
+            
         end % addValues
         
         function newMap = clone(obj)

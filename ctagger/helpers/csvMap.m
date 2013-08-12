@@ -1,15 +1,15 @@
-% tagMap    object encapsulating the tags and value labels of one type
+% csvMap    object encapsulating the csv representation of a tag map
 %
 % Usage:
-%   >>  tMap = tagMap()
-%   >>  tMap = tagMap('key1', 'value1', ...)
+%   >>  tMap = csvMap()
+%   >>  tMap = csvMap('key1', 'value1', ...)
 %
 % Description:
-% tMap = tagMap() creates an object that holds the associations of
+% tMap = csvMap() creates an object that holds the associations of
 % tags and values for one type or group name. By default the name
 % of the field or type is 'type'.
 %
-% tMap = tagMap('key1', 'value1') where the key-value pair is:
+% tMap = csvMap('key1', 'value1') where the key-value pair is:
 %
 %   'Field'            field name corresponding to these value tags
 %
@@ -33,7 +33,7 @@
 %
 %            '1,description 1,;302,description 302,;43,description 43,'
 %
-% Most of the arguments of tagMap a
+% Most of the arguments of csvMap a
 %
 % Example:
 %  1x2 struct array with fields:
@@ -70,9 +70,9 @@
 %
 % Class documentation:
 % Execute the following in the MATLAB command window to view the class
-% documentation for tagMap:
+% documentation for csvMap:
 %
-%    doc tagMap
+%    doc csvMap
 %
 % See also: findtags, tageeg, tagdir, tagstudy, dataTags
 %
@@ -93,360 +93,111 @@
 % along with this program; if not, write to the Free Software
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 %
-% $Log: tagMap.m,v $
+% $Log: csvMap.m,v $
 % $Revision: 1.00 15-Feb-2013 08:03:48 krobbins $
 % $Initial version $
 %
 
-classdef tagMap < hgsetget
+classdef csvMap < hgsetget
     
     properties (Access = private)
-        Field                % Name of field for this group of tags
-        TagMap               % Map for matching value labels
+        DescriptionColumn    % Column number of description column
+        Delimiter            % Delimiter between tokens in the key
+        EventColumns         % Numbers of the columns of event key labels
+        Header               % Cellstr of column names
+        TagsColumn           % Column number of tag column
+        Type                 % String repesentation of event key
+        Values               % Cell array representation of csv file
     end % private properties
     
     methods
-        function obj = tagMap(varargin)
+        function obj = csvMap(filename, varargin)
             % Constructor parses parameters and sets up initial data
             parser = inputParser;
-            parser.addParamValue('Field', 'type', ...
-                @(x) (~isempty(x) && ischar(x)));
-            parser.parse(varargin{:})
-            obj.Field = parser.Results.Field;
-            obj.TagMap = containers.Map('KeyType', 'char', 'ValueType', 'any');
-        end % tagMap constructor
+            parser.addRequired('FileName', @(x) (~isempty(x) && ischar(x)));
+            parser.addParamValue('Delimiter', '|', @(x) (ischar(x)));
+            parser.addParamValue('DescriptionColumn', 0, ...
+                @(x)(isnumeric(x) && (isscalar(x) || isempty(x))));
+            parser.addParamValue('EventColumns', 0, ...
+                @(x)(isnumeric(x) && (isscalar(x) || isvector(x))));
+            parser.addParamValue('TagsColumn', 0, ...
+                @(x)(isnumeric(x) && (isscalar(x) || isempty(x))));
+            parser.parse(filename, varargin{:});
+            p = parser.Results;
+            obj.DescriptionColumn = p.DescriptionColumn;
+            obj.Delimiter = p.Delimiter;
+            obj.EventColumns = p.EventColumns;
+            obj.TagsColumn = p.TagsColumn;
+            obj.Values = splitcsv(p.FileName);
+            if ~isempty(obj.Values) && isscalar(p.EventColumns) && ...
+                    (p.EventColumns == 0)
+                obj.EventColumns = 1:length(obj.Values{1});
+            end
+            if isempty(obj.Values)
+                obj.Header = {};
+                obj.Type = '';
+            else
+                obj.Header = obj.Values{1};
+                obj.Type = csvMap.getkey(obj.Header, ...
+                     obj.EventColumns, obj.Delimiter);
+                    
+            end
+        end % csvMap constructor
         
-        function addValue(obj, value, varargin)
-            % Add the value (structure) in this object based on updateType
-            p = inputParser;
-            p.addRequired('Value', @(x) (isempty(x) || ...
-                tagMap.validateValue(value)));
-            p.addParamValue('UpdateType', 'merge', ...
-                @(x) any(validatestring(lower(x), ...
-                {'OnlyTags', 'Update', 'Replace', 'Merge', 'None'})));
-            p.addParamValue('PreservePrefix', false, ...
-                @(x) validateattributes(x, {'logical'}, {}));
-            p.parse(value, varargin{:});
-            
-            % Does this value exist in this object?
-            key = value.label;
-            updateType = p.Results.UpdateType;
-            valueExists = obj.TagMap.isKey(key);
-            preservePrefix = p.Results.PreservePrefix;
-            if strcmpi(updateType, 'None') || (~valueExists && ...
-                    (strcmpi(updateType, 'OnlyTags') || ...
-                    strcmpi(updateType, 'Replace')))
+        function events = getEvents(obj)
+            % Return a structure array of event structures
+            if isempty(obj.Values) || length(obj.Values) <= 1
+                events = {};
                 return;
             end
-            
-            % Handle Replace
-            if strcmpi(updateType, 'Replace')
-                value.tags = merge_taglists(value.tags, '', preservePrefix);
-                obj.TagMap(key) = value;
-                return;
+            events = cell(length(obj.Values)-1, 1);
+            for k = 2:length(obj.Values);
+                events{k-1} = struct('label', ...
+                    csvMap.getkey(obj.Values{k}, obj.EventColumns, obj.Delimiter), ...
+                    'description', csvMap.getval(obj.Values{k}, obj.DescriptionColumn), ...
+                    'tags', csvMap.getval(obj.Values{k}, obj.TagsColumn));
             end
-            
-            % Handle OnlyTags and Merge
-            if ~valueExists
-                oldValue = value;
-            else
-                oldValue = obj.TagMap(key);
-            end
-            oldValue.tags = merge_taglists(oldValue.tags, ...
-                value.tags, preservePrefix);
-            if strcmpi(updateType, 'Merge') && isempty(oldValue.description)
-                oldValue.description = value.description;
-            end
-            obj.TagMap(key) = oldValue;
-        end % addValue
+        end % getEvents
         
-        function newMap = clone(obj)
-            % Clone this tagMap object by making a copy of the map
-            newMap = tagMap();
-            newMap.Field = obj.Field;
-            values = obj.TagMap.values;
-            tMap = newMap.TagMap;
-            for k = 1:length(values)
-                tMap(values{k}.label) = values{k};
-            end
-            newMap.TagMap = tMap;
-        end %clone
+        function header = getHeader(obj)
+            % Return a cellstr array with the tokens in first line of file
+            header = obj.Header;
+        end % getHeaders
         
-        function field = getField(obj)
-            % Return the field name corresponding to this tagMap
-            field = obj.Field;
-        end % getField
-        
-        function jString = getJson(obj)
-            % Return a JSON string version of the tagMap object
-            jString = savejson('', obj.getStruct());
-        end % getJson
-        
-        function jString = getJsonValues(obj)
-            % Return a JSON string version of the tagMap object
-            jString = tagMap.values2Json(obj.TagMap.values);
-        end % getJson
-        
-        function eLabels = getLabels(obj)
-            % Return the unique labels for this map
-            eLabels = obj.TagMap.keys();
-        end % getLabels
-        
-        function thisStruct = getStruct(obj)
-            % Return this object in structure form
-            thisStruct = struct('field', obj.Field, 'values', obj.getValueStruct());
-        end % getStruct
-        
-        function thisText = getText(obj)
-            % Return this object as semi-colon separated text
-            thisText = [obj.Field ';'  obj.getTextValues()];
-        end % getText
-        
-        function valuesText = getTextValues(obj)
-            % Return values of this object as semi-colon separated text
-            valuesText  = tagMap.values2Text(obj.TagMap.values);
-        end % getTextValues
-        
-        function value = getValue(obj, label)
-            % Return the value structure corresponding to specified label
-            if obj.TagMap.isKey(label)
-                value = obj.TagMap(label);
-            else
-                value = '';
-            end
-        end % getValue
+        function type = getType(obj)
+            % Return a string containing the type names as a key
+            type = obj.Type;
+        end % getType
         
         function values = getValues(obj)
-            % Return the values of this tagMap as a cell array of structures
-            values = obj.TagMap.values;
+            % Return the cell array of values from the original file
+            values = obj.Values;
         end % getValues
         
-        function eStruct = getValueStruct(obj)
-            % Return the values of this tagMap as a structure array
-            values = obj.TagMap.values;
-            if isempty(values)
-                eStruct = '';
-            else
-                nValues = length(values);
-                eStruct(nValues) = values{nValues};
-                for k = 1:nValues - 1
-                    eStruct(k) = values{k};
-                end
-            end
-        end % getValueStruct
-        
-        function merge(obj, mTags, updateType, preservePrefix)
-            % Combine the mTags tagMap object info with this one
-            if isempty(mTags)
-                return;
-            end
-            field = mTags.getField();
-            if ~strcmpi(field, obj.Field)
-                return;
-            end
-            values = mTags.getValues();
-            for k = 1:length(values)
-                obj.addValue(values{k}, 'UpdateType', updateType, ...
-                    'PreservePrefix', preservePrefix);
-            end
-        end % merge
+        function writeTags(tMap, filename)
+            % Write the tags in csv format given a tag map
+            
+        end % writetags
         
     end % public methods
     
+    
     methods(Static = true)
-        
-        function value = createValue(elabel, edescription, etags)
-            % Create structure for one value
-            value = struct('label', num2str(elabel), ...
-                'description', num2str(edescription), 'tags', '');
-            value.tags = etags;
-        end % createValue
-        
-        function theStruct = json2Mat(json)
-            % Convert a JSON object specification to a structure
-            theStruct = struct('field', '', 'values', '');
-            if isempty(json)
-                return;
+        function key = getkey(value, cols, delimiter)
+            v = value(cols);
+            key = v{1};
+            for j = 2:length(v)
+                key = [key delimiter v{j}]; %#ok<AGROW>
             end
-            try
-                theStruct = loadjson(json);
-                % Adjust so tags are cellstrs
-                for k = 1:length(theStruct.values)
-                    if isempty(theStruct.values(k).tags)
-                        continue;
-                    end
-                    theStruct.values(k).tags = ...
-                        cellstr(theStruct.values(k).tags)';
-                end
-            catch ME
-                if ~ischar(json)
-                    warning('json2mat:InvalidJSON', ['not string' ME.message]);
-                else
-                    warning('json2mat:InvalidJSON', ...
-                        ['json:[%s] ' ME.message], json);
-                end
-            end
-        end % json2Mat
+        end % makekey
         
-        function eStruct = json2Values(json)
-            % Converts a JSON values string to a structure or empty string
-            if isempty(json)
-                eStruct = '';
+        function val = getval(value, col)
+            if col == 0
+                val = '';
             else
-                eStruct = loadjson(json);
+                val = value{col};
             end
-        end % json2Values
-        
-        function [field, values] = split(inString, useJson)
-            % Parse inString into a field and values structure
-            field = '';
-            values = '';
-            if isempty(inString)
-                return;
-            elseif useJson
-                theStruct = tagMap.json2Mat(inString);
-            else
-                theStruct = tagMap.text2Mat(inString);
-            end
-            field = theStruct.field;
-            values = theStruct.values;
-        end % split
-        
-        function eJson = value2Json(value)
-            % Convert a value structure to a JSON string
-            tags = value.tags;
-            if isempty(tags)
-                tagString = '';
-            elseif ischar(tags)
-                tagString = ['"' tags '"'];
-            else
-                tagString = ['"' tags{1} '"'];
-                for j = 2:length(value.tags)
-                    tagString = [tagString ',' '"' tags{j} '"']; %#ok<AGROW>
-                end
-            end
-            tagString = ['[' tagString ']'];
-            eJson = ['{"label":"' value.label ...
-                '","description":"' value.description '","tags":' ...
-                tagString '}'];
-        end % value2Json
-        
-        function eText = value2Text(value)
-            % Convert an value structure to comma-separated string
-            tags = value.tags;
-            if isempty(tags)
-                tagString = '';
-            elseif ischar(tags)
-                tagString = tags;
-            else
-                tagString = tags{1};
-                for j = 2:length(value.tags)
-                    tagString = [tagString ',' tags{j}]; %#ok<AGROW>
-                end
-            end
-            eText = [value.label ',' value.description ',' tagString];
-        end % value2Text
-        
-        function eText = values2Json(values)
-            % Convert a value structure array to a JSON string
-            if isempty(values)
-                eText = '';
-            else
-                eText = tagMap.value2Json(values{1});
-                for k = 2:length(values)
-                    eText = [eText ',' tagMap.value2Json(values{k})]; %#ok<AGROW>
-                end
-            end
-            eText = ['[' eText ']'];
-        end % values2Json
-        
-        function eText = values2Text(values)
-            % Convert an value structure array or cell array to semi-colon separated string
-            if isempty(values)
-                eText = '';
-            elseif isstruct(values)
-                eText = tagMap.value2Text(values(1));
-                for k = 2:length(values)
-                    eText = [eText ';' tagMap.value2Text(values(k))]; %#ok<AGROW>
-                end
-            elseif iscell(values)
-                eText = tagMap.value2Text(values{1});
-                for k = 2:length(values)
-                    eText = [eText ';' tagMap.value2Text(values{k})]; %#ok<AGROW>
-                end
-            end
-        end % values2Text
-        
-        function theStruct = text2Mat(eString)
-            % Convert semicolon-separated specification to struct
-            theStruct = struct('field', '', 'values', '');
-            eString = strtrim(eString);
-            if isempty(eString)
-                return;
-            end
-            [eStart, eParsed] = regexpi(eString, ';', 'start', 'split');
-            if isempty(eParsed)
-                return;
-            end
-            nEvents = length(eParsed);
-            theStruct.field = strtrim(eParsed{1});
-            if nEvents < 2
-                return;
-            end
-            valueString = eString(eStart(1)+ 1:end);
-            theStruct.values = tagMap.text2Values(valueString);
-        end % text2mat
-        
-        function theStruct = text2Value(eString)
-            % Parse a comma separated value string into its constituent pieces.
-            theStruct = struct('label', '', 'description', '', 'tags', '');
-            if isempty(eString)
-                return;
-            end
-            splitEvent = regexpi(eString, ',', 'split');
-            theStruct.label = splitEvent{1};
-            if length(splitEvent) < 2
-                return;
-            end
-            theStruct.description = splitEvent{2};
-            if length(splitEvent) < 3
-                return;
-            end
-            tags = strtrim(splitEvent(3:end));
-            theStruct.tags = tags(~cellfun(@isempty, tags));
-            if isempty(theStruct.tags)  %Clean up
-                theStruct.tags = '';
-            end
-        end %text2Value
-        
-        function eStruct = text2Values(values)
-            % Create an values structure array from a cell array of text values
-            if length(values) < 1
-                eStruct = '';
-            else
-                splitEvents = regexpi(values, ';', 'split');
-                eStruct(length(splitEvents)) = ...
-                    struct('label', '', 'description', '', 'tags', '');
-                for k = 1:length(splitEvents)
-                    eStruct(k)= tagMap.text2Value(splitEvents{k});
-                end
-            end
-        end % text2Values
-        
-        function valid = validateValue(value)
-            % Validate that the structure corresponds to a value
-            if ~isstruct(value) || ...
-                    sum(isfield(value, {'label', 'description', 'tags'})) ~= 3 || ...
-                    ~ischar(value.label) || ...
-                    (~isempty(value.description)&& ~ischar(value.description)) || ...
-                    (~isempty(value.tags) && ...
-                    ~iscellstr(value.tags) && ~ischar(value.tags))
-                valid = false;
-            else
-                valid = true;
-            end
-        end % validateValue
-        
-    end % static method
-end % tagMap
+        end % getdescript
+    end % static methods
+end % csvMap
 

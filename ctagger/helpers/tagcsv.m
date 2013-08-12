@@ -122,25 +122,21 @@ function fMap = tagcsv(filename, varargin)
     parser.parse(filename, varargin{:});
     p = parser.Results;
     fMap = fieldMap('PreservePrefix',  p.PreservePrefix);
-    [fValues, events, type] = findcsvtags(filename, 'Delimiter', p.Delimiter, ...
+    cMap = csvMap(filename, 'Delimiter', p.Delimiter, ...
         'DescriptionColumn', p.DescriptionColumn, ...
         'EventColumns', p.EventColumns, ...
-        'PreservePrefix', p.PreservePrefix, ...
         'TagsColumn', p.TagsColumn);
-    if isempty(type)
+    if isempty(cMap.getType())
         return;
     end
 
-    for k = 1:length(events) % Assemble the list
-        fMap.addValues(type, events{k});
-    end
-   
+    % Add the event and other information to the map
+    fMap.addValues(cMap.getType(), cMap.getEvents());
     if isa(p.BaseMap, 'fieldMap')
         baseTags = p.BaseMap;
     else
         baseTags = fieldMap.loadFieldMap(p.BaseMap);
     end
-    
     fMap.merge(baseTags, 'Merge', {}, fMap.getFields());
 
     fMap = editMapDb(fMap, 'DbCreds', p.DbCreds, 'PreservePrefix', ...
@@ -156,9 +152,5 @@ function fMap = tagcsv(filename, varargin)
     if isempty(p.RewriteFile)
         return;
     end
-    writetagscsv(fMap, p.RewriteFile, 'Delimiter', p.Delimiter, ...
-        'DescriptionColumn', p.DescriptionColumn, ...
-        'EventColumns', p.EventColumns, ...
-        'OriginalValues', fValues, 'PreservePrefix', p.PreservePrefix, ...
-        'TagsColumn', p.TagsColumn);
+    cMap.writeTags(fMap.getMap(cMap.getType()), p.RewriteFile);
 end % tagcsv
