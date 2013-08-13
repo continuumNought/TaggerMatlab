@@ -79,3 +79,7 @@ for k = 1:length(events1)
     assertTrue(strcmpi(events1{k}.label, events3{k}.label));
 end
 assertTrue(strcmpi(type1, type3));
+
+function test_getEvents(values)
+%Unit test for csvMap for basic arguments
+fprintf('\nIt should give same answer when key columns specified explicitly\n');

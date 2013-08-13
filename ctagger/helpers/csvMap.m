@@ -1,15 +1,15 @@
 % csvMap    object encapsulating the csv representation of a tag map
 %
 % Usage:
-%   >>  tMap = csvMap()
-%   >>  tMap = csvMap('key1', 'value1', ...)
+%   >>  obj = csvMap()
+%   >>  obj = csvMap('key1', 'value1', ...)
 %
 % Description:
-% tMap = csvMap() creates an object that holds the associations of
+% obj = csvMap() creates an object that holds the associations of
 % tags and values for one type or group name. By default the name
 % of the field or type is 'type'.
 %
-% tMap = csvMap('key1', 'value1') where the key-value pair is:
+% obj = csvMap('key1', 'value1') where the key-value pair is:
 %
 %   'Field'            field name corresponding to these value tags
 %
@@ -101,6 +101,7 @@
 classdef csvMap < hgsetget
     
     properties (Access = private)
+        ColumnMap            % Hashmap of key versus row in Values
         DescriptionColumn    % Column number of description column
         Delimiter            % Delimiter between tokens in the key
         EventColumns         % Numbers of the columns of event key labels
@@ -133,16 +134,35 @@ classdef csvMap < hgsetget
                     (p.EventColumns == 0)
                 obj.EventColumns = 1:length(obj.Values{1});
             end
+            obj.ColumnMap = containers.Map('KeyType', 'char', ...
+                                           'ValueType','any');
             if isempty(obj.Values)
                 obj.Header = {};
                 obj.Type = '';
             else
                 obj.Header = obj.Values{1};
                 obj.Type = csvMap.getkey(obj.Header, ...
-                     obj.EventColumns, obj.Delimiter);
-                    
+                    obj.EventColumns, obj.Delimiter);
+                for k = 2:length(obj.Values)
+                    obj.ColumnMap(csvMap.getkey(obj.Values{k}, ...
+                        obj.EventColumns, obj.Delimiter)) = k;
+                end
             end
         end % csvMap constructor
+        
+        function position = addEvent(obj, event)
+            % Add event row to values and returns position or 0 not added
+            if obj.ColumnMap.isKey(event.label)
+                position = 0;
+            else
+                position = length(obj.Values) + 1;
+                obj.ColumnMap(event.label) = position;
+                row = cell(size(obj.Header));
+                for k = 1:length(row)
+                    row{k} = '';
+                end
+            end     
+        end % addEvent
         
         function events = getEvents(obj)
             % Return a structure array of event structures
@@ -174,8 +194,17 @@ classdef csvMap < hgsetget
             values = obj.Values;
         end % getValues
         
+        function updateValues(obj, tMap)
+            % Update the values cell array based on the tagMap tMap
+            keys = tMap.keys();
+  
+        end % updateValues
+        
+        
+        
         function writeTags(tMap, filename)
             % Write the tags in csv format given a tag map
+            
             
         end % writetags
         

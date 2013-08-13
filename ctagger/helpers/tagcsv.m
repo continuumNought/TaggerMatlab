@@ -57,6 +57,7 @@
 %                    row of the csv file.
 %   'UseGui'         If true (default), the CTAGGER GUI is displayed after
 %                    initialization.
+%   'XML'            XML string containing the hierarchy to use.
 %
 % Notes on tag rewrite:
 %   The tags are written to the data files in two ways. In both cases
@@ -102,10 +103,8 @@ function fMap = tagcsv(filename, varargin)
 % Parse the input arguments
     parser = inputParser;
     parser.addRequired('FileName', @(x) (~isempty(x) && ischar(x)));
-    parser.addParamValue('BaseMap', '', ...
-        @(x)(isempty(x) || (ischar(x))));
-    parser.addParamValue('DbCreds', '', ...
-        @(x)(isempty(x) || (ischar(x))));
+    parser.addParamValue('BaseMap', '', @(x)(ischar(x)));
+    parser.addParamValue('DbCreds', '', @(x)(ischar(x)));
     parser.addParamValue('Delimiter', '|', @(x) (ischar(x)));
     parser.addParamValue('DescriptionColumn', 0, ...
         @(x)(isnumeric(x) && (isscalar(x) || isempty(x))));
@@ -119,6 +118,7 @@ function fMap = tagcsv(filename, varargin)
     parser.addParamValue('TagsColumn', 0, ...
         @(x)(isnumeric(x) && (isscalar(x) || isempty(x))));
     parser.addParamValue('UseGui', true, @islogical);
+    parser.addParamValue('XML', '', @(x)(ischar(x)));
     parser.parse(filename, varargin{:});
     p = parser.Results;
     fMap = fieldMap('PreservePrefix',  p.PreservePrefix);

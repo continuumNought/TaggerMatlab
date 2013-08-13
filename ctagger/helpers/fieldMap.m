@@ -1,16 +1,16 @@
 % fieldMap    object encapsulating xml tags and type-tagMap association
 %
 % Usage:
-%   >>  fTags = fieldMap()
-%   >>  fTags = fieldMap('key1', 'value1', ...)
+%   >>  obj = fieldMap()
+%   >>  obj = fieldMap('key1', 'value1', ...)
 %
 % Description:
-% fTags = fieldMap() creates an object representing the
+% obj = fieldMap() creates an object representing the
 %    tag hierarchy for community tagging. The object knows how to merge and
 %    can produce output in either JSON or semicolon separated
 %    text format. 
 %
-% fTags = fieldMap('key1', 'value1', ...) where the key-value pairs are:
+% obj = fieldMap('key1', 'value1', ...) where the key-value pairs are:
 %
 %   'Description'      String describing the purpose of this fieldMap.
 %   'PreservePrefix'   Logical if false (default) tags with matching
@@ -88,7 +88,7 @@
 % along with this program; if not, write to the Free Software
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 %
-% $Log: tagMap.m,v $
+% $Log: fieldMap.m,v $
 % $Revision: 1.00 15-Feb-2013 08:03:48 krobbins $
 % $Initial version $
 %
@@ -112,11 +112,10 @@ classdef fieldMap < hgsetget
         function obj = fieldMap(varargin)
             % Constructor parses parameters and sets up initial data
             parser = inputParser;
-            parser.addParamValue('Description', '', ...
-                @(x) (isempty(x) || ischar(x)));
+            parser.addParamValue('Description', '', @(x) (ischar(x)));
             parser.addParamValue('PreservePrefix', false, ...
                 @(x) validateattributes(x, {'logical'}, {}));
-            parser.addParamValue('XML', '',@(x) (isempty(x) || ischar(x)));
+            parser.addParamValue('XML', '', @(x) (ischar(x)));
             parser.parse(varargin{:})
             obj.Description = parser.Results.Description;
             obj.PreservePrefix = parser.Results.PreservePrefix;
