@@ -123,7 +123,7 @@ b1 = tagMap();
 for k = 1:length(bv1)
    b1.addValue(bv1(k));
 end
-e1.merge(b1, 'OnlyTags', false);
+e1.merge(b1, 'OnlyTags');
 eValues = e1.getValues();
 assertEqual(length(eValues), 2);
 value1 = e1.getValue('Trigger');
@@ -131,10 +131,10 @@ assertTrue(~isempty(value1));
 fprintf('It should correctly merge tags when value labels match\n');
 assertEqual(length(value1.tags), 3);
 fprintf('It should have not merge values when argument is empty\n');
-e1.merge('', 'OnlyTags', false);
+e1.merge('', 'OnlyTags');
 eValues = e1.getValues();
 assertEqual(length(eValues), 2);
-e1.merge('', 'Merge', false);
+e1.merge('', 'Merge');
 eValues = e1.getValues();
 assertEqual(length(eValues), 2);
 fprintf('It should not include extra values if OnlyTags is true\n');
@@ -144,22 +144,22 @@ b3 = tagMap();
 for k = 1:length(bv3)
    b3.addValue(bv3(k));
 end
-e1.merge(b3, 'OnlyTags', false);
+e1.merge(b3, 'OnlyTags');
 eValues = e1.getValues();
 assertEqual(length(eValues), 2);
 fprintf('It should include extra events if OnlyTags is false\n');
-e1.merge(b3, 'Merge', false);
+e1.merge(b3, 'Merge');
 eValues = e1.getValues();
 assertEqual(length(eValues), 3);
 
 fprintf('It should work when PreservePrefix is true\n');
 [f2, ev2] = tagMap.split([';' values.eventList1], false);
 assertTrue(isempty(f2));
-eT2 = tagMap();
+eT2 = tagMap('PreservePrefix', true);
 for k = 1:length(ev2)
    eT2.addValue(ev2(k));
 end
-eT2.merge(b1, 'OnlyTags', true);
+eT2.merge(b1, 'OnlyTags');
 eValues = eT2.getValues();
 assertEqual(length(eValues), 2);
 event2 = eT2.getValue('Trigger');
@@ -184,7 +184,7 @@ for k = 1:length(ev4)
 end
 assertEqual(length(eT4.getValues()), 2);
 assertTrue(strcmpi(eT4.getField(), 'type'));
-eT3.merge(eT4, 'Merge', false);
+eT3.merge(eT4, 'Merge');
 assertEqual(length(eT3.getValues()), 3);
 eT3a = tagMap();
 for k = 1:length(ev3)
@@ -194,7 +194,7 @@ eT4a = tagMap('Field', 'balony');
 for k = 1:length(ev4)
    eT4a.addValue(ev4(k));
 end
-eT3a.merge(eT4a, 'Merge', false);
+eT3a.merge(eT4a, 'Merge');
 assertEqual(length(eT3a.getValues()), 2);
 
 function testGetText(values) %#ok<DEFNU>

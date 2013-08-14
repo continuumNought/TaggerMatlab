@@ -33,14 +33,14 @@ function teardown(values) %#ok<INUSD,DEFNU>
 function testSubmit(values)  %#ok<DEFNU>
 % Unit test for editmaps
 fprintf('\nUnit tests for editmaps normal execution\n');
-fprintf('It should work when there is a single field\n');
+fprintf('\nIt should work when there is a single field\n');
 fprintf('....REQUIRES USER INPUT\n');
 fprintf('PRESS SUBMIT AFTER NO CHANGES\n');
 fMap = values.map1;
 fMap1 = editmaps(fMap.clone());
 assertEqual(fMap1, values.map1);
 
-fprintf('It should modify the number of tags\n');
+fprintf('\nIt should modify the number of tags\n');
 fprintf('....REQUIRES USER INPUT\n');
 fprintf('PRESS SUBMIT AFTER ADDING 2 TAGS TO SOME VALUE\n');
 fMap2 = editmaps(fMap.clone());
@@ -54,11 +54,11 @@ for k = 1:length(events1)
         count1 = count1 + length(etags);
     end
 end
-fprintf('It should not modify the number of type values\n');
+fprintf('\nIt should not modify the number of type values\n');
 events2 = fMap2.getValues('type');
 assertEqual(length(events2), 3);
 
-fprintf('It should increase the number of tags by 2\n');
+fprintf('\nIt should increase the number of tags by 2\n');
 count2 = 0;
 for k = 1:length(events2)
     etags = events2{k}.tags;
@@ -69,7 +69,7 @@ for k = 1:length(events2)
     end
 end
 assertEqual(count2, count1 + 2);
-fprintf('It should not increase the number of type values when edited again\n');
+fprintf('\nIt should not increase the number of type values when edited again\n');
 fprintf('....REQUIRES USER INPUT\n');
 fprintf('PRESS SUBMIT AFTER ADDING 3 TAGS TO SOME VALUE\n');
 fMap3 = editmaps(fMap2);
@@ -88,7 +88,7 @@ assertEqual(count3, count2 + 3);
 function testMultipleFields(values)  %#ok<DEFNU>
 % Unit test for editmaps
 fprintf('\nUnit tests for editmaps multiple fields\n');
-fprintf('It should work present multiple GUIs\n');
+fprintf('\nIt should work present multiple GUIs\n');
 fprintf('....REQUIRES USER INPUT\n');
 fprintf('PRESS SUBMIT BUTTON WITH NO CHANGES\n');
 fprintf('PRESS CYCLE THROUGH 3 GUIs\n');
@@ -98,7 +98,7 @@ assertEqual(fMap1, values.map2);
 function testCancel(values)  %#ok<DEFNU>
 % Unit test for editmaps
 fprintf('\nUnit tests for editmaps cancel\n');
-fprintf('It should work present multiple GUIs\n');
+fprintf('\nIt should work present multiple GUIs\n');
 fprintf('....REQUIRES USER INPUT\n');
 fprintf('PRESS CANCEL BUTTON\n');
 fMap1 = editmaps(values.map2);
