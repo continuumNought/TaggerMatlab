@@ -136,7 +136,7 @@ function [EEG, fMap, excluded] = tageeg(EEG, varargin)
         excluded = union(excluded, exc);
     end
 
-    fMap = editMapDb(fMap, 'DbCreds', p.DbCreds, 'PreservePrefix', ...
+    fMap = editmaps_db(fMap, 'DbCreds', p.DbCreds, 'PreservePrefix', ...
         p.PreservePrefix, 'Synchronize', p.Synchronize, 'UseGui', p.UseGui);
 
     % Save the fieldmap

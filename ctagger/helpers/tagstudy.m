@@ -125,7 +125,7 @@ for k = 1:length(fPaths) % Assemble the list
     eegTemp = pop_loadset(fPaths{k});
     tMapNew = findtags(eegTemp, 'PreservePrefix', p.PreservePrefix, ...
         'ExcludeFields', p.ExcludeFields, 'Fields', p.Fields);
-    fMap.merge(tMapNew, 'Merge', p.ExcludeFields);
+    fMap.merge(tMapNew, 'Merge', p.ExcludeFields, p.Fields);
 end
 
 % Exclude the appropriate tags from baseTags
@@ -146,7 +146,7 @@ if p.SelectOption
     excluded = union(excluded, exc);
 end
 
-fMap = editMapDb(fMap, 'DbCreds', p.DbCreds, 'PreservePrefix', ...
+fMap = editmaps_db(fMap, 'DbCreds', p.DbCreds, 'PreservePrefix', ...
     p.PreservePrefix, 'Synchronize', p.Synchronize, 'UseGui', p.UseGui);
 
 % Save the tags file for next step

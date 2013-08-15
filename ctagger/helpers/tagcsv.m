@@ -139,7 +139,7 @@ function fMap = tagcsv(filename, varargin)
     end
     fMap.merge(baseTags, 'Merge', {}, fMap.getFields());
 
-    fMap = editMapDb(fMap, 'DbCreds', p.DbCreds, 'PreservePrefix', ...
+    fMap = editmaps_db(fMap, 'DbCreds', p.DbCreds, 'PreservePrefix', ...
         p.PreservePrefix, 'Synchronize', p.Synchronize, 'UseGui', p.UseGui);
 
     % Save the tags file for next step

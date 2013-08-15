@@ -96,13 +96,14 @@ function fMap = findtags(edata, varargin)
         end
     end
     
-    efields = '';
+    efields = {};
     if isfield(edata, 'event') && isstruct(edata.event)
        efields = fieldnames(edata.event);
     end
     if isfield(edata, 'urevent') && isstruct(edata.urevent)
         efields = union(efields, fieldnames(edata.urevent)); 
     end
+    
     efields = setdiff(efields, p.ExcludeFields);
     if ~isempty(p.Fields)
         efields = intersect(p.Fields, efields);

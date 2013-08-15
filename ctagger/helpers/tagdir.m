@@ -158,7 +158,7 @@ function [fMap, fPaths, excluded] = tagdir(inDir, varargin)
         excluded = union(excluded, exc);
     end
 
-    fMap = editMapDb(fMap, 'DbCreds', p.DbCreds, 'PreservePrefix', ...
+    fMap = editmaps_db(fMap, 'DbCreds', p.DbCreds, 'PreservePrefix', ...
         p.PreservePrefix, 'Synchronize', p.Synchronize, 'UseGui', p.UseGui);
 
     % Save the tags file for next step
