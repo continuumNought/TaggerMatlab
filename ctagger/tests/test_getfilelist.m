@@ -14,11 +14,11 @@ fprintf('\nUnit tests for getfilelist\n');
 fprintf('It should get all the files when no extension is given\n');
 bciDir = [values.testroot filesep values.BCI2000dir];
 fList1 = getfilelist(bciDir);
-assertEqual(length(fList1), 42);
+assertEqual(length(fList1), 84);
 
 fprintf('It should get all the files when an empty extension is given\n');
 fList2 = getfilelist(bciDir);
-assertEqual(length(fList2), 42);
+assertEqual(length(fList2), 84);
 
 fprintf('It should get all the files when a .set extension is given\n');
 fList3 = getfilelist(bciDir, '.set');
@@ -28,11 +28,11 @@ fList3 = getfilelist(bciDir, '.txt');
 assertEqual(length(fList3), 0);
 fprintf('It should not traverse subdirectories when third argument false\n');
 fList4 = getfilelist(bciDir, '.set', false);
-assertEqual(length(fList4), 0);
+assertEqual(length(fList4), 42);
 fList5 = getfilelist(values.testroot, '.set', false);
 assertEqual(length(fList5), 0);
 fprintf('It should traverse subdirectories when third argument true\n');
 fList6= getfilelist(bciDir, '.set', true);
 assertEqual(length(fList6), 42);
 fList7 = getfilelist(values.testroot, '.set', true);
-assertEqual(length(fList7), 71);
+assertEqual(length(fList7), 73);
