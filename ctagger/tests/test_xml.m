@@ -24,7 +24,8 @@ function testValidWithSchema(values) %#ok<DEFNU>
 fprintf('\nUnit tests for XML validation using Java libraries\n');
 fprintf('It should correctly validate the default HED hierarchy when a schema is given\n');
 try 
-    edu.utsa.tagger.database.XMLGenerator.validateSchemaString(values.HEDXML, values.Schema);
+    edu.utsa.tagger.database.ManageDB.validateSchemaString(values.HEDXML, ...
+        values.Schema);
     isValid = true;
 catch ex
     isValid = false;

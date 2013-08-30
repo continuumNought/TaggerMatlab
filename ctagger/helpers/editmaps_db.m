@@ -1,4 +1,4 @@
-function fMap = editMapDb(fMap, varargin)
+function fMap = editmaps_db(fMap, varargin)
 %EDITMAPDB Summary of this function goes here
 %   Detailed explanation goes here
 parser = inputParser;
@@ -12,10 +12,10 @@ p = parser.Results;
 usingDB = false;
 if ~isempty(p.DbCreds)
     try
-        DB = edu.utsa.tagger.database.TagsDBManager(p.DbCreds);
-        fMap.mergeDBXml(DB.getDBCon());
+        DB = edu.utsa.tagger.database.ManageDB(p.DbCreds);
+        dbCon = DB.getConnection();
+        fMap.mergeDBXml(dbCon);
         usingDB = true;
-        DB.close();
         oldfMap = fMap.clone();
     catch ME %#ok<NASGU>
         choice = questdlg(['Database connection failed. Would you like' ...
@@ -36,8 +36,7 @@ end
 
 if usingDB
     try
-        dbCon = DB.getDBCon();
-        edu.utsa.tagger.database.TagsUpdate.updateXML(dbCon, ...
+        edu.utsa.tagger.database.ManageDB.mergeXMLWithDB(dbCon, ...
             fMap.getXml());
         keys = fMap.getFields();
         numKeys = length(keys);
@@ -48,8 +47,8 @@ if usingDB
             newValues = newtMap.getValues();
             oldJSON = oldtMap.values2Json(oldValues);
             newJSON = newtMap.values2Json(newValues);
-            edu.utsa.tagger.database.TagsUpdate.updateTagCount(dbCon, ...
-                oldJSON, newJSON, true);
+            Events = edu.utsa.tagger.database.Events(dbCon);
+            Events.updateTagCount(oldJSON, newJSON, true);
         end
         DB.close();
     catch ME

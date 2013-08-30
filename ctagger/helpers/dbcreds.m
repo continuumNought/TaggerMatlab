@@ -147,11 +147,11 @@ function configPath = dbcreds(varargin)
         handles = guihandles(infig);
         dbname = get(handles.dbname, 'String');
         hostname = get(handles.hostname, 'String');
-        port = get(handles.port, 'String');
+        port = str2double(get(handles.port, 'String'));
         username = get(handles.username, 'String');
         password = get(handles.password, 'String');
         %password = char(passObj.getText);
-        edu.utsa.tagger.database.TagsDBManager.createCredentials(...
+        edu.utsa.tagger.database.ManageDB.createCredentials(...
             configPath, dbname, hostname, port, username, password);
         close;
     end % closeButtonCallback

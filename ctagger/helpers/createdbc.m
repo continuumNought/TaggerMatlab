@@ -6,9 +6,7 @@ parser.addRequired('credPath', @(x) (~isempty(x) && ischar(x)));
 parser.addOptional('SqlFile', 'tags.sql', @(x) (~isempty(x) && ischar(x)));
 parser.parse(credPath, varargin{:});
 p = parser.Results;
-DB = edu.utsa.tagger.database.TagsDBManager(p.credPath);
-DB.setupDatabase(which(p.SqlFile));
-DB.getDBCon();
-DB.close();
+edu.utsa.tagger.database.ManageDB.createDatabase(p.credPath, ...
+    which(p.SqlFile));
 end
 

@@ -299,16 +299,16 @@ classdef fieldMap < hgsetget
                 return;
             end
             obj.Xml = ...
-                char(edu.utsa.tagger.database.XMLGenerator.mergeXML( ...
+                char(edu.utsa.tagger.database.ManageDB.mergeXML( ...
                 obj.Xml, xmlMerge));
         end % mergeXml
         
         function mergeDBXml(obj, dbCon)
             % Merge obj.XML with the database xml if valid
+            dbXml = edu.utsa.tagger.database.ManageDB.generateDBXML(dbCon);
             obj.Xml = ...
-                char(...
-                edu.utsa.tagger.database.XMLGenerator.generateMergedXML(...
-                dbCon, obj.Xml));
+                char(edu.utsa.tagger.database.ManageDB.mergeXML( ...
+                dbXml, obj.Xml));
         end % mergeXml
         
         function removeMap(obj, field)
@@ -362,7 +362,7 @@ classdef fieldMap < hgsetget
             if isempty(xmlString)
                 return;
             end
-            edu.utsa.tagger.database.XMLGenerator.validateSchemaString(...
+            edu.utsa.tagger.database.ManageDB.validateSchemaString(...
                 char(xmlString), char(schema));
         end % validateXml
         
