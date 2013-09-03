@@ -1,6 +1,5 @@
 function createdbc(credPath, varargin)
-% Takes a property file containing the database credentials and a sql
-% file and creates a community tagger database.
+% Creates a ctagger database from a property file 
 parser = inputParser;
 parser.addRequired('credPath', @(x) (~isempty(x) && ischar(x)));
 parser.addOptional('SqlFile', 'tags.sql', @(x) (~isempty(x) && ischar(x)));

@@ -1,5 +1,5 @@
 % tagdir
-% Allows a user to tag an entire tree directory of similar EEG .set files.
+% Allows a user to tag an entire tree directory of similar EEG .set files
 %
 % Usage:
 %   >>  [fMap, fPaths, excluded] = tagdir(inDir)

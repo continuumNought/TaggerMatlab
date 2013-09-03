@@ -1,5 +1,5 @@
 % selectmaps
-% Allow user to selectively select the fields to be used
+% Allows a user to select the fields to be used
 %
 % Usage:
 %   >>  [fMap, excluded] = selectmaps(fMap)

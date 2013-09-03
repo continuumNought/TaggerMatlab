@@ -1,5 +1,5 @@
 % writetags
-% Write tags to a structure from the field map information
+% Writes tags to a structure from the fieldMap information
 %
 % Usage:
 %   >>  eData = writetags(eData, fMap)

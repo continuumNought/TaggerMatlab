@@ -1,6 +1,7 @@
+% editmaps_db
+% Allows a user to selectively edit the tags using the ctagger database 
+% 
 function fMap = editmaps_db(fMap, varargin)
-%EDITMAPDB Summary of this function goes here
-%   Detailed explanation goes here
 parser = inputParser;
 parser.addRequired('fMap', @(x) (~isempty(x) && isa(x, 'fieldMap')));
 parser.addParamValue('DbCreds', '', @(x)(isempty(x) || (ischar(x))));
@@ -14,7 +15,7 @@ if ~isempty(p.DbCreds)
     try
         DB = edu.utsa.tagger.database.ManageDB(p.DbCreds);
         dbCon = DB.getConnection();
-        fMap.mergeDBXml(dbCon);
+        fMap.mergeDBXml(dbCon, false);
         usingDB = true;
         oldfMap = fMap.clone();
     catch ME %#ok<NASGU>
@@ -36,8 +37,7 @@ end
 
 if usingDB
     try
-        edu.utsa.tagger.database.ManageDB.mergeXMLWithDB(dbCon, ...
-            fMap.getXml());
+        fMap.mergeDBXml(dbCon, true);
         keys = fMap.getFields();
         numKeys = length(keys);
         for a = 1:numKeys

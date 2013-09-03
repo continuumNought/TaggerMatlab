@@ -1,5 +1,5 @@
 % pop_tagdir
-% Allows user to tag a directory of datasets using a GUI
+% Allows a user to tag a directory of datasets using a GUI
 %
 % Usage:
 %   >>  [fMap, fPaths, com] = pop_tagdir()

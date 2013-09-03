@@ -1,4 +1,5 @@
-% fieldMap    object encapsulating xml tags and type-tagMap association
+% fieldMap 
+% Object encapsulating xml tags and type-tagMap association
 %
 % Usage:
 %   >>  obj = fieldMap()
@@ -303,12 +304,20 @@ classdef fieldMap < hgsetget
                 obj.Xml, xmlMerge));
         end % mergeXml
         
-        function mergeDBXml(obj, dbCon)
+        function mergeDBXml(obj, dbCon, updateDB)
             % Merge obj.XML with the database xml if valid
-            dbXml = edu.utsa.tagger.database.ManageDB.generateDBXML(dbCon);
+            if updateDB
+                obj.Xml = ...
+                char(edu.utsa.tagger.database.ManageDB.mergeXMLWithDB( ...
+                dbCon, obj.Xml, false));
+            else
+            dbXml = ...
+                edu.utsa.tagger.database.ManageDB.generateDBXML(dbCon, ...
+                true);
             obj.Xml = ...
                 char(edu.utsa.tagger.database.ManageDB.mergeXML( ...
                 dbXml, obj.Xml));
+            end                
         end % mergeXml
         
         function removeMap(obj, field)

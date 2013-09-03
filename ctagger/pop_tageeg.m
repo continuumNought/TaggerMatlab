@@ -1,5 +1,5 @@
 % pop_tageeg
-% Allows a user to tag an EEG structure using a GUI
+% Allows a user to tag a EEG structure using a GUI
 %
 % Usage:
 %   >>  [EEG, com] = pop_tageeg(EEG)

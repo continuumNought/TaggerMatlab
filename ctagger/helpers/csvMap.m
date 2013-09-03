@@ -1,4 +1,4 @@
-% csvMap    object encapsulating the csv representation of a tag map
+% csvMap    Object encapsulating the csv representation of a tag map
 %
 % Usage:
 %   >>  obj = csvMap()
@@ -135,7 +135,7 @@ classdef csvMap < hgsetget
                 obj.EventColumns = 1:length(obj.Values{1});
             end
             obj.ColumnMap = containers.Map('KeyType', 'char', ...
-                                           'ValueType','any');
+                'ValueType','any');
             if isempty(obj.Values)
                 obj.Header = {};
                 obj.Type = '';
@@ -161,7 +161,7 @@ classdef csvMap < hgsetget
                 for k = 1:length(row)
                     row{k} = '';
                 end
-            end     
+            end
         end % addEvent
         
         function events = getEvents(obj)
@@ -197,7 +197,7 @@ classdef csvMap < hgsetget
         function updateValues(obj, tMap)
             % Update the values cell array based on the tagMap tMap
             keys = tMap.keys();
-  
+            
         end % updateValues
         
         

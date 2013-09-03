@@ -1,5 +1,5 @@
 % tageeg
-% Allows a user to tag an EEGLAB EEG structure
+% Allows a user to tag a EEG structure
 %
 % Usage:
 %   >>  [EEG, fMap, excluded] = tageeg(EEG)

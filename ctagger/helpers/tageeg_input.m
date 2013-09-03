@@ -1,6 +1,9 @@
+% tageeg_input
+% GUI for input needed to create inputs for tageeg 
+%
 function [baseMap,  dbCredsFile, preservePrefix, ...
-    rewriteOption, saveMapFile, selectOption, useGUI, cancelled] = tageeg_input()
-% GUI for input needed for tageeg
+    rewriteOption, saveMapFile, selectOption, useGUI, cancelled] = ...
+    tageeg_input()
 
 % Setup the variables used by the GUI
     baseMap = '';

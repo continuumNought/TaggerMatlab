@@ -1,5 +1,5 @@
 % splitcsv
-% Return a cell array of cell strings from parsing a csv file
+% Returns a cell array of cell strings from parsing a csv file
 %
 % Usage:
 %   >>  values = splitcsv(filename)

@@ -1,5 +1,5 @@
 % editmaps
-% Allow user to selectively edit the tags using the ctagger GUI
+% Allows a user to selectively edit the tags using the ctagger GUI
 %
 % Usage:
 %   >>  fMap = editmaps(fMap)

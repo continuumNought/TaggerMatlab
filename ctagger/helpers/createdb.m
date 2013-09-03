@@ -1,5 +1,5 @@
 function createdb(dbname, hostname, port, username, password, varargin)
-% Create a database using username and password
+% Creates a ctagger database 
 parser = inputParser();
 parser.addRequired('dbname', @(x) (~isempty(x) && ischar(x)));
 parser.addRequired('hostname', @(x) (~isempty(x) && ischar(x)));

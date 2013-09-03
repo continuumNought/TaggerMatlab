@@ -1,7 +1,7 @@
-function configPath = dbcreds(varargin)
+% dbcreds
 % GUI for input needed to create or edit database credentials
-% --- to do- --- process the varargin to populate the GUI
-
+%
+function configPath = dbcreds(varargin)
 % Setup the variables used by the GUI
     configPath = '';
     theTitle = 'Create credential file for database access';

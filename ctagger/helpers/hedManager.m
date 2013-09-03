@@ -1,3 +1,7 @@
+% hedManager
+% utility provided by Nima Bidely Shamlo UCSD for  managing the XML
+%hierarchy
+%
 classdef hedManager
     properties
         hedNode
@@ -23,10 +27,10 @@ classdef hedManager
             %                            the index in node sequence, for example 'Stimulus'is at level 2 in {'Time-Locked Event' 'Stimulus' 'Visual'}
             %
             % levelMatchedWithHEDNode   a boolean vector, whether the was a match with an exact HED.
-            %                           A level could be valid either because of an exact match or due to extension (when allowed explicitly for a node or at the end of all levels) 
-            %                         
+            %                           A level could be valid either because of an exact match or due to extension (when allowed explicitly for a node or at the end of all levels)
+            %
             % autoCompleteAlternative   a cell array that contains all partial matches so they can
-            %                           be used in an auto-complete feature. For example, if the input is 
+            %                           be used in an auto-complete feature. For example, if the input is
             %                           {'Time-Locked Event' 'S'}, this variable would return
             %                           {'Stimulus'}. If the last node is empty in the sequence, all
             %                           HEd nodes in the lower HED level are returned. For example
@@ -64,11 +68,11 @@ classdef hedManager
                     % /Stimulus/Visual/Target/Plane'
                     endOfHedHirerachyHasReached = false;
                     if currentNode.getChildNodes.getLength == 1
-                        endOfHedHirerachyHasReached = true;                       
+                        endOfHedHirerachyHasReached = true;
                     else
                         children = currentNode.getChildNodes;
-                        hasAChildNode = false;                        
-                        for i=1:children.getLength                            
+                        hasAChildNode = false;
+                        for i=1:children.getLength
                             if strcmpi('node', char(children.item(i-1).getNodeName))
                                 hasAChildNode = true;
                             end;
@@ -86,7 +90,7 @@ classdef hedManager
                     for i=1:children.getLength
                         % if the leaf found, go one level in and look for the next leaf
                         if children.item(i-1).hasChildNodes
-                            % get the text content of the node, if existed. This is located in the first child.                            
+                            % get the text content of the node, if existed. This is located in the first child.
                             
                             % before converting to lowercase, to be used in auto-complete
                             if strcmpi('node', char(children.item(i-1).getNodeName))
@@ -109,10 +113,10 @@ classdef hedManager
                         end;
                         
                         % if there is a match, prevent matching to an empty node
-                        exactMatch = strcmpi(textContent, nodeSequence{currentLevel}) && ~isempty(nodeSequence{currentLevel});                                                
+                        exactMatch = strcmpi(textContent, nodeSequence{currentLevel}) && ~isempty(nodeSequence{currentLevel});
                         
                         exactMatch = exactMatch | (textContent =='#' & any(ismember(nodeSequence{currentLevel}, ['1' '2' '3' '4' '5' '6' '7' '8' '9' '0'])));
-                                                                        
+                        
                         if exactMatch
                             currentNode = children.item(i-1);
                             levelIsValid(currentLevel) = true;
@@ -122,10 +126,10 @@ classdef hedManager
                     end;
                     
                 end;
-            end;                       
+            end;
             
             % HED tag is valid only if all the levels are valid.
-            answer = all(levelIsValid);            
+            answer = all(levelIsValid);
             
             if answer
                 % get description text if available.
@@ -139,10 +143,10 @@ classdef hedManager
     
     methods
         
-        function obj = hedManager(xmlFilePath, varargin)                        
+        function obj = hedManager(xmlFilePath, varargin)
             
             % if no path is specified, look for HEDSpecification.xml file under the same directory
-            % where this class is located.            
+            % where this class is located.
             if nargin < 1
                 fullPath = which('hedManager');
                 xmlFilePath  = [fullPath(1:end - length('hedManager.m')) 'HEDSpecification.xml'];
@@ -154,16 +158,16 @@ classdef hedManager
         end;
         
         function [answer description levelIsValid levelMatchedWithHEDNode nodeSequence] = isValidHedTag(obj, hedTag, varargin)
-           % [answer description levelIsValid levelMatchedWithHEDNode nodeSequence] = isValidHedTag(obj, hedTag)
-           %
-           % Returns true if a given HED tag, e.g. '/stimulus/visual' is valid in HED schema 
-           %
-           % Input
-           % answer                    a boolean scalar that is true if the tag is valid and fale
-           %                           otherwise.
-           %
-           % description               a string that contain a text description of the HED node, if
-           %                           availabe in HED xml (inside <description> tags).
+            % [answer description levelIsValid levelMatchedWithHEDNode nodeSequence] = isValidHedTag(obj, hedTag)
+            %
+            % Returns true if a given HED tag, e.g. '/stimulus/visual' is valid in HED schema
+            %
+            % Input
+            % answer                    a boolean scalar that is true if the tag is valid and fale
+            %                           otherwise.
+            %
+            % description               a string that contain a text description of the HED node, if
+            %                           availabe in HED xml (inside <description> tags).
             
             nodeSequence = regexp(hedTag, '[/]', 'split');
             
@@ -180,14 +184,14 @@ classdef hedManager
             % if there was no match, assume 'Time-Locked Event' at the first level.
             if ~answer
                 nodeSequence = cat(2, 'Time-Locked Event', nodeSequence);
-                [answer description levelIsValid levelMatchedWithHEDNode] = isNodeSequenceValid(obj, nodeSequence);                
+                [answer description levelIsValid levelMatchedWithHEDNode] = isNodeSequenceValid(obj, nodeSequence);
             end;
         end;
         
         function answer = isValidHedString(obj, hedString, varargin)
             % answer = isValidHedString(obj, hedString)
             %
-            % Returns true if a given HED st, e.g. '/stimulus/visual, /response/button press, /stimulus/auditory' is 
+            % Returns true if a given HED st, e.g. '/stimulus/visual, /response/button press, /stimulus/auditory' is
             % valid in HED schema.
             
             hedTag =  regexp(hedString, '[;,]', 'split');
@@ -206,11 +210,11 @@ classdef hedManager
             %
             % returns auto-complete alternatives for a given HED tag. For example '/stimulus/vi'
             % will return '/stimulus/visual', or '/stimulus/visual/' will return all tags with lower
-            % level HEd nodes, e.g. {'/stimulus/visual/shape' '/stimulus/visual/fixation point' ...} 
+            % level HEd nodes, e.g. {'/stimulus/visual/shape' '/stimulus/visual/fixation point' ...}
             %
             % Please note that it make a difference whether to have '/' character at the end of the
             % input tag or not: if there is no '/', no lower level HED node will be returned.
-                       
+            
             nodeSequence = regexp(hedTag, '[/]', 'split');
             
             % remove / from start (but not end, so /Stimulus will be different from /Stimulus/
@@ -306,8 +310,8 @@ classdef hedManager
             % Outputs:
             %
             % childNodesCell         a cell array of strings containing names of child nodes under
-            %                        specified parent HEd node. For example 
-            %                         {'Checkerboard'  'Fixation Point'} 
+            %                        specified parent HEd node. For example
+            %                         {'Checkerboard'  'Fixation Point'}
             %
             % description               a string that contain a text description of the parent node, if
             %                           availabe in HED xml (inside <description> tags).
@@ -319,11 +323,11 @@ classdef hedManager
                 nodeSequence = parentNodeName;
                 
                 % there needs to be an empty string at the end to ask for matches as the next level
-                if ~isempty(nodeSequence)                    
+                if ~isempty(nodeSequence)
                     nodeSequence{end+1} = '';
                 end;
             end;
-                        
+            
             [answer description levelIsValid levelMatchedWithHEDNode autoCompleteAlternative] = obj.isNodeSequenceValid(nodeSequence);
             
             % sinc the last node in the sequence is set to '', the parent should be valid only if
@@ -332,7 +336,7 @@ classdef hedManager
             
             if ~isParentValid
                 nodeSequence = cat(2, 'Time-Locked Event', nodeSequence);
-                [answer description levelIsValid levelMatchedWithHEDNode autoCompleteAlternative] = obj.isNodeSequenceValid(nodeSequence);                
+                [answer description levelIsValid levelMatchedWithHEDNode autoCompleteAlternative] = obj.isNodeSequenceValid(nodeSequence);
                 isParentValid = all(levelMatchedWithHEDNode(1:end-1));
             end;
             
@@ -341,7 +345,7 @@ classdef hedManager
                 
                 % get decription
                 % remove the extra '' so we search for one level higher and get the description
-                [answer description] = obj.isNodeSequenceValid(nodeSequence(1:(end-1)));                
+                [answer description] = obj.isNodeSequenceValid(nodeSequence(1:(end-1)));
             else
                 childNodesCell = {};
                 error('Provided parent node is not valid.');
@@ -367,7 +371,7 @@ classdef hedManager
             %    [answer matchedTag] = hed.stringMatchesTag('/stimulus/, response/visual', '/response/visual/target')
             %
             % returns answer = true, matchedTag = 'response/visual'
-
+            
             
             % remove / from start and end of hedTag, as it interferes with string matching.
             if ~isempty(hedTag)
@@ -394,7 +398,7 @@ classdef hedManager
             
             answer = any(matchFound);
             
-            matchedTag = hedTagToMatch(matchFound);            
+            matchedTag = hedTagToMatch(matchFound);
         end;
     end;
 end

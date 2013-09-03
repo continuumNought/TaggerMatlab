@@ -1,5 +1,5 @@
 % findtags
-% Create a fieldMap object for the existing tags in a data structure
+% Creates a fieldMap object for the existing tags in a data structure
 %
 % Usage:
 %   >>  fMap = findtags(edata)

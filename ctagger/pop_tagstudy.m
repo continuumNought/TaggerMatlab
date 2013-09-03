@@ -1,4 +1,4 @@
-% pop_tagstudy opens ctagger GUI to tag EEGLAB study
+% Allows a user to tag a EEGLAB study using a GUI
 %
 % Usage:
 %   >>  [fMap, com] = pop_tagstudy()

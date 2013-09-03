@@ -1,5 +1,5 @@
 % tagstudy
-% Allows a user to tag an EEGLAB study
+% Allows a user to tag a EEGLAB study
 %
 % Usage:
 %   >>  [fMap, fPaths, excluded] = tagstudy(studyFile)

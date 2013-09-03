@@ -1,4 +1,5 @@
-% tagMap    object encapsulating the tags and value labels of one type
+% tagMap 
+% Object encapsulating the tags and value labels of one type
 %
 % Usage:
 %   >>  tMap = tagMap()
