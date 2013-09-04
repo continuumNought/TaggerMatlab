@@ -2,14 +2,13 @@ function test_suite = test_csvMap%#ok<STOUT>
 initTestSuite;
 
 function values = setup %#ok<STOUT,DEFNU>
-% values.TestDirectory = 'H:\TagTestDirectories\TestDataRoot';
 setup_tests;
 
 function teardown(values) %#ok<INUSD,DEFNU>
 % Function executed after each test
 
 function test_constructor(values)  %#ok<DEFNU>
-%Unit test for csvMap for constructor
+% Unit test for csvMap for constructor
 fprintf('\nUnit tests for csvMap with no optional\n');
 
 fprintf('It should work with only the filename as an argument\n');
@@ -37,7 +36,7 @@ assertTrue(isempty(events2));
 assertFalse(isempty(type2));
 
 function test_badfile(values)  %#ok<DEFNU>
-%Unit test for csvMap for basic arguments
+% Unit test for csvMap for bad file
 fprintf('\nUnit tests for csvMap with bad file name\n');
 fprintf('It should not throw an exception when the file doesn''t exist\n');
 obj = csvMap(values.badfile);
@@ -49,13 +48,13 @@ assertTrue(isempty(events));
 assertTrue(isempty(type));
 
 function test_arguments(values)  %#ok<DEFNU>
-%Unit test for csvMap for basic arguments
-fprintf('\nIt should give same answer when key columns specified explicitly\n');
+% Unit test for csvMap for basic arguments
+fprintf('\nIt should give the same answer when key columns specified explicitly\n');
 obj1 = csvMap(values.efile2);
 eValues1 = obj1.getValues();
 events1 = obj1.getEvents();
 type1 = obj1.getType();
-fprintf('It should work explicit event code columns\n');
+fprintf('It should work explicitly with event code columns\n');
 obj2 = csvMap(values.efile2,  'EventColumns', 1:3);
 eValues2 = obj2.getValues();
 events2 = obj2.getEvents();
@@ -64,10 +63,12 @@ assertEqual(length(events2), length(events1));
 assertEqual(length(eValues1), length(eValues2));
 for k = 1:length(events1)
     assertTrue(strcmpi(events1{k}.label, events2{k}.label));
+    assertEqual(obj1.getValue(events1{k}.label), ...
+        obj2.getValue(events2{k}.label));
 end
 assertTrue(strcmpi(type1, type2));
 
-fprintf('It should give work when key and description columns are specified explicitly\n');
+fprintf('It should work when key and description columns are specified explicitly\n');
 obj3 = ...
     csvMap(values.efile1, 'EventColumns', [1, 3, 5], 'DescriptionColumn', 8);
 eValues3 = obj3.getValues();
@@ -77,9 +78,7 @@ assertEqual(length(events3), length(events1));
 assertEqual(length(eValues1), length(eValues3));
 for k = 1:length(events1)
     assertTrue(strcmpi(events1{k}.label, events3{k}.label));
+    assertEqual(obj1.getValue(events1{k}.label), ...
+        obj3.getValue(events2{k}.label));
 end
 assertTrue(strcmpi(type1, type3));
-
-function test_getEvents(values)
-%Unit test for csvMap for basic arguments
-fprintf('\nIt should give same answer when key columns specified explicitly\n');

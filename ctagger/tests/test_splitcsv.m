@@ -2,7 +2,6 @@ function test_suite = test_splitcsv%#ok<STOUT>
 initTestSuite;
 
 function values = setup %#ok<STOUT,DEFNU>
-% values.TestDirectory = 'H:\TagTestDirectories\TestDataRoot';
 setup_tests;
 
 function teardown(values) %#ok<INUSD,DEFNU>

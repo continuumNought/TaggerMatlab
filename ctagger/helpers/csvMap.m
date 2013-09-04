@@ -184,10 +184,24 @@ classdef csvMap < hgsetget
             header = obj.Header;
         end % getHeaders
         
+        function eLabels = getLabels(obj)
+            % Return the unique labels for this map
+            eLabels = obj.TagMap.keys();
+        end % getLabels
+        
         function type = getType(obj)
             % Return a string containing the type names as a key
             type = obj.Type;
         end % getType
+        
+        function value = getValue(obj, label)
+            % Return the value structure corresponding to specified label
+            if obj.ColumnMap.isKey(label)
+                value = obj.ColumnMap(label);
+            else
+                value = '';
+            end
+        end % getValue
         
         function values = getValues(obj)
             % Return the cell array of values from the original file
@@ -204,8 +218,6 @@ classdef csvMap < hgsetget
         
         function writeTags(tMap, filename)
             % Write the tags in csv format given a tag map
-            
-            
         end % writetags
         
     end % public methods
