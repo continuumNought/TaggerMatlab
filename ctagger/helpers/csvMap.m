@@ -186,7 +186,7 @@ classdef csvMap < hgsetget
         
         function eLabels = getLabels(obj)
             % Return the unique labels for this map
-            eLabels = obj.TagMap.keys();
+            eLabels = obj.ColumnMap.keys();
         end % getLabels
         
         function type = getType(obj)
