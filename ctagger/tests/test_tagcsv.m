@@ -38,3 +38,16 @@ assertTrue(strcmpi(type1, types{1}));
 tMap = fMap1.getMap(types{1});
 tEvents = tMap.getValues();
 assertEqual(length(tEvents), length(events1));
+
+fprintf('It should work with RewriteFile as an argument with no tags\n');
+fprintf('....PRESS SUBMIT WITHOUT TAGGING FOR EACH GUI\n');
+csvFile = 'testcsv.csv';
+tagcsv(values.efile2, 'RewriteFile', csvFile);
+obj2 = csvMap(csvFile);
+header2 = obj2.getHeader();
+assertEqual(header2{end}, 'Tags');
+delete(csvFile);
+
+
+
+

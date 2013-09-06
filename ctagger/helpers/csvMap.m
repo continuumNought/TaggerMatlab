@@ -214,23 +214,58 @@ classdef csvMap < hgsetget
             
         end % updateValues
         
-        
-        
-        function writeTags(tMap, filename)
+        function writeTags(obj, tMap, filename)
             % Write the tags in csv format given a tag map
+            fid = fopen(filename,'w');
+            values = obj.addTagValues(tMap);
+            numRows = length(values);
+            for a = 1: numRows
+                currentRow = values{a};
+                numValues = length(currentRow);
+                fprintf(fid, '%s', currentRow{1});
+                for b = 2: numValues
+                    fprintf(fid, ',%s', currentRow{b});
+                end
+                fprintf(fid, '\n');
+            end
+            fclose(fid);
         end % writetags
+        
+        function values = addTagValues(obj, tMap)
+            values = obj.getValues();
+            tMapValues = cell2mat(tMap.getValues);
+            tagValues = {tMapValues.tags};
+            tagsColumn = obj.TagsColumn;
+            if tagsColumn == 0 || tagsColumn > length(values{1})
+                tagsColumn = length(values{1}) + 1;
+                header = values{1};
+                header{tagsColumn} = 'Tags';
+                values{1} = header;
+            end
+            for a = 2:length(values)
+                currentValues = values{a};
+                if ~isempty(tagValues{a-1})
+                    currentValues{tagsColumn} = ...
+                        strjoin(tagValues{a-1}, '|');
+                else
+                    currentValues{tagsColumn} = '';
+                end
+                values{a} = currentValues;
+            end
+        end
         
     end % public methods
     
     
-    methods(Static = true)
+    methods(Static)
+        
         function key = getkey(value, cols, delimiter)
             v = value(cols);
             key = v{1};
             for j = 2:length(v)
                 key = [key delimiter v{j}]; %#ok<AGROW>
             end
-        end % makekey
+        end % getkey
         
         function val = getval(value, col)
             if col == 0
@@ -238,7 +273,12 @@ classdef csvMap < hgsetget
             else
                 val = value{col};
             end
-        end % getdescript
+        end % getval
+        
+        
+        
+        
     end % static methods
+    
 end % csvMap
 
