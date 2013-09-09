@@ -208,16 +208,10 @@ classdef csvMap < hgsetget
             values = obj.Values;
         end % getValues
         
-        function updateValues(obj, tMap)
-            % Update the values cell array based on the tagMap tMap
-            keys = tMap.keys();
-            
-        end % updateValues
-        
         function writeTags(obj, tMap, filename)
             % Write the tags in csv format given a tag map
             fid = fopen(filename,'w');
-            values = obj.addTagValues(tMap);
+            values = obj.updateValues(tMap);
             numRows = length(values);
             for a = 1: numRows
                 currentRow = values{a};
@@ -231,7 +225,8 @@ classdef csvMap < hgsetget
             fclose(fid);
         end % writetags
         
-        function values = addTagValues(obj, tMap)
+        function values = updateValues(obj, tMap)
+            % Update the values cell array based on the tagMap tMap
             values = obj.getValues();
             tMapValues = cell2mat(tMap.getValues);
             tagValues = {tMapValues.tags};
@@ -244,15 +239,15 @@ classdef csvMap < hgsetget
             end
             for a = 2:length(values)
                 currentValues = values{a};
-                if ~isempty(tagValues{a-1})
+                if iscellstr(tagValues{a-1})
                     currentValues{tagsColumn} = ...
                         strjoin(tagValues{a-1}, '|');
                 else
-                    currentValues{tagsColumn} = '';
+                    currentValues{tagsColumn} = tagValues{a-1};
                 end
                 values{a} = currentValues;
             end
-        end
+        end % updateValues
         
     end % public methods
     
@@ -274,10 +269,7 @@ classdef csvMap < hgsetget
                 val = value{col};
             end
         end % getval
-        
-        
-        
-        
+         
     end % static methods
     
 end % csvMap
