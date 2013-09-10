@@ -11,7 +11,7 @@ codeValues = ['1,User response,' ...
     '/Time-Locked Event/Stimulus/Visual/Uniform Color/Black;' ...
     '2,User stimulus,,;3,User failed to respond,'];
 % Read in the HED schema
-latestHed = 'HEDSpecification1.3.xml';
+latestHed = 'HEDSpecification1.4.xml';
 values.xml = fileread(latestHed);
 values.type = typeValues;
 values.code = codeValues;

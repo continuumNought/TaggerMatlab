@@ -9,6 +9,5 @@ function testValid()  %#ok<DEFNU>
     fprintf('PRESS OKAY AFTER ENTERING SAVE PROP PATH \n');
     configProps = dbcreds();
     assertTrue(~isempty(configProps));
-    assertTrue(exist(configProps, 'file') ~= 0);
-  
+    assertTrue(exist(configProps, 'file') ~= 0);  
  

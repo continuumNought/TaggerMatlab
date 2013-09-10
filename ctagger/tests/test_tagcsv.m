@@ -51,13 +51,14 @@ header1 = obj1.getHeader();
 header2 = obj2.getHeader();
 values1 = obj1.getValues();
 values2 = obj2.getValues();
+assertTrue(exist(csvFile,'file') > 0)
 assertEqual(length(values1{1}) + 1, length(values2{1})); 
 assertEqual(length(header1) + 1, length(header2));
 assertEqual(header2{end}, 'Tags');
 delete(csvFile);
 
 fprintf(['It should work with RewriteFile as an argument with existing' ...
-    ' tags\n']);
+    ' tags as well as event, tag, and description columns specified\n']);
 fprintf('....PRESS SUBMIT WITHOUT TAGGING FOR EACH GUI\n');
 fprintf(['The csv rewrite file should have the same number of columns'  ...
     ' as the csv file passed in to create the csvMap\n']);
@@ -69,10 +70,23 @@ header3 = obj3.getHeader();
 header4 = obj4.getHeader();
 values3 = obj3.getValues();
 values4 = obj4.getValues();
+assertTrue(exist(csvFile,'file') > 0)
 assertEqual(length(values3{1}), length(values4{1})); 
 assertEqual(length(header3), length(header4));
 delete(csvFile);
 
-
-
-
+fprintf(['....PRESS SUBMIT AFTER ADDING 2 TAGS TO THE FIRST EVENT' ...
+    ' (1|1|1)\n']);
+fprintf('There should be 2 tags added to the first event (1|1|1)');
+tagcsv(values.efile1, 'EventColumns', [1, 3, 5], 'DescriptionColumn', ...
+    8,'TagsColumn', 7, 'RewriteFile', csvFile);
+obj5 = csvMap(values.efile1);
+obj6 = csvMap(csvFile);
+values5 = obj5.getValues();
+values6 = obj6.getValues();
+values5Row1 = values5{2};
+tags1 = strsplit(values5Row1{7}, '|');
+values6Row1 = values6{2};
+tags2 = strsplit(values6Row1{7}, '|');
+assertEqual(length(tags1) + 2, length(tags2)); 
+delete(csvFile);
