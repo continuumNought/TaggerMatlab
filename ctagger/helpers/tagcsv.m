@@ -136,6 +136,11 @@ function fMap = tagcsv(filename, varargin)
         baseTags = fieldMap.loadFieldMap(p.BaseMap);
     end
     fMap.merge(baseTags, 'Merge', {}, fMap.getFields());
+    
+    if p.SelectOption
+        fprintf('\n---Now select the fields you want to tag---\n');
+        fMap = selectmaps(fMap, 'Fields', fMap.getFields());
+    end
 
     fMap = editmaps_db(fMap, 'DbCreds', p.DbCreds, 'PreservePrefix', ...
         p.PreservePrefix, 'Synchronize', p.Synchronize, 'UseGui', p.UseGui);
