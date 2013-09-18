@@ -241,7 +241,7 @@ classdef csvMap < hgsetget
                 currentValues = values{a};
                 if iscellstr(tagValues{a-1})
                     currentValues{tagsColumn} = ...
-                        strjoin(tagValues{a-1}, '|');
+                        strjoin(tagValues{a-1}, obj.Delimiter);
                 else
                     currentValues{tagsColumn} = tagValues{a-1};
                 end
