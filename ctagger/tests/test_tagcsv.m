@@ -23,10 +23,10 @@ eTags2 = tagcsv('--34', 'UseGui', false);
 assertTrue(isa(eTags2, 'fieldMap'));
 assertTrue(isempty(eTags2.getFields()));
 
-function test_basic(values)  %#ok<DEFNU>
+function test_tagcsvBasic(values)  %#ok<DEFNU>
 %Unit test for tagcsv for basic stuff
-fprintf('\nUnit tests for tagcsv with no write\n');
-
+fprintf('\nUnit tests for tagcsv only filename\n');
+fprintf('....PRESS SUBMIT WITHOUT TAGGING FOR EACH GUI\n');
 fprintf('It should work with only the filename as an argument\n');
 fMap1 = tagcsv(values.efile2);
 obj1 = csvMap(values.efile2);
@@ -39,11 +39,15 @@ tMap = fMap1.getMap(types{1});
 tEvents = tMap.getValues();
 assertEqual(length(tEvents), length(events1));
 
-fprintf('It should work with RewriteFile as an argument with no tags\n');
+function test_tagcsvRewrite(values)  %#ok<DEFNU>
+%Unit test for tagcsv with rewrite file 
+fprintf('\nUnit tests for tagcsv with rewrite file\n');
+
+fprintf(['It should work with RewriteFile as an argument without a' ...
+    ' tags column specified\n']);
 fprintf('....PRESS SUBMIT WITHOUT TAGGING FOR EACH GUI\n');
-fprintf(['The csv rewrite file should have one more addition column' ...
-    ' than the number of columns the csv file has passed in to create' ...
-    ' the csvMap\n']);
+fprintf('The csv rewrite file should not have a tags column');
+obj1 = csvMap(values.efile2);
 csvFile = 'testcsv.csv';
 tagcsv(values.efile2, 'RewriteFile', csvFile);
 obj2 = csvMap(csvFile);
@@ -52,9 +56,40 @@ header2 = obj2.getHeader();
 values1 = obj1.getValues();
 values2 = obj2.getValues();
 assertTrue(exist(csvFile,'file') > 0)
-assertEqual(length(values1{1}) + 1, length(values2{1})); 
+assertEqual(length(values1{1}), length(values2{1})); 
+assertEqual(length(header1), length(header2));
+delete(csvFile);
+
+fprintf(['It should work with RewriteFile as an argument with a tags ' ...
+    ' column specified\n']);
+fprintf(['....PRESS SUBMIT AFTER ADDING 2 TAGS TO THE FIRST EVENT' ...
+    ' (1|1|1)\n']);
+fprintf('The csv rewrite file should have a tags column');
+obj1 = csvMap(values.efile2);
+csvFile = 'testcsv.csv';
+tagcsv(values.efile2, 'RewriteFile', csvFile, 'TagsColumn', 4);
+obj2 = csvMap(csvFile);
+header1 = obj1.getHeader();
+header2 = obj2.getHeader();
+assertTrue(exist(csvFile,'file') > 0)
 assertEqual(length(header1) + 1, length(header2));
-assertEqual(header2{end}, 'Tags');
+assertEqual(header2{4}, 'Tags');
+delete(csvFile);
+
+fprintf(['It should work with RewriteFile as an argument with a tags ' ...
+    ' column specified\n']);
+fprintf(['....PRESS SUBMIT AFTER ADDING A DESCRIPTION TO THE FIRST EVENT' ...
+    ' (1|1|1)\n']);
+fprintf('The csv rewrite file should have a tags column');
+obj1 = csvMap(values.efile2);
+csvFile = 'testcsv.csv';
+tagcsv(values.efile2, 'RewriteFile', csvFile, 'DescriptionColumn', 4);
+obj2 = csvMap(csvFile);
+header1 = obj1.getHeader();
+header2 = obj2.getHeader();
+assertTrue(exist(csvFile,'file') > 0)
+assertEqual(length(header1) + 1, length(header2));
+assertEqual(header2{4}, 'Description');
 delete(csvFile);
 
 fprintf(['It should work with RewriteFile as an argument with existing' ...

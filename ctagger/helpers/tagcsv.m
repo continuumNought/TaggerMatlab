@@ -111,6 +111,9 @@ function fMap = tagcsv(filename, varargin)
         @(x)(isnumeric(x) && (isscalar(x) || isvector(x))));
     parser.addParamValue('PreservePrefix', false, @islogical);
     parser.addParamValue('RewriteFile', '', @(x)(ischar(x)));
+    parser.addParamValue('RewriteOption', 'Merge', ...
+        @(x) any(validatestring(lower(x), ...
+        {'Insert', 'Merge', 'Overwrite'})));
     parser.addParamValue('SaveMapFile', '', @(x)(ischar(x)));
     parser.addParamValue('SelectOption', true, @islogical);
     parser.addParamValue('Synchronize', false, @islogical);

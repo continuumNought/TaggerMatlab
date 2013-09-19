@@ -211,7 +211,9 @@ classdef csvMap < hgsetget
         function writeTags(obj, tMap, filename)
             % Write the tags in csv format given a tag map
             fid = fopen(filename,'w');
-            values = obj.updateValues(tMap);
+            values = obj.getValues();
+            values = obj.updateTagValues(values, tMap);
+            values = obj.updateDescriptionValues(values, tMap);
             numRows = length(values);
             for a = 1: numRows
                 currentRow = values{a};
@@ -225,14 +227,14 @@ classdef csvMap < hgsetget
             fclose(fid);
         end % writetags
         
-        function values = updateValues(obj, tMap)
+        function values = updateTagValues(obj, values, tMap)
             % Update the values cell array based on the tagMap tMap
-            values = obj.getValues();
             tMapValues = cell2mat(tMap.getValues);
             tagValues = {tMapValues.tags};
             tagsColumn = obj.TagsColumn;
-            if tagsColumn == 0 || tagsColumn > length(values{1})
-                tagsColumn = length(values{1}) + 1;
+            if tagsColumn == 0
+                return;
+            elseif tagsColumn > length(values{1})
                 header = values{1};
                 header{tagsColumn} = 'Tags';
                 values{1} = header;
@@ -247,7 +249,27 @@ classdef csvMap < hgsetget
                 end
                 values{a} = currentValues;
             end
-        end % updateValues
+        end % updateTagValues
+        
+        function values = updateDescriptionValues(obj, values, tMap)
+            % Update the values cell array based on the tagMap tMap
+            tMapValues = cell2mat(tMap.getValues);
+            descriptionValues = {tMapValues.description};
+            descriptionColumn = obj.DescriptionColumn;
+            if descriptionColumn == 0
+                return;
+            elseif descriptionColumn > length(values{1})
+                header = values{1};
+                header{descriptionColumn} = 'Description';
+                values{1} = header;
+            end
+            for a = 2:length(values)
+                currentValues = values{a};
+                currentValues{descriptionColumn} = ...
+                    descriptionValues{a-1};
+                values{a} = currentValues;
+            end
+        end % updateDescriptionValues
         
     end % public methods
     
@@ -263,13 +285,13 @@ classdef csvMap < hgsetget
         end % getkey
         
         function val = getval(value, col)
-            if col == 0
+            if col == 0 || col > length(value)
                 val = '';
             else
                 val = value{col};
             end
         end % getval
-         
+        
     end % static methods
     
 end % csvMap
