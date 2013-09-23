@@ -7,12 +7,12 @@
 %
 %% Description
 % fMap = tagcsv(filename) extracts a fieldMap object from the csv
-% file and then presents a GUI for choosing which fields to tag. 
+% file and then presents a GUI for choosing which fields to tag.
 % The ctagger GUI is displayed so that users can
 % edit/modify the tags. The GUI is launched in asynchronous mode.
 % Finally the tags are rewritten to the csv file.
 %
-% The final, consolidated and edited fieldMap object is returned in fMap. 
+% The final, consolidated and edited fieldMap object is returned in fMap.
 % If fPaths is empty, then fMap will not contain any tag information.
 %
 % fMap = tagcsv(inDir, 'key1', 'value1', ...) specifies
@@ -25,7 +25,7 @@
 %                    database is not used. (See notes.)
 %   'Delimiter'      A string containing the delimiter separating event
 %                    code components.
-%   'DescriptionColumn'   A non-negative integer specifying the column 
+%   'DescriptionColumn'   A non-negative integer specifying the column
 %                    that corresponds to the event code description.
 %                    Users should provide detailed documentation of
 %                    exactly what this code means with respect to the
@@ -51,7 +51,7 @@
 %                    synchronization is done within Java. This latter
 %                    option is usually reserved when not calling the GUI
 %                    from MATLAB.
-%   'TagsColumn'     A non-negative integer specifying the column 
+%   'TagsColumn'     A non-negative integer specifying the column
 %                    that corresponds to the tags that are currently
 %                    assigned to the event code combination of that
 %                    row of the csv file.
@@ -100,63 +100,63 @@
 %
 function fMap = tagcsv(filename, varargin)
 % Parse the input arguments
-    parser = inputParser;
-    parser.addRequired('FileName', @(x) (~isempty(x) && ischar(x)));
-    parser.addParamValue('BaseMap', '', @(x)(ischar(x)));
-    parser.addParamValue('DbCreds', '', @(x)(ischar(x)));
-    parser.addParamValue('Delimiter', '|', @(x) (ischar(x)));
-    parser.addParamValue('DescriptionColumn', 0, ...
-        @(x)(isnumeric(x) && (isscalar(x) || isempty(x))));
-    parser.addParamValue('EventColumns', 0, ...
-        @(x)(isnumeric(x) && (isscalar(x) || isvector(x))));
-    parser.addParamValue('PreservePrefix', false, @islogical);
-    parser.addParamValue('RewriteFile', '', @(x)(ischar(x)));
-    parser.addParamValue('RewriteOption', 'Merge', ...
-        @(x) any(validatestring(lower(x), ...
-        {'Insert', 'Merge', 'Overwrite'})));
-    parser.addParamValue('SaveMapFile', '', @(x)(ischar(x)));
-    parser.addParamValue('SelectOption', true, @islogical);
-    parser.addParamValue('Synchronize', false, @islogical);
-    parser.addParamValue('TagsColumn', 0, ...
-        @(x)(isnumeric(x) && (isscalar(x) || isempty(x))));
-    parser.addParamValue('UseGui', true, @islogical);
-    parser.parse(filename, varargin{:});
-    p = parser.Results;
-    fMap = fieldMap('PreservePrefix',  p.PreservePrefix);
-    cMap = csvMap(filename, 'Delimiter', p.Delimiter, ...
-        'DescriptionColumn', p.DescriptionColumn, ...
-        'EventColumns', p.EventColumns, ...
-        'TagsColumn', p.TagsColumn);
-    if isempty(cMap.getType())
-        return;
-    end
+parser = inputParser;
+parser.addRequired('FileName', @(x) (~isempty(x) && ischar(x)));
+parser.addParamValue('BaseMap', '', @(x)(ischar(x)));
+parser.addParamValue('DbCreds', '', @(x)(ischar(x)));
+parser.addParamValue('Delimiter', '|', @(x) (ischar(x)));
+parser.addParamValue('DescriptionColumn', 0, ...
+    @(x)(isnumeric(x) && (isscalar(x) || isempty(x))));
+parser.addParamValue('EventColumns', 0, ...
+    @(x)(isnumeric(x) && (isscalar(x) || isvector(x))));
+parser.addParamValue('PreservePrefix', false, @islogical);
+parser.addParamValue('RewriteFile', '', @(x)(ischar(x)));
+parser.addParamValue('RewriteOption', 'Merge', ...
+    @(x) any(validatestring(lower(x), ...
+    {'Insert', 'Merge', 'Overwrite'})));
+parser.addParamValue('SaveMapFile', '', @(x)(ischar(x)));
+parser.addParamValue('SelectOption', true, @islogical);
+parser.addParamValue('Synchronize', false, @islogical);
+parser.addParamValue('TagsColumn', 0, ...
+    @(x)(isnumeric(x) && (isscalar(x) || isempty(x))));
+parser.addParamValue('UseGui', true, @islogical);
+parser.parse(filename, varargin{:});
+p = parser.Results;
+fMap = fieldMap('PreservePrefix',  p.PreservePrefix);
+cMap = csvMap(filename, 'Delimiter', p.Delimiter, ...
+    'DescriptionColumn', p.DescriptionColumn, ...
+    'EventColumns', p.EventColumns, ...
+    'TagsColumn', p.TagsColumn);
+if isempty(cMap.getType())
+    return;
+end
 
-    % Add the event and other information to the map
-    fMap.addValues(cMap.getType(), cMap.getEvents());
-    if isa(p.BaseMap, 'fieldMap')
-        baseTags = p.BaseMap;
-    else
-        baseTags = fieldMap.loadFieldMap(p.BaseMap);
-    end
-    fMap.merge(baseTags, 'Merge', {}, fMap.getFields());
-    
-    if p.SelectOption
-        fprintf('\n---Now select the fields you want to tag---\n');
-        fMap = selectmaps(fMap, 'Fields', fMap.getFields());
-    end
+% Add the event and other information to the map
+fMap.addValues(cMap.getType(), cMap.getEvents());
+if isa(p.BaseMap, 'fieldMap')
+    baseTags = p.BaseMap;
+else
+    baseTags = fieldMap.loadFieldMap(p.BaseMap);
+end
+fMap.merge(baseTags, 'Merge', {}, fMap.getFields());
 
-    fMap = editmaps_db(fMap, 'DbCreds', p.DbCreds, 'PreservePrefix', ...
-        p.PreservePrefix, 'Synchronize', p.Synchronize, 'UseGui', p.UseGui);
+if p.SelectOption
+    fprintf('\n---Now select the fields you want to tag---\n');
+    fMap = selectmaps(fMap, 'Fields', fMap.getFields());
+end
 
-    % Save the tags file for next step
-    if ~isempty(p.SaveMapFile) && ~fieldMap.saveFieldMap(p.SaveMapFile, ...
-            fMap)
-        warning('tagcsv:invalidFile', ...
-            ['Couldn''t save fieldMap to ' p.SaveMapFile]);
-    end
+fMap = editmaps_db(fMap, 'DbCreds', p.DbCreds, 'PreservePrefix', ...
+    p.PreservePrefix, 'Synchronize', p.Synchronize, 'UseGui', p.UseGui);
 
-    if isempty(p.RewriteFile)
-        return;
-    end
+% Save the tags file for next step
+if ~isempty(p.SaveMapFile) && ~fieldMap.saveFieldMap(p.SaveMapFile, ...
+        fMap)
+    warning('tagcsv:invalidFile', ...
+        ['Couldn''t save fieldMap to ' p.SaveMapFile]);
+end
+
+if ~isempty(p.RewriteFile)
     cMap.writeTags(fMap.getMap(cMap.getType()), p.RewriteFile);
+end
+
 end % tagcsv

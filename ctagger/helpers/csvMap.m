@@ -229,12 +229,13 @@ classdef csvMap < hgsetget
         
         function values = updateTagValues(obj, values, tMap)
             % Update the values cell array based on the tagMap tMap
+            headerSize = length(obj.getHeader());
             tMapValues = cell2mat(tMap.getValues);
             tagValues = {tMapValues.tags};
             tagsColumn = obj.TagsColumn;
             if tagsColumn == 0
                 return;
-            elseif tagsColumn > length(values{1})
+            elseif tagsColumn > headerSize
                 header = values{1};
                 header{tagsColumn} = 'Tags';
                 values{1} = header;
@@ -253,20 +254,27 @@ classdef csvMap < hgsetget
         
         function values = updateDescriptionValues(obj, values, tMap)
             % Update the values cell array based on the tagMap tMap
+            headerSize = length(obj.getHeader());
             tMapValues = cell2mat(tMap.getValues);
             descriptionValues = {tMapValues.description};
             descriptionColumn = obj.DescriptionColumn;
+            existingColumn = true;
             if descriptionColumn == 0
                 return;
-            elseif descriptionColumn > length(values{1})
+            elseif descriptionColumn > headerSize
                 header = values{1};
                 header{descriptionColumn} = 'Description';
                 values{1} = header;
+                existingColumn = false;
             end
             for a = 2:length(values)
                 currentValues = values{a};
-                currentValues{descriptionColumn} = ...
-                    descriptionValues{a-1};
+                if ~isempty(descriptionValues{a-1})
+                    currentValues{descriptionColumn} = ...
+                        descriptionValues{a-1};
+                elseif ~existingColumn
+                    currentValues{descriptionColumn} = '';
+                end
                 values{a} = currentValues;
             end
         end % updateDescriptionValues

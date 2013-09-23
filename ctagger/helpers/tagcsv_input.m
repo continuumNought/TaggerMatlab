@@ -1,23 +1,23 @@
 % tagcsv_input
 % GUI for input needed to create inputs for tagcsv
 %
-function [filename, delimiter, baseMap, dbCredsFile, ...
-    descriptionColumn, eventsColumn, preservePrefix, ...
-    rewriteFile, saveMapFile,  selectOption, tagsColumn, useGUI, ...
-    cancelled] = tagcsv_input()
+function [baseMap, cancelled, dbCredsFile, delimiter, ...
+    descriptionColumn, eventColumn, filename, preservePrefix, ...
+    rewriteFile, saveMapFile, selectOption, tagsColumn, useGUI] = ...
+    tagcsv_input()
 
 % Setup the variables used by the GUI
 baseMap = '';
 cancelled = true;
-delimiter = '';
 dbCredsFile = '';
+delimiter = '|';
 descriptionColumn = 0;
-eventsColumn = 0;
+eventColumn = 0;
+filename = '';
 preservePrefix = false;
+rewriteFile = '';
 saveMapFile = '';
 selectOption = true;
-filename = '';
-rewriteFile = '';
 tagsColumn = 0;
 useGUI = true;
 theTitle = 'Inputs for tagging csv file';
@@ -204,7 +204,7 @@ uiwait(inputFig);
             'Other options', 'Padding', 5);
         bBox = uiextras.Grid('Parent', panel, ...
             'Tag', 'OptionsGrid', 'Spacing', 5);
-        %{'Merge', 'Replace', 'TagsOnly', 'Update'})       
+        %{'Merge', 'Replace', 'TagsOnly', 'Update'})
         u1 = uicontrol('Parent', bBox, ...
             'Style', 'CheckBox', 'Tag', 'SelectOptionCB', ...
             'String', 'Use GUI to select fields to tag', 'Enable', 'on', 'Tooltip', ...
@@ -280,10 +280,10 @@ uiwait(inputFig);
         % Callback for browse button sets a directory for control
         baseMap = '';
         cancelled = true;
-        delimiter = '';
+        delimiter = '|';
         dbCredsFile = '';
         descriptionColumn = 0;
-        eventsColumn = 0;
+        eventColumn = 0;
         preservePrefix = false;
         saveMapFile = '';
         selectOption = true;
@@ -335,7 +335,7 @@ uiwait(inputFig);
             warndlg(['Input must be a number or a comma separated list' ...
                 ' of numbers']);
         end
-        eventsColumn = str2double(get(src, 'String'));
+        eventColumn = str2double(get(src, 'String'));
     end % tagCtrlCallback
 
     function tagCtrlCallback(src, eventdata) %#ok<INUSD>
