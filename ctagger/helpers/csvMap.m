@@ -1,4 +1,5 @@
-% csvMap    Object encapsulating the csv representation of a tag map
+% csvMap
+% Object encapsulating the csv representation of a tag map
 %
 % Usage:
 %   >>  obj = csvMap()
@@ -11,7 +12,11 @@
 %
 % obj = csvMap('key1', 'value1') where the key-value pair is:
 %
-%   'Field'            field name corresponding to these value tags
+%   'FileName'             The file name of the .csv file
+%   'Delimiter'            Delimiter between tokens in the key
+%   'DescriptionColumn'    Column number of description column
+%   'EventColumns'         Numbers of the columns of event key labels
+%   'TagsColumn'           Column number of tag column
 %
 % Notes:
 %
@@ -33,48 +38,13 @@
 %
 %            '1,description 1,;302,description 302,;43,description 43,'
 %
-% Most of the arguments of csvMap a
-%
-% Example:
-%  1x2 struct array with fields:
-%     label
-%     description
-%     tags
-%
-% Description of update options for addValue:
-%    'merge'         If the structure label is not a key of this map, add the
-%                    entire structure as is, including the description.
-%                    Otherwise, if the structure label is a
-%                    key for this map, then merge the tags with those
-%                    of the existing structure, using the PreservePrefix
-%                    value to determine how to combine the tags.
-%                    Also replace an empty description field with the
-%                    description from the incoming structure.
-%    'replace'       If the structure label is not a key of this map,
-%                    do nothing. Otherwise, if the structure label is a
-%                    key for this map, then completely replace the map
-%                    value structure with this structure.
-%    'onlytags'      If the structure label is not a key of this map,
-%                    do nothing. Otherwise, if the structure label is a
-%                    key for this map, then merge the tags with those
-%                    of the existing structure, using the PreservePrefix
-%                    value to determine how to combine the tags.
-%    'update'        If the structure label is not a key of this map,
-%                    do nothing. Otherwise, if the structure label is a
-%                    key for this map, then merge the tags with those
-%                    of the existing structure, using the PreservePrefix
-%                    value to determine how to combine the tags.
-%                    Also replace an empty description field with the
-%                    description from the incoming structure.
-%    'none'          Don't do any updating
-%
 % Class documentation:
 % Execute the following in the MATLAB command window to view the class
 % documentation for csvMap:
 %
 %    doc csvMap
 %
-% See also: findtags, tageeg, tagdir, tagstudy, dataTags
+% See also: findtags, tagcsv, tageeg, tagdir, tagstudy, dataTags
 %
 
 % Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013, krobbins@cs.utsa.edu
@@ -209,7 +179,7 @@ classdef csvMap < hgsetget
         end % getValues
         
         function writeTags(obj, tMap, filename)
-            % Write the tags in csv format given a tag map
+            % Write the tags in .csv format given a tagMap tMap
             fid = fopen(filename,'w');
             values = obj.getValues();
             values = obj.updateTagValues(values, tMap);
@@ -228,7 +198,7 @@ classdef csvMap < hgsetget
         end % writetags
         
         function values = updateTagValues(obj, values, tMap)
-            % Update the values cell array based on the tagMap tMap
+            % Update the values cell array based on the tags in tagMap tMap
             headerSize = length(obj.getHeader());
             tMapValues = cell2mat(tMap.getValues);
             tagValues = {tMapValues.tags};
@@ -253,7 +223,8 @@ classdef csvMap < hgsetget
         end % updateTagValues
         
         function values = updateDescriptionValues(obj, values, tMap)
-            % Update the values cell array based on the tagMap tMap
+            % Update the values cell array based on the description in
+            % tagMap tMap
             headerSize = length(obj.getHeader());
             tMapValues = cell2mat(tMap.getValues);
             descriptionValues = {tMapValues.description};
@@ -285,6 +256,7 @@ classdef csvMap < hgsetget
     methods(Static)
         
         function key = getkey(value, cols, delimiter)
+            % Return a key given the column(s) of value
             v = value(cols);
             key = v{1};
             for j = 2:length(v)
@@ -293,6 +265,7 @@ classdef csvMap < hgsetget
         end % getkey
         
         function val = getval(value, col)
+            % Return the value of a particular column
             if col == 0 || col > length(value)
                 val = '';
             else

@@ -1,5 +1,6 @@
 function createdb(dbname, hostname, port, username, password, varargin)
-% Creates a ctagger database
+% Creates a community tagger database from credentials passed in from the
+% user 
 parser = inputParser();
 parser.addRequired('dbname', @(x) (~isempty(x) && ischar(x)));
 parser.addRequired('hostname', @(x) (~isempty(x) && ischar(x)));
