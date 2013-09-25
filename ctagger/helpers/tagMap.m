@@ -12,7 +12,7 @@
 %
 % tMap = tagMap('key1', 'value1') where the key-value pair is:
 %
-%   'Field'            field name corresponding to these value tags
+%        'Field'                Name of field for this group of tags
 %
 % Notes:
 %

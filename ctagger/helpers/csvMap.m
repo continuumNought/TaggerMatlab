@@ -2,17 +2,16 @@
 % Object encapsulating the csv representation of a tag map
 %
 % Usage:
-%   >>  obj = csvMap()
-%   >>  obj = csvMap('key1', 'value1', ...)
+%   >>  obj = csvMap(filename)
+%   >>  obj = csvMap(filename, 'key1', 'value1', ...)
 %
 % Description:
-% obj = csvMap() creates an object that holds the associations of
+% obj = csvMap(filename) creates an object that holds the associations of
 % tags and values for one type or group name. By default the name
 % of the field or type is 'type'.
 %
-% obj = csvMap('key1', 'value1') where the key-value pair is:
+% obj = csvMap(filename, 'key1', 'value1') where the key-value pair is:
 %
-%   'FileName'             The file name of the .csv file
 %   'Delimiter'            Delimiter between tokens in the key
 %   'DescriptionColumn'    Column number of description column
 %   'EventColumns'         Numbers of the columns of event key labels
@@ -179,7 +178,7 @@ classdef csvMap < hgsetget
         end % getValues
         
         function writeTags(obj, tMap, filename)
-            % Write the tags in .csv format given a tagMap tMap
+            % Write the tags in .csv format given a tag map tMap
             fid = fopen(filename,'w');
             values = obj.getValues();
             values = obj.updateTagValues(values, tMap);
@@ -198,7 +197,8 @@ classdef csvMap < hgsetget
         end % writetags
         
         function values = updateTagValues(obj, values, tMap)
-            % Update the values cell array based on the tags in tagMap tMap
+            % Update the values cell array based on the tags in tag map
+            % tMap
             headerSize = length(obj.getHeader());
             tMapValues = cell2mat(tMap.getValues);
             tagValues = {tMapValues.tags};
@@ -224,7 +224,7 @@ classdef csvMap < hgsetget
         
         function values = updateDescriptionValues(obj, values, tMap)
             % Update the values cell array based on the description in
-            % tagMap tMap
+            % tag map tMap
             headerSize = length(obj.getHeader());
             tMapValues = cell2mat(tMap.getValues);
             descriptionValues = {tMapValues.description};
