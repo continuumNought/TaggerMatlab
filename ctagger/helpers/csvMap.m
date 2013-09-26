@@ -45,7 +45,6 @@
 %
 % See also: findtags, tagcsv, tageeg, tagdir, tagstudy, dataTags
 %
-
 % Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013, krobbins@cs.utsa.edu
 %
 % This program is free software; you can redistribute it and/or modify

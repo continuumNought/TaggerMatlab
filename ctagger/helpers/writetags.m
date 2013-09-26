@@ -14,8 +14,6 @@
 % name/value parameter pairs:
 %
 %   'ExcludeFields'  A cell array containing the field names to exclude
-%   'Fields'         A cell array containing the field names to extract
-%                    tags for.
 %   'PreservePrefix' If false (default), tags associated with same value that
 %                    share prefixes are combined and only the most specific
 %                    is retained (e.g., /a/b/c and /a/b become just
@@ -41,7 +39,6 @@
 %
 % See also: tageeg, fieldMap, and tagMap
 %
-
 % Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013, krobbins@cs.utsa.edu
 %
 % This program is free software; you can redistribute it and/or modify

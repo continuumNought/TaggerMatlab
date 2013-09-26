@@ -71,7 +71,6 @@
 %
 % See also: findtags, tageeg, tagdir, tagstudy, tagMap
 %
-
 % Copyright (C) Kay Robbins and Thomas Rognon, UTSA, ...
 % 2011-2013, krobbins@cs.utsa.edu
 %

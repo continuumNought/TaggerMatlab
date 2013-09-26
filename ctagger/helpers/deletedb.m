@@ -9,7 +9,7 @@
 % deletedb(dbname, hostname, port, username, password) deletes a 
 % community tagger database. 
 %
-% Fucntion documentation:
+% Function documentation:
 % Execute the following in the MATLAB command window to view the class
 % documentation for csvMap:
 %
@@ -17,7 +17,6 @@
 %
 % See also: createdb, createdbc, deletedbc
 %
-
 % Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013, krobbins@cs.utsa.edu
 %
 % This program is free software; you can redistribute it and/or modify
@@ -38,6 +37,7 @@
 % $Revision: 1.00 15-Feb-2013 08:03:48 krobbins $
 % $Initial version $
 %
+
 function deletedb(dbname, hostname, port, username, password)
 parser = inputParser();
 parser.addRequired('dbname', @(x) (~isempty(x) && ischar(x)));

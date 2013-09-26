@@ -1,13 +1,15 @@
 % createdbc
 % Creates a community tagger database from a property file that contains 
 % database credentials 
+%
 % Usage:
-%   >>  createdbc(credPath)
-%   >>  createdbc(credPath, 'key1', 'value1', ...)
+%   >>  createdbc(propertyfilename)
+%   >>  createdbc(propertyfilename, 'key1', 'value1', ...)
+%
 % Description:
-% createdbc(credPath) creates a community tagger database from a property
-% file containing the database credentials. The newly created database is 
-% empty.
+% createdbc(propertyfilename) creates a community tagger database from a 
+% property file containing the database credentials. The newly created 
+% database is empty.
 %
 % obj = createdbc(dbname, hostname, port, username, password, 'key1', ...
 %       'value1') where the key-value pair is:
@@ -22,7 +24,6 @@
 %    doc createdbc
 %
 % See also: createdb, deletedb, deletedbc
-%
 %
 % Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013, krobbins@cs.utsa.edu
 %
@@ -44,13 +45,14 @@
 % $Revision: 1.00 15-Feb-2013 08:03:48 krobbins $
 % $Initial version $
 %
-function createdbc(credPath, varargin)
+
+function createdbc(propertyfilename, varargin)
 parser = inputParser;
-parser.addRequired('credPath', @(x) (~isempty(x) && ischar(x)));
+parser.addRequired('PropertyFileName', @(x) (~isempty(x) && ischar(x)));
 parser.addOptional('SqlFile', 'tags.sql', @(x) (~isempty(x) && ischar(x)));
-parser.parse(credPath, varargin{:});
+parser.parse(propertyfilename, varargin{:});
 p = parser.Results;
-edu.utsa.tagger.database.ManageDB.createDatabase(p.credPath, ...
+edu.utsa.tagger.database.ManageDB.createDatabase(p.propertyfilename, ...
     which(p.SqlFile));
 end
 
