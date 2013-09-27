@@ -12,7 +12,6 @@
 %
 % eData = writetags(eData, fMap, 'key1', 'value1', ...) specifies optional
 % name/value parameter pairs:
-%
 %   'ExcludeFields'  A cell array containing the field names to exclude
 %   'PreservePrefix' If false (default), tags associated with same value that
 %                    share prefixes are combined and only the most specific
@@ -36,6 +35,12 @@
 %   2) If the 'RewriteOption' is either 'Both' or 'Individual', the tags
 %      are also written to x.event.usertags based on the individual 
 %      values of their events.
+%
+% Function documentation:
+% Execute the following in the MATLAB command window to view the function
+% documentation for writetags:
+%
+%    doc writetags
 %
 % See also: tageeg, fieldMap, and tagMap
 %

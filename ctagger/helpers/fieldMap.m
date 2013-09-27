@@ -18,25 +18,20 @@
 %                      prefixes are merged to be the longest
 %   'XML'              XML string specifying tag hierarchy to be used.
 %
-%
 % addTags mergeOptions:
 %   'Merge'           If an event with that key is not part of this
 %                     object, add it as is.
-%
 %   'None'            Don't update anything in the structure
-%
 %   'Replace'         If an event with that key is not part of this
 %                     object, do nothing. Otherwise, if an event with that
 %                     key is part of this object then completely replace
 %                     that event with the new one.
-%
 %   'OnlyTags'        If an event with that key is not part of this
 %                     object, do nothing. Otherwise, if an event with that
 %                     key is part of this object, then update the tags of
 %                     the matching event with the new ones from this event,
 %                     using the PreservePrefix value to determine how to
 %                     combine the tags.
-%
 %   'Update'          If an event with that key is not part of this
 %                     object, do nothing. Otherwise, if an event with that
 %                     key is part of this object, then update the tags of
@@ -362,7 +357,7 @@ classdef fieldMap < hgsetget
             catch ME         %#ok<NASGU>
                 successful = false;
             end
-        end % saveTagFile
+        end % saveFieldMap
         
         function validateXml(schema, xmlString)
             % Validate xmlString as empty or valid XML (invalid throws

@@ -2,7 +2,7 @@
 % Allows a user to tag a csv file
 %
 % Usage:
-%   >>  [fMap, com] = pop_tagstudy()
+%   >>  [fMap, com] = pop_tagcsv()
 %
 % Outputs:
 %    fMap   - a fieldMap object that contains the tag map information
@@ -48,6 +48,7 @@
 
 function [fMap, com] = pop_tagcsv()
 % Create the tagger for a single EEG file
+fMap = '';
 com = '';
 
 % Get the tagger input parameters

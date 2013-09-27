@@ -10,8 +10,8 @@
 % community tagger database. 
 %
 % Function documentation:
-% Execute the following in the MATLAB command window to view the class
-% documentation for csvMap:
+% Execute the following in the MATLAB command window to view the function
+% documentation for deletedb:
 %
 %    doc deletedb
 %

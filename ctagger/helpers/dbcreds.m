@@ -8,8 +8,8 @@
 % dbcreds() brings up a gui that allows users to create a property file
 %           that contains database credentials 
 %
-% Fucntion documentation:
-% Execute the following in the MATLAB command window to view the class
+% Function documentation:
+% Execute the following in the MATLAB command window to view the function
 % documentation for dbcreds:
 %
 %    doc dbcreds

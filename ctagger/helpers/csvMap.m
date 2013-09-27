@@ -17,26 +17,6 @@
 %   'EventColumns'         Numbers of the columns of event key labels
 %   'TagsColumn'           Column number of tag column
 %
-% Notes:
-%
-% Event string format:
-%    Each unique value type is stored in comma separated form as
-%    label,description, tags. The specifications for the individual
-%    unique values types are separated by semicolumns. To form the
-%    string for each value, the unique type is used as the code and
-%    the name after num2str has been applied. The description
-%    is empty.  The user will then use the
-%
-% Example 1: The unique value types in the EEG structure are 'RT' and
-%            'flash'. The output string is:
-%
-%             'RT,RT description,;flash,flash description,'
-%
-% Example 2: The unique value types in the EEG structure are the numerical
-%            values: 1, 302, and 43. The output string is:
-%
-%            '1,description 1,;302,description 302,;43,description 43,'
-%
 % Class documentation:
 % Execute the following in the MATLAB command window to view the class
 % documentation for csvMap:

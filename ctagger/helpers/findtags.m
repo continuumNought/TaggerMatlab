@@ -6,11 +6,11 @@
 %   >>  fMap = findtags(edata, 'key1', 'value1', ...)
 %
 % Description:
-% tMap = findtags(edata) extracts a fieldMap object representing the
+% fMap = findtags(edata) extracts a fieldMap object representing the
 % events and their tags for the structure.
 %
-% tMap = findtags(edata, 'key1', 'value1', ...) specifies optional name/value
-% parameter pairs:
+% tMap = findtags(edata, 'key1', 'value1', ...) specifies optional 
+% name/value parameter pairs:
 %
 %   'ExcludeFields'  A cell array containing the field names to exclude
 %   'Fields'         A cell array containing the field names to extract
@@ -20,9 +20,8 @@
 %                    is retained (e.g., /a/b/c and /a/b become just
 %                    /a/b/c). If true, then all unique tags are retained.
 %
-%
 % Notes:
-%   The ddata structure should have its events encoded as a structure
+%   The edata structure should have its events encoded as a structure
 %   array edata.events. The findtags will also examinate a edata.urevents
 %   structure array if it exists. 
 %
@@ -32,9 +31,14 @@
 %    edata.etc.tags.map
 %       ...
 %
-% See also: tageeg, tagevents, and tagMap
+% Function documentation:
+% Execute the following in the MATLAB command window to view the function
+% documentation for findtags:
 %
-
+%    doc findtags
+%
+% See also: fMap
+%
 % Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013, krobbins@cs.utsa.edu
 %
 % This program is free software; you can redistribute it and/or modify

@@ -23,8 +23,8 @@
 %                    latter option is usually reserved when not calling
 %                    the GUI from MATLAB.
 %
-% Fucntion documentation:
-% Execute the following in the MATLAB command window to view the class
+% Function documentation:
+% Execute the following in the MATLAB command window to view the function
 % documentation for editmaps:
 %
 %    doc editmaps

@@ -5,7 +5,7 @@
 %   >>  [fMap, fPaths, excluded] = tagdir(inDir)
 %   >>  [fMap, fPaths, excluded] = tagdir(inDir, 'key1', 'value1', ...)
 %
-%% Description
+% Description:
 % [fMap, fPaths, excluded] = tagdir(inDir) extracts a consolidated
 % fieldMap object from the data files in the directory tree inDir. The 
 % inDir must be a valid path.
@@ -76,11 +76,14 @@
 %      are also written to x.event.usertags based on the individual
 %      values of their events.
 %
-% Notes on the database:  Database is not deployed.
+% Function documentation:
+% Execute the following in the MATLAB command window to view the function
+% documentation for tagdir:
+%
+%    doc tagdir
 %
 % See also: tageeg and tagstudy
 %
-
 % Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013,
 % krobbins@cs.utsa.edu
 %
@@ -102,6 +105,7 @@
 % $Revision: 1.0 21-Apr-2013 09:25:25 krobbins $
 % $Initial version $
 %
+
 function [fMap, fPaths, excluded] = tagdir(inDir, varargin)
 % Parse the input arguments
     parser = inputParser;

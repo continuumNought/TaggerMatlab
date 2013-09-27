@@ -5,7 +5,7 @@
 %   >>  [EEG, fMap, excluded] = tageeg(EEG)
 %   >>  [EEG, fMap, excluded] = tageeg(EEG, 'key1', 'value1', ...)
 %
-%% Description
+% Description:
 % [EEG, fMap, excluded] = tageeg(EEG) creates a fieldMap object called
 % fMap. First all of the tag information and potential fields are
 % extracted from EEG.event, EEG.urevent, and EEG.etc.tags structures.
@@ -66,9 +66,13 @@
 %      are also written to x.event.usertags based on the individual
 %      values of their events.
 %
-% Notes on the database:  Database is not deployed.
+% Function documentation:
+% Execute the following in the MATLAB command window to view the function
+% documentation for tageeg:
 %
-% See also: tagdir and tagstudy
+%    doc tageeg
+%
+% See also: tagdir, tagcsv, tagstudy
 %
 
 % Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013,
@@ -92,6 +96,7 @@
 % $Revision: 1.0 21-Apr-2013 09:25:25 krobbins $
 % $Initial version $
 %
+
 function [EEG, fMap, excluded] = tageeg(EEG, varargin)
 % Parse the input arguments
     parser = inputParser;

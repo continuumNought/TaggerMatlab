@@ -5,7 +5,7 @@
 %   >>  fMap = tagcsv(filename)
 %   >>  fMap = tagcsv(filename, 'key1', 'value1', ...)
 %
-%% Description
+% Description:
 % fMap = tagcsv(filename) extracts a fieldMap object from the csv
 % file and then presents a GUI for choosing which fields to tag.
 % The ctagger GUI is displayed so that users can
@@ -33,14 +33,14 @@
 %   'EventColumns'   Either a non-negative integer or a vector of positive
 %                    integers specifying the column(s) that correspond
 %                    to event code components. If the value is 0, then
-%                    findcsvtags assumes that all columns correspond to event
+%                    it's assumed that all columns correspond to event
 %                    codes.
 %   'PreservePrefix' If false (default), tags for the same field value that
 %                    share prefixes are combined and only the most specific
 %                    is retained (e.g., /a/b/c and /a/b become just
 %                    /a/b/c). If true, then all unique tags are retained.
 %   'RewriteFile'    File name of tagged csv file with the result of tags
-%                    written in the file.
+%                    and description written in the file.
 %   'SaveMapFile'    A string representing the file name for saving the
 %                    final, consolidated fieldMap object that results from
 %                    the tagging process.
@@ -58,25 +58,14 @@
 %   'UseGui'         If true (default), the CTAGGER GUI is displayed after
 %                    initialization.
 %
-% Notes on tag rewrite:
-%   The tags are written to the data files in two ways. In both cases
-%   the dataset x is assumed to be a MATLAB structure:
-%   1) If the 'RewriteOption' is either 'Both' or 'Summary', the tags
-%      are written to the dataset in the x.etc.tags field:
-%            x.etc.tags.xml
-%            x.etc.tags.map(1).field
-%            x.etc.tags.map(1).values ...
-%                   ...
+% Function documentation:
+% Execute the following in the MATLAB command window to view the function
+% documentation for tagcsv:
 %
-%   2) If the 'RewriteOption' is either 'Both' or 'Individual', the tags
-%      are also written to x.event.usertags based on the individual
-%      values of their events.
+%    doc tagcsv
 %
-% Notes on the database:  Database is not deployed.
+% See also: pop_tagcsv and tagcsv_input
 %
-% See also: tageeg and tagstudy
-%
-
 % Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013,
 % krobbins@cs.utsa.edu
 %
@@ -98,6 +87,7 @@
 % $Revision: 1.0 21-Apr-2013 09:25:25 krobbins $
 % $Initial version $
 %
+
 function fMap = tagcsv(filename, varargin)
 % Parse the input arguments
 parser = inputParser;
@@ -111,9 +101,6 @@ parser.addParamValue('EventColumns', 0, ...
     @(x)(isnumeric(x) && (isscalar(x) || isvector(x))));
 parser.addParamValue('PreservePrefix', false, @islogical);
 parser.addParamValue('RewriteFile', '', @(x)(ischar(x)));
-parser.addParamValue('RewriteOption', 'Merge', ...
-    @(x) any(validatestring(lower(x), ...
-    {'Insert', 'Merge', 'Overwrite'})));
 parser.addParamValue('SaveMapFile', '', @(x)(ischar(x)));
 parser.addParamValue('SelectOption', true, @islogical);
 parser.addParamValue('Synchronize', false, @islogical);

@@ -2,15 +2,15 @@
 % Creates a fieldMap object for the existing tags in a data structure
 %
 % Usage:
-%   >>  tMap = gettags(edata)
-%   >>  tMap = gettags(edata, 'key1', 'value1', ...)
+%   >>  fMap = gettags(filename)
+%   >>  fMap = gettags(filename, 'key1', 'value1', ...)
 %
 % Description:
-% tMap = gettags(edata) extracts a fieldMap object representing the
-% events and their tags for the structure.
+% fMap = gettags(filename) creates a fieldMap object for the existing tags
+% in a data structure
 %
-% tMap = gettags(edata, 'key1', 'value1', ...) specifies optional name/value
-% parameter pairs:
+% fMap = gettags(filename, 'key1', 'value1', ...) specifies optional 
+% name/value parameter pairs:
 %
 %   'ExcludeFields'  A cell array containing the field names to exclude
 %   'Fields'         A cell array containing the field names to extract
@@ -20,21 +20,14 @@
 %                    is retained (e.g., /a/b/c and /a/b become just
 %                    /a/b/c). If true, then all unique tags are retained.
 %
+% Function documentation:
+% Execute the following in the MATLAB command window to view the function
+% documentation for gettags:
 %
-% Notes:
-%   The ddata structure should have its events encoded as a structure
-%   array edata.events. The gettags will also examinate a edata.urevents
-%   structure array if it exists. 
+%    doc gettags
 %
-%   Tags are assumed to be stored in the edata.etc structure as follows:
+% See also: tageeg, tageeg_input, pop_tageeg
 %
-%    edata.etc.tags.xml
-%    edata.etc.tags.map
-%       ...
-%
-% See also: tageeg, tagevents, and tagMap
-%
-
 % Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013, krobbins@cs.utsa.edu
 %
 % This program is free software; you can redistribute it and/or modify
@@ -78,6 +71,5 @@ function fMap = gettags(filename, varargin)
             descriptions{k}, tags, '');
         tMap.addValue(value, 'PreservePrefix', p.PreservePrefix);
     end
-    fMap.
  
-end %gettags
+end % gettags

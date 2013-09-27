@@ -1,18 +1,19 @@
 % editmaps_db
-% Allows a user to selectively edit the tags using the ctagger database 
-% 
+% Allows a user to selectively edit the tags using the ctagger database
+%
 % Usage:
-%   >>  fMap = editmaps(fMap)
-%   >>  fMap = editmaps(fMap, 'key1', 'value1', ...)
+%   >>  fMap = editmaps_db(fMap)
+%   >>  fMap = editmaps_db(fMap, 'key1', 'value1', ...)
 %
 % Description:
-% fMap = editmaps(fMap) presents a CTAGGER tagging GUI for each of the
+% fMap = editmaps_db(fMap) presents a CTAGGER tagging GUI for each of the
 % fields in fMap and allows users to tag, add items to the tag
 % hierarchy or add/edit events.
 %
-% fMap = editmaps(fMap, 'key1', 'value1', ...) specifies
+% fMap = editmaps_db(fMap, 'key1', 'value1', ...) specifies
 % optional name/value parameter pairs:
 %
+%   'DbCreds'        A property file that contains database credentials
 %   'PreservePrefix' If false (default), tags of the same event type that
 %                    share prefixes are combined and only the most specific
 %                    is retained (e.g., /a/b/c and /a/b become just
@@ -22,10 +23,12 @@
 %                    true, synchronization is done within Java. This
 %                    latter option is usually reserved when not calling
 %                    the GUI from MATLAB.
+%   'UseGui'         If true (default), the CTAGGER GUI is displayed after
+%                    initialization
 %
-% Fucntion documentation:
-% Execute the following in the MATLAB command window to view the class
-% documentation for editmaps:
+% Function documentation:
+% Execute the following in the MATLAB command window to view the function
+% documentation for editmaps_db:
 %
 %    doc editmaps_db
 %
@@ -47,7 +50,7 @@
 % along with this program; if not, write to the Free Software
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 %
-% $Log: editmaps.m,v $
+% $Log: editmaps_db.m,v $
 % $Revision: 1.00 15-Feb-2013 08:03:48 krobbins $
 % $Initial version $
 %
@@ -106,4 +109,4 @@ if usingDB
         warning('ctagger:connectionfailed', ME.message);
     end
 end
-end
+end % editmaps_db

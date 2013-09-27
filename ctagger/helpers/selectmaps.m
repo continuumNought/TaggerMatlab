@@ -9,7 +9,6 @@
 % [fMap, excluded] = selectmaps(fMap) removes the fields that are excluded
 % by the user during selection.
 %
-%
 % [fMap, excluded] = selectmaps(fMap, 'key1', 'value1', ...) specifies
 % optional name/value parameter pairs:
 %   'Fields'         Cell array of field names of the fields to include
@@ -18,7 +17,35 @@
 %   'SelectOption'   If true (default), the user is presented with a GUI 
 %                    that allows users to select which fields to tag.
 %
-% ----STANDRAD DOcumentation --- here
+% Function documentation:
+% Execute the following in the MATLAB command window to view the function
+% documentation for selectmaps:
+%
+%    doc selectmaps
+%
+% See also: pop_tageeg, pop_tagstudy, pop_tagdir, pop_tagcsv
+%
+% Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013, krobbins@cs.utsa.edu
+%
+% This program is free software; you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation; either version 2 of the License, or
+% (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License
+% along with this program; if not, write to the Free Software
+% Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+%
+% $Log: selectmaps.m,v $
+% $Revision: 1.0 21-Apr-2013 09:25:25 krobbins $
+% $Initial version $
+%
+
 function [fMap, excluded] = selectmaps(fMap, varargin)
 
     % Check the input arguments for validity and initialize
@@ -72,4 +99,4 @@ function [fMap, excluded] = selectmaps(fMap, varargin)
         fMap.removeMap(excludeUser{k});
     end
     excluded = union(excluded, excludeUser);
-end
+end % selectmaps

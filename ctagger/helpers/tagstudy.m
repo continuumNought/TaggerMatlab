@@ -6,7 +6,7 @@
 %   >>  [fMap, fPaths, excluded] = tagstudy(studyFile, 'key1', ...
 %       'value1', ...)
 %
-%% Description
+% Description:
 % [fMap, fPaths, excluded] = tagstudy(studyFile)extracts a consolidated
 % fMap object from the study and its associated EEGLAB .set files.
 % First the events and tags from all EEGLAB .set files are extracted and
@@ -22,8 +22,8 @@
 % .set files that were affected.
 %
 %
-% [fMap, fPaths, excluded] = tagstudy(studyFile, 'key1', 'value1', ...) specifies
-% optional name/value parameter pairs:
+% [fMap, fPaths, excluded] = tagstudy(studyFile, 'key1', 'value1', ...) 
+% specifies optional name/value parameter pairs:
 %   'BaseMap'        A fieldMap object or the name of a file that contains
 %                    a fieldMap object to be used for initial tag
 %                    information.
@@ -59,10 +59,8 @@
 %   'UseGui'         If true (default), the CTAGGER GUI is displayed after
 %                    initialization.
 %
-% See also: tageeg and tagstudy
+% See also: tageeg, tagstudy
 %
-
-
 % Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013,
 % krobbins@cs.utsa.edu
 %
@@ -84,6 +82,7 @@
 % $Revision: 1.0 21-Apr-2013 09:25:25 krobbins $
 % $Initial version $
 %
+
 function [fMap, fPaths, excluded] = tagstudy(studyFile, varargin)
 % Tag all of the EEG files in a study
 parser = inputParser;

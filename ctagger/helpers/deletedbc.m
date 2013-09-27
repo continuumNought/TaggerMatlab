@@ -1,17 +1,16 @@
 % deletedbc
 % Deletes a community tagger database from a property file that contains 
 % database credentials 
-% user 
 %
 % Usage:
-%   >>  deletedbc(credPath)
+%   >>  deletedbc(DbCreds)
 %
 % Description:
-% deletedbc(credPath) deletes a community tagger database. 
+% deletedbc(DbCreds) deletes a community tagger database. 
 %
-% Fucntion documentation:
-% Execute the following in the MATLAB command window to view the class
-% documentation for csvMap:
+% Function documentation:
+% Execute the following in the MATLAB command window to view the function
+% documentation for deletedbc:
 %
 %    doc deletedbc
 %
@@ -38,10 +37,10 @@
 % $Revision: 1.00 15-Feb-2013 08:03:48 krobbins $
 % $Initial version $
 %
-function deletedbc(credPath)
+function deletedbc(DbCreds)
 parser = inputParser;
-parser.addRequired('credPath', @(x) (~isempty(x) && ischar(x)));
-parser.parse(credPath);
+parser.addRequired('DbCreds', @(x) (~isempty(x) && ischar(x)));
+parser.parse(DbCreds);
 p = parser.Results;
-edu.utsa.tagger.database.ManageDB.deleteDatabase(p.credPath);
+edu.utsa.tagger.database.ManageDB.deleteDatabase(p.DbCreds);
 end

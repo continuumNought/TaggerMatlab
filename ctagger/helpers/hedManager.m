@@ -6,7 +6,7 @@ classdef hedManager
     properties
         hedNode
         hedVersion
-    end;
+    end
     
     methods
         function [answer description levelIsValid levelMatchedWithHEDNode autoCompleteAlternative] = isNodeSequenceValid(obj, nodeSequence, varargin)
@@ -60,8 +60,8 @@ classdef hedManager
                     if currentNode.hasAttributes
                         if strcmpi('true', char(currentNode.getAttribute('extensionAllowed')))
                             extensionIsAllowed = true;
-                        end;
-                    end;
+                        end
+                    end
                     
                     % the node that only has one child must only contant some text and no children.
                     % in HED it is allowed to extend any end node, for example '/Stimulus/Visual/Target' to
@@ -75,15 +75,15 @@ classdef hedManager
                         for i=1:children.getLength
                             if strcmpi('node', char(children.item(i-1).getNodeName))
                                 hasAChildNode = true;
-                            end;
-                        end;
+                            end
+                        end
                         
                         endOfHedHirerachyHasReached = ~hasAChildNode;
-                    end;
+                    end
                     
                     if extensionIsAllowed || endOfHedHirerachyHasReached
                         levelIsValid(currentLevel) = true;
-                    end;
+                    end
                     
                     children = currentNode.getChildNodes;
                     
@@ -99,18 +99,18 @@ classdef hedManager
                             else
                                 textContent = '';
                                 originalTextContent = '';
-                            end;
+                            end
                         else
                             textContent = '';
                             originalTextContent = '';
-                        end;
+                        end
                         
                         % for auto-complete, look for partial matches
                         % we only look for matches at the last level of HEd hierarchy.
                         % if the last level is empty
                         if  nargout > 3 && currentLevel == length(nodeSequence) && ~isempty(textContent) && (strncmpi(nodeSequence{currentLevel}, textContent, length(nodeSequence{currentLevel})))
                             autoCompleteAlternative{end+1} = originalTextContent;
-                        end;
+                        end
                         
                         % if there is a match, prevent matching to an empty node
                         exactMatch = strcmpi(textContent, nodeSequence{currentLevel}) && ~isempty(nodeSequence{currentLevel});
@@ -122,11 +122,11 @@ classdef hedManager
                             levelIsValid(currentLevel) = true;
                             levelMatchedWithHEDNode(currentLevel) = true;
                             break;
-                        end;
-                    end;
+                        end
+                    end
                     
-                end;
-            end;
+                end
+            end
             
             % HED tag is valid only if all the levels are valid.
             answer = all(levelIsValid);
@@ -136,10 +136,10 @@ classdef hedManager
                 potentialDescriptionNodeArray = currentNode.getElementsByTagName('description');
                 if potentialDescriptionNodeArray.getLength > 0
                     description = strtrim(char(potentialDescriptionNodeArray.item(0).getFirstChild.getData));
-                end;
-            end;
-        end;
-    end;
+                end
+            end
+        end
+    end
     
     methods
         
@@ -150,12 +150,12 @@ classdef hedManager
             if nargin < 1
                 fullPath = which('hedManager');
                 xmlFilePath  = [fullPath(1:end - length('hedManager.m')) 'HEDSpecification.xml'];
-            end;
+            end
             
             xmlDocument = xmlread(xmlFilePath);
             obj.hedNode = xmlDocument.getDocumentElement;
             obj.hedVersion = str2double(char(obj.hedNode.getAttribute('version')));
-        end;
+        end
         
         function [answer description levelIsValid levelMatchedWithHEDNode nodeSequence] = isValidHedTag(obj, hedTag, varargin)
             % [answer description levelIsValid levelMatchedWithHEDNode nodeSequence] = isValidHedTag(obj, hedTag)
@@ -177,7 +177,7 @@ classdef hedManager
             % remove extra spaces from start and end
             for i=1:length(nodeSequence)
                 nodeSequence{i} = strtrim(nodeSequence{i});
-            end;
+            end
             
             [answer description levelIsValid levelMatchedWithHEDNode] = isNodeSequenceValid(obj, nodeSequence);
             
@@ -185,8 +185,8 @@ classdef hedManager
             if ~answer
                 nodeSequence = cat(2, 'Time-Locked Event', nodeSequence);
                 [answer description levelIsValid levelMatchedWithHEDNode] = isNodeSequenceValid(obj, nodeSequence);
-            end;
-        end;
+            end
+        end
         
         function answer = isValidHedString(obj, hedString, varargin)
             % answer = isValidHedString(obj, hedString)
@@ -199,11 +199,11 @@ classdef hedManager
             answerForTag = false(length(hedTag),1);
             for i=1:length(hedTag)
                 answerForTag(i) = isValidHedTag(obj, strtrim(hedTag{i}));
-            end;
+            end
             
             % check if all the tags are valid
             answer = all(answerForTag);
-        end;
+        end
         
         function autoCompleteAlternativeCell = getAutoCompleteAlternativesForTag(obj, hedTag, varargin)
             % [autoCompleteAlternativeCell] = getAutoCompleteAlternativesForTag(obj, hedTag)
@@ -221,13 +221,13 @@ classdef hedManager
             % because in /Stimulus/ the matches at the lower level will be returned, but not in /Stimulus
             if isempty(nodeSequence{1})
                 nodeSequence(1) = [];
-            end;
+            end
             
             
             % remove extra spaces from start and end
             for i=1:length(nodeSequence)
                 nodeSequence{i} = strtrim(nodeSequence{i});
-            end;
+            end
             
             [answer1 description1 levelIsValid1 levelMatchedWithHEDNode1 autoCompleteAlternative1] = isNodeSequenceValid(obj, nodeSequence);
             
@@ -240,18 +240,18 @@ classdef hedManager
             if all(levelIsValid1(1:end-1)) % all except the last one should be valid
                 for i=1:length(autoCompleteAlternative1)
                     autoCompleteAlternativeCell{end+1} =  strjoin('/', cat(2, nodeSequence{1:end-1}, autoCompleteAlternative1(i)));
-                end;
-            end;
+                end
+            end
             
             if all(levelIsValid2(1:end-1)) % all except the last one should be valid
                 for i=1:length(autoCompleteAlternative2)
                     autoCompleteAlternativeCell{end+1} =  strjoin('/', cat(2, nodeSequenceWithDefault{1:end-1}, autoCompleteAlternative2(i)));
-                end;
-            end;
+                end
+            end
             
             
             autoCompleteAlternativeCell = unique(autoCompleteAlternativeCell);
-        end;
+        end
         
         
         function [autoCompleteAlternativeCell] = getAutoCompleteAlternativesForString(obj, hedString, varargin)
@@ -274,7 +274,7 @@ classdef hedManager
             else
                 activeTag = hedTag{1};
                 ignoredTag = {};
-            end;
+            end
             
             autoCompleteAlternativeCellForTag = getAutoCompleteAlternativesForTag(obj, activeTag, varargin{:});
             
@@ -282,7 +282,7 @@ classdef hedManager
                 ignoredSectionString = '';
             else
                 ignoredSectionString = strjoin(', ', ignoredTag);
-            end;
+            end
             
             if isempty(ignoredTag)
                 autoCompleteAlternativeCell = autoCompleteAlternativeCellForTag;
@@ -290,9 +290,9 @@ classdef hedManager
                 autoCompleteAlternativeCell = cell(1, length(autoCompleteAlternativeCellForTag));
                 for i=1:length(autoCompleteAlternativeCellForTag)
                     autoCompleteAlternativeCell{i} = [ignoredSectionString ', ' autoCompleteAlternativeCellForTag{i}];
-                end;
-            end;
-        end;
+                end
+            end
+        end
         
         function [childNodesCell description] = getChildNodeNames(obj, parentNodeName, varargin)
             % [childNodesCell description] = getChildNodeNames(obj, parentNodeName)
@@ -325,8 +325,8 @@ classdef hedManager
                 % there needs to be an empty string at the end to ask for matches as the next level
                 if ~isempty(nodeSequence)
                     nodeSequence{end+1} = '';
-                end;
-            end;
+                end
+            end
             
             [answer description levelIsValid levelMatchedWithHEDNode autoCompleteAlternative] = obj.isNodeSequenceValid(nodeSequence);
             
@@ -338,7 +338,7 @@ classdef hedManager
                 nodeSequence = cat(2, 'Time-Locked Event', nodeSequence);
                 [answer description levelIsValid levelMatchedWithHEDNode autoCompleteAlternative] = obj.isNodeSequenceValid(nodeSequence);
                 isParentValid = all(levelMatchedWithHEDNode(1:end-1));
-            end;
+            end
             
             if isParentValid
                 childNodesCell = autoCompleteAlternative;
@@ -349,8 +349,8 @@ classdef hedManager
             else
                 childNodesCell = {};
                 error('Provided parent node is not valid.');
-            end;
-        end;
+            end
+        end
         
         function [answer matchedTag] = stringMatchesTag(obj, hedString, hedTag)
             % [answer matchedTag] = stringMatchesTag(obj, hedString, hedTag)
@@ -377,12 +377,12 @@ classdef hedManager
             if ~isempty(hedTag)
                 if hedTag(1) == '/'
                     hedTag(1) = [];
-                end;
+                end
                 
                 if hedTag(end) == '/'
                     hedTag(end) = [];
-                end;
-            end;
+                end
+            end
             
             % remove start and end spaces
             hedString = strtrim(hedString);
@@ -394,11 +394,11 @@ classdef hedManager
             matchFound = false(length(hedTagToMatch), 1);
             for i=1:length(hedTagToMatch)
                 matchFound(i) = strncmpi(hedTag, hedTagToMatch{i}, length(hedTagToMatch{i}));
-            end;
+            end
             
             answer = any(matchFound);
             
             matchedTag = hedTagToMatch(matchFound);
-        end;
-    end;
+        end
+    end
 end

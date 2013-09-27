@@ -3,23 +3,23 @@
 % database credentials 
 %
 % Usage:
-%   >>  createdbc(propertyfilename)
-%   >>  createdbc(propertyfilename, 'key1', 'value1', ...)
+%   >>  createdbc(DbCreds)
+%   >>  createdbc(DbCreds, 'key1', 'value1', ...)
 %
 % Description:
-% createdbc(propertyfilename) creates a community tagger database from a 
+% createdbc(DbCreds) creates a community tagger database from a 
 % property file containing the database credentials. The newly created 
 % database is empty.
 %
-% obj = createdbc(dbname, hostname, port, username, password, 'key1', ...
-%       'value1') where the key-value pair is:
+% createdbc(DbCreds, 'key1', 'value1') where the key-value pair
+% is:
 %
 %   'sqlFile'            The name of the .sql file used to create the
 %                        database
 % 
-% Fucntion documentation:
-% Execute the following in the MATLAB command window to view the class
-% documentation for csvMap:
+% Function documentation:
+% Execute the following in the MATLAB command window to view the function
+% documentation for createdbc:
 %
 %    doc createdbc
 %
@@ -46,13 +46,13 @@
 % $Initial version $
 %
 
-function createdbc(propertyfilename, varargin)
+function createdbc(DbCreds, varargin)
 parser = inputParser;
-parser.addRequired('PropertyFileName', @(x) (~isempty(x) && ischar(x)));
+parser.addRequired('DbCreds', @(x) (~isempty(x) && ischar(x)));
 parser.addOptional('SqlFile', 'tags.sql', @(x) (~isempty(x) && ischar(x)));
-parser.parse(propertyfilename, varargin{:});
+parser.parse(DbCreds, varargin{:});
 p = parser.Results;
-edu.utsa.tagger.database.ManageDB.createDatabase(p.propertyfilename, ...
+edu.utsa.tagger.database.ManageDB.createDatabase(p.DbCreds, ...
     which(p.SqlFile));
 end
 

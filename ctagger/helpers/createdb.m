@@ -6,19 +6,20 @@
 %   >>  createdb(dbname, hostname, port, username, password)
 %   >>  createdb(dbname, hostname, port, username, password, 'key1', ...
 %       'value1', ...)
+%
 % Description:
 % createdb(dbname, hostname, port, username, password) creates a 
 % community tagger database. The newly created database is empty.
 %
-% obj = createdb(dbname, hostname, port, username, password, 'key1', ...
-%       'value1') where the key-value pair is:
+% createdb(dbname, hostname, port, username, password, 'key1', ...
+% 'value1') where the key-value pair is:
 %
 %   'sqlFile'            The name of the .sql file used to create the
 %                        database
 % 
-% Fucntion documentation:
-% Execute the following in the MATLAB command window to view the class
-% documentation for csvMap:
+% Function documentation:
+% Execute the following in the MATLAB command window to view the function
+% documentation for createdb:
 %
 %    doc createdb
 %
