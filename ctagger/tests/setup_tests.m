@@ -15,6 +15,7 @@ values.BCI2000dir = 'BCI2000Set';
 values.EEGLAB = 'EEGLABSet';
 values.efile1 = 'BCIT1.csv';
 values.efile2 = 'BCIT2.csv';
+values.efile3 = 'BCIT3.csv';
 values.emptyfile = 'BCITempty.csv';
 values.onerow = 'BCIT1Row.csv';
 values.badfile = 'badfile';

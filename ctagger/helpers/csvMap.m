@@ -187,24 +187,29 @@ classdef csvMap < hgsetget
         function values = updateTagValues(obj, values, tMap)
             % Update the values cell array based on the tags in tag map
             % tMap
+            rowKeys = obj.getRowKeys();
             headerSize = length(obj.getHeader());
-            tMapValues = cell2mat(tMap.getValues);
-            tagValues = {tMapValues.tags};
             tagsColumn = obj.TagsColumn;
             if tagsColumn == 0
-                return;
+                header = values{1};
+                header{end + 1} = 'Tags';
+                tagsColumn = length(header);
+                values{1} = header;
             elseif tagsColumn > headerSize
                 header = values{1};
                 header{tagsColumn} = 'Tags';
                 values{1} = header;
             end
             for a = 2:length(values)
+                value = tMap.getValue(rowKeys{a-1});
                 currentValues = values{a};
-                if iscellstr(tagValues{a-1})
-                    currentValues{tagsColumn} = ...
-                        strjoin(tagValues{a-1}, obj.Delimiter);
-                else
-                    currentValues{tagsColumn} = tagValues{a-1};
+                if isstruct(value)
+                    if iscellstr(value.tags)
+                        currentValues{tagsColumn} = ...
+                            strjoin(value.tags, obj.Delimiter);
+                    else
+                        currentValues{tagsColumn} = value.tags;
+                    end
                 end
                 values{a} = currentValues;
             end
@@ -228,6 +233,14 @@ classdef csvMap < hgsetget
             end
             fclose(fid);
         end % writetags
+        
+        function rowKeys = getRowKeys(obj)
+            rowKeys = cell(length(obj.Values) - 1, 1);
+            for k = 2:length(obj.Values)
+                rowKeys{k-1} = csvMap.getkey(obj.Values{k}, ...
+                    obj.EventColumns, obj.Delimiter);
+            end            
+        end % getRowKeys
         
     end % public methods
     
