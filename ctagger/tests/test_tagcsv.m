@@ -125,8 +125,8 @@ assertEqual(length(tags), 2);
 assertTrue(~isempty(description));
 delete(csvFile);
 
-fprintf(['....PRESS SUBMIT AFTER ADDING 2 TAGS AND A DESCRIPTION TO' ...
-    ' THE FIRST EVENT (1|1|1)\n']);
+fprintf(['....PRESS SUBMIT AFTER ADDING 2 TAGS AND UPDATING THE' ...
+    ' DESCRIPTION TO THE FIRST EVENT (1|1|1)\n']);
 fprintf(['There should be 2 more tags and an updated description added' ...
     ' to the first event (1|1|1)']);
 obj1 = csvMap(values.efile1);

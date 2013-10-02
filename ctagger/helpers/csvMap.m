@@ -156,51 +156,6 @@ classdef csvMap < hgsetget
             values = obj.Values;
         end % getValues
         
-        function writeTags(obj, tMap, filename)
-            % Write the tags in .csv format given a tag map tMap
-            fid = fopen(filename,'w');
-            values = obj.getValues();
-            values = obj.updateTagValues(values, tMap);
-            values = obj.updateDescriptionValues(values, tMap);
-            numRows = length(values);
-            for a = 1: numRows
-                currentRow = values{a};
-                numValues = length(currentRow);
-                fprintf(fid, '%s', currentRow{1});
-                for b = 2: numValues
-                    fprintf(fid, ',%s', currentRow{b});
-                end
-                fprintf(fid, '\n');
-            end
-            fclose(fid);
-        end % writetags
-        
-        function values = updateTagValues(obj, values, tMap)
-            % Update the values cell array based on the tags in tag map
-            % tMap
-            headerSize = length(obj.getHeader());
-            tMapValues = cell2mat(tMap.getValues);
-            tagValues = {tMapValues.tags};
-            tagsColumn = obj.TagsColumn;
-            if tagsColumn == 0
-                return;
-            elseif tagsColumn > headerSize
-                header = values{1};
-                header{tagsColumn} = 'Tags';
-                values{1} = header;
-            end
-            for a = 2:length(values)
-                currentValues = values{a};
-                if iscellstr(tagValues{a-1})
-                    currentValues{tagsColumn} = ...
-                        strjoin(tagValues{a-1}, obj.Delimiter);
-                else
-                    currentValues{tagsColumn} = tagValues{a-1};
-                end
-                values{a} = currentValues;
-            end
-        end % updateTagValues
-        
         function values = updateDescriptionValues(obj, values, tMap)
             % Update the values cell array based on the description in
             % tag map tMap
@@ -228,6 +183,51 @@ classdef csvMap < hgsetget
                 values{a} = currentValues;
             end
         end % updateDescriptionValues
+        
+        function values = updateTagValues(obj, values, tMap)
+            % Update the values cell array based on the tags in tag map
+            % tMap
+            headerSize = length(obj.getHeader());
+            tMapValues = cell2mat(tMap.getValues);
+            tagValues = {tMapValues.tags};
+            tagsColumn = obj.TagsColumn;
+            if tagsColumn == 0
+                return;
+            elseif tagsColumn > headerSize
+                header = values{1};
+                header{tagsColumn} = 'Tags';
+                values{1} = header;
+            end
+            for a = 2:length(values)
+                currentValues = values{a};
+                if iscellstr(tagValues{a-1})
+                    currentValues{tagsColumn} = ...
+                        strjoin(tagValues{a-1}, obj.Delimiter);
+                else
+                    currentValues{tagsColumn} = tagValues{a-1};
+                end
+                values{a} = currentValues;
+            end
+        end % updateTagValues
+        
+        function writeTags(obj, tMap, filename)
+            % Write the tags in csv format given a tag map tMap
+            fid = fopen(filename,'w');
+            values = obj.getValues();
+            values = obj.updateTagValues(values, tMap);
+            values = obj.updateDescriptionValues(values, tMap);
+            numRows = length(values);
+            for a = 1: numRows
+                currentRow = values{a};
+                numValues = length(currentRow);
+                fprintf(fid, '%s', currentRow{1});
+                for b = 2: numValues
+                    fprintf(fid, ',%s', currentRow{b});
+                end
+                fprintf(fid, '\n');
+            end
+            fclose(fid);
+        end % writetags
         
     end % public methods
     

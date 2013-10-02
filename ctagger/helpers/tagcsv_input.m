@@ -39,7 +39,7 @@
 
 function [baseMap, cancelled, dbCredsFile, delimiter, ...
     descriptionColumn, eventColumn, filename, preservePrefix, ...
-    rewriteFile, saveMapFile, selectOption, tagsColumn, useGUI] = ...
+    rewriteFile, saveMapFile, tagsColumn, useGUI] = ...
     tagcsv_input()
 
 % Setup the variables used by the GUI
@@ -53,7 +53,6 @@ filename = '';
 preservePrefix = false;
 rewriteFile = '';
 saveMapFile = '';
-selectOption = true;
 tagsColumn = 0;
 useGUI = true;
 theTitle = 'Inputs for tagging csv file';
@@ -242,23 +241,17 @@ uiwait(inputFig);
             'Tag', 'OptionsGrid', 'Spacing', 5);
         %{'Merge', 'Replace', 'TagsOnly', 'Update'})
         u1 = uicontrol('Parent', bBox, ...
-            'Style', 'CheckBox', 'Tag', 'SelectOptionCB', ...
-            'String', 'Use GUI to select fields to tag', 'Enable', 'on', 'Tooltip', ...
-            'If checked, you will be presented with a GUI to select fields to tagG', ...
-            'Callback', @selectCallback);
-        set(u1, 'Value', get(u1, 'Max'));
-        u2 = uicontrol('Parent', bBox, ...
             'Style', 'CheckBox', 'Tag', 'UseGUICB', ...
             'String', 'Use GUI to edit tags', 'Enable', 'on', 'Tooltip', ...
             'Use cTagger GUI to edit consolidated tags', ...
             'Callback', @useGUICallback);
-        set(u2, 'Value', get(u2, 'Max'));
-        u3 = uicontrol('Parent', bBox, ...
+        set(u1, 'Value', get(u1, 'Max'));
+        u2 = uicontrol('Parent', bBox, ...
             'Style', 'CheckBox', 'Tag', 'PreservePrefixfieldCB', ...
             'String', 'Preserve tag prefixes', 'Enable', 'on', 'Tooltip', ...
             'Do not consolidate tags that share prefixes', ...
             'Callback', @preservePrefixCallback);
-        set(u3, 'Value', get(u3, 'Min'));
+        set(u2, 'Value', get(u2, 'Min'));
         set(bBox, 'ColumnSizes', 200, 'RowSizes', [30, 30, 30, 30, 30]);
     end % createOptionsGroup
 
@@ -322,7 +315,6 @@ uiwait(inputFig);
         eventColumn = 0;
         preservePrefix = false;
         saveMapFile = '';
-        selectOption = true;
         filename = '';
         rewriteFile = '';
         tagsColumn = 0;
@@ -354,10 +346,6 @@ uiwait(inputFig);
         % Callback for user directly editing directory control textbox
         rewriteFile = get(hObject, 'String');
     end % tagsCtrlCallback
-
-    function selectCallback(src, eventdata) %#ok<INUSD>
-        selectOption = get(src, 'Max') == get(src, 'Value');
-    end % selectCallback
 
     function delimiterCtrlCallback(src, eventdata) %#ok<INUSD>
         delimiter = get(src, 'String');

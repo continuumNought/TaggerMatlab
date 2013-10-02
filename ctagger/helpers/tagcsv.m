@@ -44,8 +44,6 @@
 %   'SaveMapFile'    A string representing the file name for saving the
 %                    final, consolidated fieldMap object that results from
 %                    the tagging process.
-%   'SelectOption'   If true (default), the user is presented with dialog
-%                    GUIs that allow users to select which fields to tag.
 %   'Synchronize'    If false (default), the CTAGGER GUI is run with
 %                    synchronization done using the MATLAB pause. If true,
 %                    synchronization is done within Java. This latter
@@ -102,7 +100,6 @@ parser.addParamValue('EventColumns', 0, ...
 parser.addParamValue('PreservePrefix', false, @islogical);
 parser.addParamValue('RewriteFile', '', @(x)(ischar(x)));
 parser.addParamValue('SaveMapFile', '', @(x)(ischar(x)));
-parser.addParamValue('SelectOption', true, @islogical);
 parser.addParamValue('Synchronize', false, @islogical);
 parser.addParamValue('TagsColumn', 0, ...
     @(x)(isnumeric(x) && (isscalar(x) || isempty(x))));
@@ -126,11 +123,6 @@ else
     baseTags = fieldMap.loadFieldMap(p.BaseMap);
 end
 fMap.merge(baseTags, 'Merge', {}, fMap.getFields());
-
-if p.SelectOption
-    fprintf('\n---Now select the fields you want to tag---\n');
-    fMap = selectmaps(fMap, 'Fields', fMap.getFields());
-end
 
 fMap = editmaps_db(fMap, 'DbCreds', p.DbCreds, 'PreservePrefix', ...
     p.PreservePrefix, 'Synchronize', p.Synchronize, 'UseGui', p.UseGui);
