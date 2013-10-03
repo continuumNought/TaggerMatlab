@@ -19,3 +19,4 @@ values.efile3 = 'BCIT3.csv';
 values.emptyfile = 'BCITempty.csv';
 values.onerow = 'BCIT1Row.csv';
 values.badfile = 'badfile';
+values.dbfile = 'dbcreds.txt';
