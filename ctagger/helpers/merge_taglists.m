@@ -2,10 +2,10 @@
 % Returns a merged cell array of tags conforming to preservePrefix
 %
 % Usage:
-%   >> mergedList = merge_taglists(tList1, tList2, preservePrefix)     
-%    
+%   >> mergedList = merge_taglists(tList1, tList2, preservePrefix)
+%
 % Description:
-% mergedList = merge_taglists(tList1, tList2, preservePrefix) returns a 
+% mergedList = merge_taglists(tList1, tList2, preservePrefix) returns a
 % merged cell array of tags conforming to preservePrefix
 %
 % Notes:
@@ -23,7 +23,8 @@
 %
 % See also: tageeg, tageeg_input, pop_tageeg
 %
-% Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013, krobbins@cs.utsa.edu
+% Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013,
+% krobbins@cs.utsa.edu
 %
 % This program is free software; you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

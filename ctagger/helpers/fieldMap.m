@@ -1,4 +1,4 @@
-% fieldMap 
+% fieldMap
 % Object encapsulating xml tags and type-tagMap association
 %
 % Usage:
@@ -9,7 +9,7 @@
 % obj = fieldMap() creates an object representing the
 %    tag hierarchy for community tagging. The object knows how to merge and
 %    can produce output in either JSON or semicolon separated
-%    text format. 
+%    text format.
 %
 % obj = fieldMap('key1', 'value1', ...) where the key-value pairs are:
 %
@@ -97,7 +97,7 @@ classdef fieldMap < hgsetget
     properties (Access = private)
         Description          % String describing this field map
         PreservePrefix       % If true, don't eliminate duplicate
-                             % prefixes (default false)
+        % prefixes (default false)
         GroupMap             % Map for matching event labels
         Xml                  % Tag hierarchy as an XML string
         XmlSchema            % String containing the XML schema
@@ -192,7 +192,7 @@ classdef fieldMap < hgsetget
         end % getJsonValues
         
         function tMap = getMap(obj, field)
-            % Return a tagMap object associated field name 
+            % Return a tagMap object associated field name
             if ~obj.GroupMap.isKey(field)
                 tMap = '';
             else
@@ -201,17 +201,17 @@ classdef fieldMap < hgsetget
         end % getMap
         
         function tMaps = getMaps(obj)
-            % Return the tagMap objects as a cell array 
+            % Return the tagMap objects as a cell array
             tMaps = obj.GroupMap.values;
         end % getMaps
         
         function pPrefix = getPreservePrefix(obj)
-            % Return the logical PreservePrefix flag of the fieldMap 
+            % Return the logical PreservePrefix flag of the fieldMap
             pPrefix = obj.PreservePrefix;
         end % getPreservePrefix
         
         function thisStruct = getStruct(obj)
-            % Return the fieldMap as a structure array 
+            % Return the fieldMap as a structure array
             thisStruct = struct('xml', obj.Xml, 'map', '');
             types = obj.GroupMap.keys();
             if isempty(types)
@@ -237,7 +237,7 @@ classdef fieldMap < hgsetget
         end % getTags
         
         function value = getValue(obj, type, key)
-            % Return value structure for specified type and key 
+            % Return value structure for specified type and key
             value = '';
             if obj.GroupMap.isKey(type)
                 value = obj.GroupMap(type).getValue(key);
@@ -254,12 +254,12 @@ classdef fieldMap < hgsetget
         end % getValues
         
         function xml = getXml(obj)
-            % Return a string containing the xml of the fieldMap 
+            % Return a string containing the xml of the fieldMap
             xml = obj.Xml;
         end % getXml
         
         function merge(obj, fMap, updateType, excludeFields, includeFields)
-            % Combine this object with the fMap fieldMap 
+            % Combine this object with the fMap fieldMap
             if isempty(fMap)
                 return;
             end
@@ -302,16 +302,17 @@ classdef fieldMap < hgsetget
             % Merge obj.XML with the database xml if valid
             if updateDB
                 obj.Xml = ...
-                char(edu.utsa.tagger.database.ManageDB.mergeXMLWithDB( ...
-                dbCon, obj.Xml, false));
+                    char(...
+                    edu.utsa.tagger.database.ManageDB.mergeXMLWithDB( ...
+                    dbCon, obj.Xml, false));
             else
-            dbXml = ...
-                edu.utsa.tagger.database.ManageDB.generateDBXML(dbCon, ...
-                true);
-            obj.Xml = ...
-                char(edu.utsa.tagger.database.ManageDB.mergeXML( ...
-                dbXml, obj.Xml));
-            end                
+                dbXml = ...
+                    edu.utsa.tagger.database.ManageDB.generateDBXML(...
+                    dbCon, true);
+                obj.Xml = ...
+                    char(edu.utsa.tagger.database.ManageDB.mergeXML( ...
+                    dbXml, obj.Xml));
+            end
         end % mergeXml
         
         function removeMap(obj, field)

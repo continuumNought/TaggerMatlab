@@ -1,12 +1,12 @@
 % deletedbc
-% Deletes a community tagger database from a property file that contains 
-% database credentials 
+% Deletes a community tagger database from a property file that contains
+% database credentials
 %
 % Usage:
 %   >>  deletedbc(DbCreds)
 %
 % Description:
-% deletedbc(DbCreds) deletes a community tagger database. 
+% deletedbc(DbCreds) deletes a community tagger database.
 %
 % Function documentation:
 % Execute the following in the MATLAB command window to view the function
@@ -16,8 +16,8 @@
 %
 % See also: createdb, createdbc, deletedb
 %
-
-% Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013, krobbins@cs.utsa.edu
+% Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013,
+% krobbins@cs.utsa.edu
 %
 % This program is free software; you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@
 % $Revision: 1.00 15-Feb-2013 08:03:48 krobbins $
 % $Initial version $
 %
+
 function deletedbc(DbCreds)
 parser = inputParser;
 parser.addRequired('DbCreds', @(x) (~isempty(x) && ischar(x)));

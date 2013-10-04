@@ -19,7 +19,8 @@
 %
 % See also: tagcsv, tagcsv_input, pop_tagcsv
 %
-% Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013, krobbins@cs.utsa.edu
+% Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013,
+% krobbins@cs.utsa.edu
 %
 % This program is free software; you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -41,23 +42,25 @@
 %
 
 function values = splitcsv(filename)
-    fid = '';
-    try 
-        values = {};
-        fid = fopen(filename);
-        lineNum = 0;
+fid = '';
+try
+    values = {};
+    fid = fopen(filename);
+    lineNum = 0;
+    tline = fgetl(fid);
+    while ischar(tline)
+        lineNum = lineNum + 1;
+        values{lineNum} = strtrim(regexp(tline, ',', ...
+            'split')); %#ok<AGROW>
         tline = fgetl(fid);
-        while ischar(tline)   
-            lineNum = lineNum + 1;
-            values{lineNum} = strtrim(regexp(tline, ',', 'split')); %#ok<AGROW>
-            tline = fgetl(fid);
-        end   
-    catch ME %#ok<NASGU>
-        values = {};
-    end 
-    
-    try % Attempt to close the file regardless of errors
-        fclose(fid);
-    catch ME %#ok<NASGU>
     end
+catch ME %#ok<NASGU>
+    values = {};
+end
+
+try % Attempt to close the file regardless of errors
+    fclose(fid);
+catch ME %#ok<NASGU>
+end
+
 end % splitcsv

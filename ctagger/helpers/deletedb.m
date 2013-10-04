@@ -1,13 +1,13 @@
 % deletedb
 % Deletes a community tagger database from credentials passed in from the
-% user 
+% user
 %
 % Usage:
 %   >>  deletedb(dbname, hostname, port, username, password)
 %
 % Description:
-% deletedb(dbname, hostname, port, username, password) deletes a 
-% community tagger database. 
+% deletedb(dbname, hostname, port, username, password) deletes a
+% community tagger database.
 %
 % Function documentation:
 % Execute the following in the MATLAB command window to view the function
@@ -17,7 +17,8 @@
 %
 % See also: createdb, createdbc, deletedbc
 %
-% Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013, krobbins@cs.utsa.edu
+% Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013,
+% krobbins@cs.utsa.edu
 %
 % This program is free software; you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

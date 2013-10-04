@@ -1,4 +1,4 @@
-% tagMap 
+% tagMap
 % Object encapsulating the tags and value labels of one type
 %
 % Usage:
@@ -43,8 +43,8 @@
 %     tags
 %
 % Description of update options for addValue:
-%    'merge'         If the structure label is not a key of this map, add the
-%                    entire structure as is, including the description.
+%    'merge'         If the structure label is not a key of this map, add
+%                    the entire structure as is, including the description.
 %                    Otherwise, if the structure label is a
 %                    key for this map, then merge the tags with those
 %                    of the existing structure, using the PreservePrefix
@@ -77,7 +77,8 @@
 %
 % See also: findtags, tageeg, tagdir, tagstudy, dataTags
 %
-% Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013, krobbins@cs.utsa.edu
+% Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013,
+% krobbins@cs.utsa.edu
 %
 % This program is free software; you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -113,7 +114,8 @@ classdef tagMap < hgsetget
                 @(x) (~isempty(x) && ischar(x)));
             parser.parse(varargin{:})
             obj.Field = parser.Results.Field;
-            obj.TagMap = containers.Map('KeyType', 'char', 'ValueType', 'any');
+            obj.TagMap = containers.Map('KeyType', 'char', 'ValueType', ...
+                'any');
         end % tagMap constructor
         
         function addValue(obj, value, varargin)
@@ -141,7 +143,8 @@ classdef tagMap < hgsetget
             
             % Handle Replace
             if strcmpi(updateType, 'Replace')
-                value.tags = merge_taglists(value.tags, '', preservePrefix);
+                value.tags = merge_taglists(value.tags, '', ...
+                    preservePrefix);
                 obj.TagMap(key) = value;
                 return;
             end
@@ -154,7 +157,8 @@ classdef tagMap < hgsetget
             end
             oldValue.tags = merge_taglists(oldValue.tags, ...
                 value.tags, preservePrefix);
-            if strcmpi(updateType, 'Merge') && isempty(oldValue.description)
+            if strcmpi(updateType, 'Merge') && ...
+                    isempty(oldValue.description)
                 oldValue.description = value.description;
             end
             obj.TagMap(key) = oldValue;
@@ -194,7 +198,8 @@ classdef tagMap < hgsetget
         
         function thisStruct = getStruct(obj)
             % Return this object in structure form
-            thisStruct = struct('field', obj.Field, 'values', obj.getValueStruct());
+            thisStruct = struct('field', obj.Field, 'values', ...
+                obj.getValueStruct());
         end % getStruct
         
         function thisText = getText(obj)
@@ -217,7 +222,8 @@ classdef tagMap < hgsetget
         end % getValue
         
         function values = getValues(obj)
-            % Return the values of this tagMap as a cell array of structures
+            % Return the values of this tagMap as a cell array of
+            % structures
             values = obj.TagMap.values;
         end % getValues
         
@@ -280,7 +286,8 @@ classdef tagMap < hgsetget
                 end
             catch ME
                 if ~ischar(json)
-                    warning('json2mat:InvalidJSON', ['not string' ME.message]);
+                    warning('json2mat:InvalidJSON', ...
+                        ['not string' ME.message]);
                 else
                     warning('json2mat:InvalidJSON', ...
                         ['json:[%s] ' ME.message], json);
@@ -322,7 +329,8 @@ classdef tagMap < hgsetget
             else
                 tagString = ['"' tags{1} '"'];
                 for j = 2:length(value.tags)
-                    tagString = [tagString ',' '"' tags{j} '"']; %#ok<AGROW>
+                    tagString = ...
+                        [tagString ',' '"' tags{j} '"']; %#ok<AGROW>
                 end
             end
             tagString = ['[' tagString ']'];
@@ -354,25 +362,29 @@ classdef tagMap < hgsetget
             else
                 eText = tagMap.value2Json(values{1});
                 for k = 2:length(values)
-                    eText = [eText ',' tagMap.value2Json(values{k})]; %#ok<AGROW>
+                    eText = [eText ',' ...
+                        tagMap.value2Json(values{k})]; %#ok<AGROW>
                 end
             end
             eText = ['[' eText ']'];
         end % values2Json
         
         function eText = values2Text(values)
-            % Convert an value structure array or cell array to semi-colon separated string
+            % Convert an value structure array or cell array to semi-colon
+            % separated string
             if isempty(values)
                 eText = '';
             elseif isstruct(values)
                 eText = tagMap.value2Text(values(1));
                 for k = 2:length(values)
-                    eText = [eText ';' tagMap.value2Text(values(k))]; %#ok<AGROW>
+                    eText = [eText ';' ...
+                        tagMap.value2Text(values(k))]; %#ok<AGROW>
                 end
             elseif iscell(values)
                 eText = tagMap.value2Text(values{1});
                 for k = 2:length(values)
-                    eText = [eText ';' tagMap.value2Text(values{k})]; %#ok<AGROW>
+                    eText = [eText ';' ...
+                        tagMap.value2Text(values{k})]; %#ok<AGROW>
                 end
             end
         end % values2Text
@@ -398,7 +410,8 @@ classdef tagMap < hgsetget
         end % text2mat
         
         function theStruct = text2Value(eString)
-            % Parse a comma separated value string into its constituent pieces.
+            % Parse a comma separated value string into its constituent
+            % pieces.
             theStruct = struct('label', '', 'description', '', 'tags', '');
             if isempty(eString)
                 return;
@@ -420,7 +433,8 @@ classdef tagMap < hgsetget
         end %text2Value
         
         function eStruct = text2Values(values)
-            % Create an values structure array from a cell array of text values
+            % Create an values structure array from a cell array of text
+            % values
             if length(values) < 1
                 eStruct = '';
             else
@@ -436,9 +450,11 @@ classdef tagMap < hgsetget
         function valid = validateValue(value)
             % Validate that the structure corresponds to a value
             if ~isstruct(value) || ...
-                    sum(isfield(value, {'label', 'description', 'tags'})) ~= 3 || ...
+                    sum(isfield(value, {'label', 'description', ...
+                    'tags'})) ~= 3 || ...
                     ~ischar(value.label) || ...
-                    (~isempty(value.description)&& ~ischar(value.description)) || ...
+                    (~isempty(value.description)&& ...
+                    ~ischar(value.description)) || ...
                     (~isempty(value.tags) && ...
                     ~iscellstr(value.tags) && ~ischar(value.tags))
                 valid = false;
@@ -448,5 +464,6 @@ classdef tagMap < hgsetget
         end % validateValue
         
     end % static method
+    
 end % tagMap
 

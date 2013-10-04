@@ -22,7 +22,7 @@
 % .set files that were affected.
 %
 %
-% [fMap, fPaths, excluded] = tagstudy(studyFile, 'key1', 'value1', ...) 
+% [fMap, fPaths, excluded] = tagstudy(studyFile, 'key1', 'value1', ...)
 % specifies optional name/value parameter pairs:
 %   'BaseMap'        A fieldMap object or the name of a file that contains
 %                    a fieldMap object to be used for initial tag
@@ -214,4 +214,5 @@ end
         end
         fNames(~validPaths) = [];  % Get rid of invalid paths
     end % getstudyfiles
+
 end % tagstudy

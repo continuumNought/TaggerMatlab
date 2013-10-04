@@ -1,6 +1,6 @@
 % createdb
 % Creates a community tagger database from credentials passed in from the
-% user 
+% user
 %
 % Usage:
 %   >>  createdb(dbname, hostname, port, username, password)
@@ -8,7 +8,7 @@
 %       'value1', ...)
 %
 % Description:
-% createdb(dbname, hostname, port, username, password) creates a 
+% createdb(dbname, hostname, port, username, password) creates a
 % community tagger database. The newly created database is empty.
 %
 % createdb(dbname, hostname, port, username, password, 'key1', ...
@@ -16,7 +16,7 @@
 %
 %   'sqlFile'            The name of the .sql file used to create the
 %                        database
-% 
+%
 % Function documentation:
 % Execute the following in the MATLAB command window to view the function
 % documentation for createdb:
@@ -26,7 +26,8 @@
 % See also: createdbc, deletedb, deletedbc
 %
 %
-% Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013, krobbins@cs.utsa.edu
+% Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013,
+% krobbins@cs.utsa.edu
 %
 % This program is free software; you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

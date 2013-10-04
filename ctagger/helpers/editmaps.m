@@ -31,7 +31,8 @@
 %
 % See also: editmaps_db
 %
-% Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013, krobbins@cs.utsa.edu
+% Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013,
+% krobbins@cs.utsa.edu
 %
 % This program is free software; you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -68,7 +69,7 @@ for k = 1:length(fields)
 end
 
     function editmap(field)
-        % Proceed with tagging for field values and adjust fMap accordingly  
+        % Proceed with tagging for field values and adjust fMap accordingly
         tMap = fMap.getMap(field);
         if isempty(tMap)
             return;

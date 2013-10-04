@@ -16,7 +16,8 @@
 %
 % See also: tagdir, tagdir_input, pop_tagdir
 %
-% Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013, krobbins@cs.utsa.edu
+% Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013,
+% krobbins@cs.utsa.edu
 %
 % This program is free software; you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -46,7 +47,8 @@ while ~isempty(directories)
     fileNames = {files.name}';
     fileDirs = cell2mat({files.isdir}');
     compareIndex = ~strcmp(fileNames, '.') & ~strcmp(fileNames, '..');
-    subDirs = strcat([nextDir filesep], fileNames(compareIndex & fileDirs));
+    subDirs = strcat([nextDir filesep], ...
+        fileNames(compareIndex & fileDirs));
     fileNames = fileNames(compareIndex & ~fileDirs);
     if nargin > 1 && ~isempty(fileExt) && ~isempty(fileNames);
         fileNames = processExts(fileNames, fileExt);

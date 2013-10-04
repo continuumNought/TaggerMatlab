@@ -25,7 +25,8 @@
 %
 % See also: findtags, tagcsv, tageeg, tagdir, tagstudy, dataTags
 %
-% Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013, krobbins@cs.utsa.edu
+% Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013,
+% krobbins@cs.utsa.edu
 %
 % This program is free software; you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -63,7 +64,8 @@ classdef csvMap < hgsetget
         function obj = csvMap(filename, varargin)
             % Constructor parses parameters and sets up initial data
             parser = inputParser;
-            parser.addRequired('FileName', @(x) (~isempty(x) && ischar(x)));
+            parser.addRequired('FileName', @(x) (~isempty(x) && ...
+                ischar(x)));
             parser.addParamValue('Delimiter', '|', @(x) (ischar(x)));
             parser.addParamValue('DescriptionColumn', 0, ...
                 @(x)(isnumeric(x) && (isscalar(x) || isempty(x))));
@@ -121,8 +123,10 @@ classdef csvMap < hgsetget
             events = cell(length(obj.Values)-1, 1);
             for k = 2:length(obj.Values);
                 events{k-1} = struct('label', ...
-                    csvMap.getkey(obj.Values{k}, obj.EventColumns, obj.Delimiter), ...
-                    'description', csvMap.getval(obj.Values{k}, obj.DescriptionColumn), ...
+                    csvMap.getkey(obj.Values{k}, obj.EventColumns, ...
+                    obj.Delimiter), ...
+                    'description', csvMap.getval(obj.Values{k}, ...
+                    obj.DescriptionColumn), ...
                     'tags', csvMap.getval(obj.Values{k}, obj.TagsColumn));
             end
         end % getEvents
@@ -235,11 +239,12 @@ classdef csvMap < hgsetget
         end % writetags
         
         function rowKeys = getRowKeys(obj)
+            % Return a cell array that contains the keys of each row
             rowKeys = cell(length(obj.Values) - 1, 1);
             for k = 2:length(obj.Values)
                 rowKeys{k-1} = csvMap.getkey(obj.Values{k}, ...
                     obj.EventColumns, obj.Delimiter);
-            end            
+            end
         end % getRowKeys
         
     end % public methods

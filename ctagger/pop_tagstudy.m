@@ -38,7 +38,6 @@
 % You should have received a copy of the GNU General Public License
 % along with this program; if not, write to the Free Software
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
 % $Log: pop_ctagger.m,v $
 % Revision 1.0 21-Apr-2013 09:25:25  kay
 % Initial version
@@ -47,7 +46,8 @@
 function [fMap, com] = pop_tagstudy()
 % Create the tagger for this EEG study
 [studyFile, baseMap, dbCredsFile,  preservePrefix, ...
-rewriteOption, saveAll, saveMapFile, useGUI, cancelled] = tagstudy_input();
+    rewriteOption, saveAll, saveMapFile, useGUI, cancelled] = ...
+    tagstudy_input();
 if cancelled
     fMap = '';
     com = '';
@@ -58,7 +58,7 @@ fMap = tagstudy(studyFile,'BaseMap', baseMap, ...
     'PreservePrefix', preservePrefix, ...
     'RewriteOption', rewriteOption, ...
     'SaveMapFile', saveMapFile, ...
-    'SelectOption', selectOption, ...    
+    'SelectOption', selectOption, ...
     'UseGUI', useGUI);
 
 com = char(['tagstudy(''' studyFile ''', ' ...
@@ -78,4 +78,4 @@ if b
 else
     s = 'false';
 end
-end
+end % logical2str
