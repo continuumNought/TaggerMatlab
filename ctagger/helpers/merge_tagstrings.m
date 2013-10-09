@@ -2,8 +2,8 @@
 % Returns a merged cell array of tags
 %
 % Usage:
-%   >> mergedString = merge_tagstrings(string1, string2, preservePrefix)
-%
+%   >> mergedString = merge_tagstrings(string1, string2, preservePrefix)   
+%    
 % Description:
 % mergedString = merge_tagstrings(string1, string2, preservePrefix) returns
 % a merged cell array of tags
@@ -23,8 +23,7 @@
 %
 % See also: tageeg, tageeg_input, pop_tageeg
 %
-% Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013,
-% krobbins@cs.utsa.edu
+% Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013, krobbins@cs.utsa.edu
 %
 % This program is free software; you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

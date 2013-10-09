@@ -5,8 +5,8 @@
 %   >>  response = tagdlg(fieldname, fieldValues)
 %
 % Description:
-% response = tagdlg(fieldname, fieldValues) brings up a GUI that is a
-% helper for selectmaps
+% response = tagdlg(fieldname, fieldValues) brings up a GUI that is a 
+% helper for selectmaps 
 %
 % Function documentation:
 % Execute the following in the MATLAB command window to view the function

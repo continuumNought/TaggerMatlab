@@ -21,6 +21,7 @@
 % See also:
 %   eeglab, tageeg, tagdir, tagstudy, and eegplugin_ctagger
 %
+
 %
 % Copyright (C) 2012-2013 Thomas Rognon tcrognon@gmail.com and
 % Kay Robbins, UTSA, kay.robbins@utsa.edu
@@ -39,10 +40,12 @@
 % You should have received a copy of the GNU General Public License
 % along with this program; if not, write to the Free Software
 % Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
 % $Log: pop_tagdir.m,v $
 % Revision 1.0 21-Apr-2013 09:25:25  kay
 % Initial version
 %
+
 
 function [fMap, fPaths, com] = pop_tagdir()
 % Create the tagger for this EEG set
@@ -81,4 +84,4 @@ if b
 else
     s = 'false';
 end
-end % logical2str
+end

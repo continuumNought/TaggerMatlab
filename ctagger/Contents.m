@@ -1,5 +1,5 @@
 % Community event tagger
-% Version 1.0 (beta)
+% Version 1.1 (beta)
 %
 % The Community Event Tagger is a GUI for supporting user assignment of
 % tags
@@ -29,8 +29,6 @@
 %   findtags          - Creates a fieldMap object for the existing tags in
 %                       a data structure
 %   getfilelist       - Gets a list of the files in a directory tree
-%   gettags           - Creates a fieldMap object for the existing tags in
-%                       a data structure
 %   getutypes         - Returns a cell array with the unique values in the
 %                       type field of estruct
 %   hedManager        - utility provided by Nima Bidely Shamlo UCSD for

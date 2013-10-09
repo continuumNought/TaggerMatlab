@@ -7,7 +7,7 @@
 % sample EEGLAB study which can be found at:
 %    ftp://sccn.ucsd.edu/pub/5subjects_full.zip
 %
-values.testroot = 'C:\Users\jcockfie\Desktop\CTAGGER';
+values.testroot = 'path\to\CtaggerTestArchive\';
 values.studydir = '5subjects';
 values.studyname = 'n400clustedit.study';
 values.shooterdir = 'ShooterSet';

@@ -89,7 +89,7 @@ thisDir = [values.testroot filesep values.BCI2000dir];
 fields1 = fMap1.getFields();
 assertEqual(length(fields1), 1);
 type1 = fMap1.getValues('type');
-assertEqual(length(type1), 11);
+assertEqual(length(type1), 17);
 assertEqual(length(fPaths1), 42);
 
 
@@ -106,6 +106,6 @@ fprintf('PRESS the TAG BUTTON EXCEPT EXCLUDE THE TRIAL\n');
 fields1 = fMap1.getFields();
 assertEqual(length(fields1), 9);
 type1 = fMap1.getValues('type');
-assertEqual(length(type1), 22);
+assertEqual(length(type1), 23);
 assertEqual(length(fPaths1), 16);
 

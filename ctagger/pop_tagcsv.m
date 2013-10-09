@@ -8,6 +8,15 @@
 %    fMap   - a fieldMap object that contains the tag map information
 %    com    - string containing call to tagstudy with all parameters
 %
+% Notes:
+%  -  pop_tagstudy() is meant to be used as the callback under the
+%     EEGLAB Study menu. It is a singleton and clicking
+%     the menu item again will not create a new window if one already
+%     exists.
+%  -  The function first brings up a GUI to enter the parameters to
+%     override the default values for tagstudy and then optionally allows
+%     the user to use the ctagger GUI to modify the tags.
+%
 % See also:
 %   eeglab, tageeg, tagdir, and eegplugin_ctagger
 %

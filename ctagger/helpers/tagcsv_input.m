@@ -5,7 +5,7 @@
 %   >>  tagcsv_input()
 %
 % Description:
-% tagcsv_input() brings up a GUI for input needed to create inputs for
+% tagcsv_input() brings up a GUI for input needed to create inputs for 
 % tagcsv
 %
 % Function documentation:
@@ -177,18 +177,15 @@ uiwait(inputFig);
             'Browse for base tags'});
         uicontrol('Parent', fBox, ...
             'string', 'Browse', 'style', 'pushbutton', ...
-            'TooltipString', ...
-            'Press to find directory to save tags object', ...
+            'TooltipString', 'Press to find directory to save tags object', ...
             'Callback', {@browseSaveTagsCallback, saveTagsCtrl, ...
             'Browse for base tags'});
         uicontrol('Parent', fBox, ...
             'string', 'Browse', 'style', 'pushbutton', ...
-            'TooltipString', ...
-            'Press to find your local database credentials file', ...
+            'TooltipString', 'Press to find your local database credentials file', ...
             'Callback', {@browseDbCredsCallback, dbCredsCtrl, ...
             'Browse for base tags'});
-        set(fBox, 'ColumnSizes', [80, -1, 100], 'RowSizes', ...
-            [30, 30, 30, 30, 30]);
+        set(fBox, 'ColumnSizes', [80, -1, 100], 'RowSizes', [30, 30, 30, 30, 30]);
     end % createBrowsePanel
 
     function createColumnGroup(parent)
@@ -233,8 +230,7 @@ uiwait(inputFig);
             'TooltipString', ...
             'Description column', ...
             'Callback', {@descriptionCtrlCallback});
-        set(bBox, 'ColumnSizes', [60, -1, 10], 'RowSizes', ...
-            [30, 30, 30, 30]);
+        set(bBox, 'ColumnSizes', [60, -1, 10], 'RowSizes', [30, 30, 30, 30]);
     end % createColumnGroup
 
     function createOptionsGroup(parent)
@@ -246,31 +242,27 @@ uiwait(inputFig);
         %{'Merge', 'Replace', 'TagsOnly', 'Update'})
         u1 = uicontrol('Parent', bBox, ...
             'Style', 'CheckBox', 'Tag', 'UseGUICB', ...
-            'String', 'Use GUI to edit tags', 'Enable', 'on', ...
-            'Tooltip', ...
+            'String', 'Use GUI to edit tags', 'Enable', 'on', 'Tooltip', ...
             'Use cTagger GUI to edit consolidated tags', ...
             'Callback', @useGUICallback);
         set(u1, 'Value', get(u1, 'Max'));
         u2 = uicontrol('Parent', bBox, ...
             'Style', 'CheckBox', 'Tag', 'PreservePrefixfieldCB', ...
-            'String', 'Preserve tag prefixes', 'Enable', 'on', ...
-            'Tooltip', ...
+            'String', 'Preserve tag prefixes', 'Enable', 'on', 'Tooltip', ...
             'Do not consolidate tags that share prefixes', ...
             'Callback', @preservePrefixCallback);
         set(u2, 'Value', get(u2, 'Min'));
         set(bBox, 'ColumnSizes', 200, 'RowSizes', [30, 30, 30, 30, 30]);
     end % createOptionsGroup
 
-    function browseDbCredsCallback(src, eventdata, dbCredsCtrl, ...
-            myTitle) %#ok<INUSL>
+    function browseDbCredsCallback(src, eventdata, dbCredsCtrl, myTitle) %#ok<INUSL>
         % Callback for browse button sets a directory for control
         [tFile, tPath] = uigetfile({'*.*', 'All files (*.*)'}, myTitle);
         dbCredsFile = fullfile(tPath, tFile);
         set(dbCredsCtrl, 'String', fullfile(tPath, tFile));
     end % browseDbCredsCtrlCallback
 
-    function browseSaveTagsCallback(src, eventdata, saveTagsCtrl, ...
-            myTitle) %#ok<INUSL>
+    function browseSaveTagsCallback(src, eventdata, saveTagsCtrl, myTitle) %#ok<INUSL>
         % Callback for browse button sets a directory for control
         startPath = get(saveTagsCtrl, 'String');
         if isempty(startPath) || ~ischar(startPath) || ~isdir(startPath)
@@ -283,8 +275,7 @@ uiwait(inputFig);
         end
     end % browseSaveTagsCallback
 
-    function browseSaveCsvCallback(src, eventdata, saveEventDataCtrl, ...
-            myTitle) %#ok<INUSL>
+    function browseSaveCsvCallback(src, eventdata, saveEventDataCtrl, myTitle) %#ok<INUSL>
         % Callback for browse button sets a directory for control
         startPath = get(saveEventDataCtrl, 'String');
         if isempty(startPath) || ~ischar(startPath) || ~isdir(startPath)
@@ -297,8 +288,7 @@ uiwait(inputFig);
         end
     end % browseSaveCsvCallback
 
-    function browseEventTypeCallback(src, eventdata, eventTypeCtrl, ...
-            myTitle) %#ok<INUSL>
+    function browseEventTypeCallback(src, eventdata, eventTypeCtrl, myTitle) %#ok<INUSL>
         % Callback for browse button sets a directory for control
         [fName, fPath] = uigetfile({'*.csv', 'CSV Files'}, myTitle);
         fName = fullfile(fPath, fName);
@@ -308,11 +298,9 @@ uiwait(inputFig);
         end
     end % browseEventTypeCallback
 
-    function browseTagsCallback(src, eventdata, tagsCtrl, ...
-            myTitle) %#ok<INUSL>
+    function browseTagsCallback(src, eventdata, tagsCtrl, myTitle) %#ok<INUSL>
         % Callback for browse button sets a directory for control
-        [tFile, tPath] = uigetfile({'*.mat', 'MATLAB Files (*.mat)'}, ...
-            myTitle);
+        [tFile, tPath] = uigetfile({'*.mat', 'MATLAB Files (*.mat)'}, myTitle);
         baseMap = fullfile(tPath, tFile);
         set(tagsCtrl, 'String', baseMap);
     end % browseEventDataCallback
@@ -349,14 +337,12 @@ uiwait(inputFig);
         preservePrefix = get(src, 'Max') == get(src, 'Value');
     end % preservePrefixCallback
 
-    function saveTagsCtrlCallback(hObject, eventdata, ...
-            saveTagsCtrl) %#ok<INUSD>
+    function saveTagsCtrlCallback(hObject, eventdata, saveTagsCtrl) %#ok<INUSD>
         % Callback for user directly editing directory control textbox
         saveMapFile = get(hObject, 'String');
     end % tagsCtrlCallback
 
-    function saveEventDataCtrlCallback(hObject, eventdata, ...
-            saveEventDataCtrl) %#ok<INUSD>
+    function saveEventDataCtrlCallback(hObject, eventdata, saveEventDataCtrl) %#ok<INUSD>
         % Callback for user directly editing directory control textbox
         rewriteFile = get(hObject, 'String');
     end % tagsCtrlCallback

@@ -1,14 +1,14 @@
 % createdbc
-% Creates a community tagger database from a property file that contains
-% database credentials
+% Creates a community tagger database from a property file that contains 
+% database credentials 
 %
 % Usage:
 %   >>  createdbc(DbCreds)
 %   >>  createdbc(DbCreds, 'key1', 'value1', ...)
 %
 % Description:
-% createdbc(DbCreds) creates a community tagger database from a
-% property file containing the database credentials. The newly created
+% createdbc(DbCreds) creates a community tagger database from a 
+% property file containing the database credentials. The newly created 
 % database is empty.
 %
 % createdbc(DbCreds, 'key1', 'value1') where the key-value pair
@@ -16,7 +16,7 @@
 %
 %   'sqlFile'            The name of the .sql file used to create the
 %                        database
-%
+% 
 % Function documentation:
 % Execute the following in the MATLAB command window to view the function
 % documentation for createdbc:
@@ -25,8 +25,7 @@
 %
 % See also: createdb, deletedb, deletedbc
 %
-% Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013,
-% krobbins@cs.utsa.edu
+% Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013, krobbins@cs.utsa.edu
 %
 % This program is free software; you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -56,3 +55,4 @@ p = parser.Results;
 edu.utsa.tagger.database.ManageDB.createDatabase(p.DbCreds, ...
     which(p.SqlFile));
 end
+

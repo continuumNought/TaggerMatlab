@@ -9,7 +9,7 @@
 % fMap = findtags(edata) extracts a fieldMap object representing the
 % events and their tags for the structure.
 %
-% tMap = findtags(edata, 'key1', 'value1', ...) specifies optional
+% tMap = findtags(edata, 'key1', 'value1', ...) specifies optional 
 % name/value parameter pairs:
 %
 %   'ExcludeFields'  A cell array containing the field names to exclude
@@ -23,7 +23,7 @@
 % Notes:
 %   The edata structure should have its events encoded as a structure
 %   array edata.events. The findtags will also examinate a edata.urevents
-%   structure array if it exists.
+%   structure array if it exists. 
 %
 %   Tags are assumed to be stored in the edata.etc structure as follows:
 %
@@ -39,8 +39,7 @@
 %
 % See also: fMap
 %
-% Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013,
-% krobbins@cs.utsa.edu
+% Copyright (C) Kay Robbins and Thomas Rognon, UTSA, 2011-2013, krobbins@cs.utsa.edu
 %
 % This program is free software; you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -62,72 +61,72 @@
 %
 
 function fMap = findtags(edata, varargin)
-% Parse the input arguments
-parser = inputParser;
-parser.addRequired('edata', @(x) (isempty(x) || isstruct(x)));
-parser.addParamValue('ExcludeFields', ...
-    {'latency', 'epoch', 'urevent', 'hedtags', 'usertags'}, ...
-    @(x) (iscellstr(x)));
-parser.addParamValue('Fields', {}, @(x) (iscellstr(x)));
-parser.addParamValue('PreservePrefix', false, ...
-    @(x) validateattributes(x, {'logical'}, {}));
-parser.parse(edata, varargin{:});
-p = parser.Results;
-edata = p.edata;
-
-% If edata.etc.tags exists, then extract tag information
-xml = '';
-tFields = {};
-if isfield(edata, 'etc') && isstruct(edata.etc) && ...
-        isfield(edata.etc, 'tags') && isstruct(edata.etc.tags)
-    if isfield(edata.etc.tags, 'xml')
-        xml = edata.etc.tags.xml;
+    % Parse the input arguments
+    parser = inputParser;
+    parser.addRequired('edata', @(x) (isempty(x) || isstruct(x)));
+    parser.addParamValue('ExcludeFields', ...
+            {'latency', 'epoch', 'urevent', 'hedtags', 'usertags'}, ...
+         @(x) (iscellstr(x)));
+    parser.addParamValue('Fields', {}, @(x) (iscellstr(x)));
+    parser.addParamValue('PreservePrefix', false, ...
+        @(x) validateattributes(x, {'logical'}, {}));
+    parser.parse(edata, varargin{:});
+    p = parser.Results;  
+    edata = p.edata;
+  
+    % If edata.etc.tags exists, then extract tag information
+    xml = '';
+    tFields = {};
+    if isfield(edata, 'etc') && isstruct(edata.etc) && ...
+            isfield(edata.etc, 'tags') && isstruct(edata.etc.tags)
+      if isfield(edata.etc.tags, 'xml')
+           xml = edata.etc.tags.xml;
+      end
+      if isfield(edata.etc.tags, 'map') && isstruct(edata.etc.tags.map) ...
+              && isfield(edata.etc.tags.map, 'field')
+         tFields = {edata.etc.tags.map.field};
+      end
     end
-    if isfield(edata.etc.tags, 'map') && isstruct(edata.etc.tags.map) ...
-            && isfield(edata.etc.tags.map, 'field')
-        tFields = {edata.etc.tags.map.field};
+    fMap = fieldMap('XML', xml, 'PreservePrefix', p.PreservePrefix);
+    if ~isempty(p.Fields)
+        tFields = intersect(p.Fields, tFields);
     end
-end
-fMap = fieldMap('XML', xml, 'PreservePrefix', p.PreservePrefix);
-if ~isempty(p.Fields)
-    tFields = intersect(p.Fields, tFields);
-end
-
-
-for k = 1:length(tFields)
-    thisField = edata.etc.tags.map(k).field;
-    if sum(strcmpi(thisField, tFields) == 1)
-        fMap.addValues(thisField, edata.etc.tags.map(k).values);
+   
+    
+    for k = 1:length(tFields)
+        thisField = edata.etc.tags.map(k).field;
+        if sum(strcmpi(thisField, tFields) == 1)
+           fMap.addValues(thisField, edata.etc.tags.map(k).values);
+        end
     end
-end
-
-efields = {};
-if isfield(edata, 'event') && isstruct(edata.event)
-    efields = fieldnames(edata.event);
-end
-if isfield(edata, 'urevent') && isstruct(edata.urevent)
-    efields = union(efields, fieldnames(edata.urevent));
-end
-
-efields = setdiff(efields, p.ExcludeFields);
-if ~isempty(p.Fields)
-    efields = intersect(p.Fields, efields);
-end
-
-for k = 1:length(efields)
-    tValues = getutypes(edata.event, efields{k});
-    if isfield(edata, 'urevent')
-        tValues = union(tValues, getutypes(edata.urevent, efields{k}));
+    
+    efields = {};
+    if isfield(edata, 'event') && isstruct(edata.event)
+       efields = fieldnames(edata.event);
     end
-    if isempty(tValues)
-        continue
+    if isfield(edata, 'urevent') && isstruct(edata.urevent)
+        efields = union(efields, fieldnames(edata.urevent)); 
     end
-    valueForm = struct('label', '', 'description', '', 'tags', '');
-    valueForm(length(tValues)) = ...
-        struct('label', '', 'description', '', 'tags', '');
-    for j = 1:length(tValues)
-        valueForm(j).label = num2str(tValues{j});
+    
+    efields = setdiff(efields, p.ExcludeFields);
+    if ~isempty(p.Fields)
+        efields = intersect(p.Fields, efields);
     end
-    fMap.addValues(efields{k}, valueForm);
-end
+   
+    for k = 1:length(efields)
+        tValues = getutypes(edata.event, efields{k});
+        if isfield(edata, 'urevent') 
+            tValues = union(tValues, getutypes(edata.urevent, efields{k}));
+        end
+        if isempty(tValues)
+            continue
+        end
+        valueForm = struct('label', '', 'description', '', 'tags', '');
+        valueForm(length(tValues)) = ...
+            struct('label', '', 'description', '', 'tags', ''); 
+        for j = 1:length(tValues)
+           valueForm(j).label = num2str(tValues{j}); 
+        end
+        fMap.addValues(efields{k}, valueForm);
+    end
 end %findtags
