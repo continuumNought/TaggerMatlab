@@ -121,8 +121,9 @@ function eData = writetags(eData, fMap, varargin)
             || strcmpi(p.RewriteOption, 'Individual'))
         for k = 1:length(eData.event)
             utags = {};
-            for j = 1:length(eFields)
-                tags = fMap.getTags(eFields{j}, eData.event(k).(eFields{j}));
+            for j = 1:length(eFields)                
+                tags = fMap.getTags(eFields{j}, ...
+                    num2str(eData.event(k).(eFields{j})));
                 utags = merge_taglists(utags, tags, p.PreservePrefix);
             end
             if isempty(utags)
