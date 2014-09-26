@@ -68,7 +68,7 @@ for k = 1:length(fields)
 end
 
     function editmap(field)
-        % Proceed with tagging for field values and adjust fMap accordingly  
+        % Proceed with tagging for field values and adjust fMap accordingly
         tMap = fMap.getMap(field);
         if isempty(tMap)
             return;
@@ -77,20 +77,26 @@ end
         xml = fMap.getXml();
         eTitle = ['Tagging ' field ' values'];
         if syncThis
-            taggedList = edu.utsa.tagger.Controller.showDialog( ...
-                xml, tValues, true, 0, char(eTitle), 3);
+            %             taggedList = edu.utsa.tagger.Controller.showDialog( ...
+            %                 xml, tValues, true, 0, char(eTitle), 3);
+            taggedList = edu.utsa.tagger.Loader.load(xml, tValues, true, 0, eTitle, 3);
             xml = char(taggedList(1, :));
             tValues = strtrim(char(taggedList(2, :)));
         else
-            javaMethodEDT('createController', ...
-                'edu.utsa.tagger.Controller', xml, tValues, true, 0, ...
-                eTitle, 3);
-            notified = edu.utsa.tagger.Controller.get().getNotified();
+            %             javaMethodEDT('createController', ...
+            %                 'edu.utsa.tagger.Controller', xml, tValues, true, 0, ...
+            %                 eTitle, 3);
+            loader = ...
+                edu.utsa.tagger.Loader(xml, tValues, true, 0, eTitle, 3);
+            %             notified = edu.utsa.tagger.Controller.get().getNotified();
+            notified = loader.isNotified();
             while (~notified)
                 pause(0.5);
-                notified = edu.utsa.tagger.Controller.get().getNotified();
+                %                 notified = edu.utsa.tagger.Controller.get().getNotified();
+                notified = loader.isNotified();
             end
-            taggedList = edu.utsa.tagger.Controller.getReturnString(true);
+            %             taggedList = edu.utsa.tagger.Controller.getReturnString(true);
+            taggedList = edu.utsa.tagger.Loader.load(xml, tValues, true, 0, eTitle, 3);
             if ~isempty(taggedList)
                 xml = char(taggedList(1, :));
                 tValues = strtrim(char(taggedList(2, :)));

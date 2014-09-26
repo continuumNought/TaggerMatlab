@@ -325,7 +325,7 @@ classdef tagMap < hgsetget
                     tagString = [tagString ',' '"' tags{j} '"']; %#ok<AGROW>
                 end
             end
-            tagString = ['[' tagString ']'];
+            tagString = ['[[' tagString ']]'];
             eJson = ['{"label":"' value.label ...
                 '","description":"' value.description '","tags":' ...
                 tagString '}'];
