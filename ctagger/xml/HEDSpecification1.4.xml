@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <HED version="1.4">
-	<node default="true">
+	<node>
 		<name>Time-Locked Event</name>
 		<node>
 			<name>Stimulus</name>
@@ -37,7 +37,7 @@
 						<name>Cross</name>
 						<description>By default a vertical-horizontal cross, for rotated add /rotated/ tag</description>
 					</node>
-					<node extensionAllowed="true">
+					<node>
 						<name>Rotated</name>
 						<node>
 							<name>#</name>
@@ -377,7 +377,7 @@
 					<node>
 						<name>Random Dot</name>
 					</node>
-					<node extensionAllowed="true">
+					<node>
 						<name>Language</name>
 						<node>
 							<name>Asian</name>
@@ -575,7 +575,7 @@
 			
 			<node>
 				<name>Auditory</name>
-				<node extensionAllowed="true">
+				<node>
 					<name>Reward</name>
 					<description>e.g., trumpets!</description>
 					<node>
@@ -585,7 +585,7 @@
 						<name>Ding</name>
 					</node>
 				</node>
-				<node extensionAllowed="true">
+				<node>
 					<name>Warning</name>
 					<node>
 						<name>Fire Alarm</name>
@@ -628,7 +628,7 @@
 				<node>
 					<name>Syllable</name>
 				</node>
-				<node extensionAllowed="true">
+				<node>
 					<name>Tone</name>
 					<node>
 						<name>#</name>
@@ -647,7 +647,7 @@
 				<node>
 					<name>Nonvocal Sound</name>
 				</node>
-				<node extensionAllowed="true">
+				<node>
 					<name>Language</name>
 					<node>
 						<name>Word</name>
@@ -702,7 +702,7 @@
 				<node>
 					<name>Emotional sounds</name>
 				</node>
-				<node extensionAllowed="true">
+				<node>
 					<name>File</name>
 						<node> 
 						<name>add file name</name>
@@ -861,7 +861,7 @@
 					<name>On Reaction Time</name>
 					<description>Feedback was provided by evaluating their reaction time</description>
 				</node>
-				<node default="true">
+				<node>
 					<name>To Self</name>
 				</node>
 				<node>
@@ -1072,14 +1072,14 @@
 					</node>
 				</node>
 			</node>
-			<node default="true">
+			<node>
 				<name>Supraliminal</name>
 			</node>
 			<node>
 				<name>Liminal</name>
 				<description>At the 75%/25% perception threshold</description>
 			</node>
-			<node default="true">
+			<node>
 				<name>Onset</name>
 			</node>
 			<node>
@@ -1554,7 +1554,7 @@
 			<description>subject may swap their roles during the experiment but still need to be each identified by a unique ID, which may or may not be numeric. For example all stimuli presented to a particular participant is tagged as: Participant/ID/Player 1</description>
 		</node>
 	</node>
-	<node extensionAllowed="true">
+	<node>
 		<name>Context</name>
 		<description>Describes the context of the whole experiment, also includes tags that are common across all events. Add common tags across all stimuli/ and/or responses here, e.g if all experiment events share /State/Drowsy, you can place it here instead of tagging each event individually</description>
 		<node>
@@ -1590,7 +1590,7 @@
 				</node>
 			</node>
 		</node>
-		<node default="true">
+		<node>
 			<name>Indoors</name>
 			<node>
 				<name>Clinic</name>
@@ -1720,11 +1720,11 @@
 		</node>
 	</node>
 	
-	<node extensionAllowed="true">
+	<node>
 		<name>Custom</name>
 		<description>This node can be used to organize events in an alternative (parallel) hierarchy: you can define your custom tags and hierarchies without any restriction under this node. These tags will still be matched to each other, for example /Custom/Dance/Waltz is considered a subtype of /Custom/Dance.</description>
 	</node>
-	<node extensionAllowed="true">
+	<node>
 		<name>Paradigm</name>
 		<node>
 			<name>	Action imitation task</name>
